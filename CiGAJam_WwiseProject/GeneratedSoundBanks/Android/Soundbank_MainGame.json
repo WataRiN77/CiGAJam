@@ -10,7 +10,7 @@
     "Type": "User",
     "GUID": "{45564D5C-69C2-4A44-B71D-472313392E83}",
     "Language": "SFX",
-    "Hash": "{92721D29-3748-0EC6-B276-BB1B57078D72}",
+    "Hash": "{48331B54-0D31-54F3-69F8-9A22171F87DE}",
     "ObjectPath": "\\SoundBanks\\Default Work Unit\\Soundbank_MainGame",
     "ShortName": "Soundbank_MainGame",
     "Path": "Soundbank_MainGame.bnk",
@@ -48,6 +48,14 @@
       "CachePath": "D5/{D5795B9C-C6E6-6BD7-BC9F-9919CC5CEADD}.wem"
      },
      {
+      "Id": "586666542",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "SFX_Typing.wav",
+      "CachePath": "72/{727F6CF2-0514-C537-F26E-E9EF356B4525}.wem"
+     },
+     {
       "Id": "673553211",
       "Language": "SFX",
       "Streaming": "false",
@@ -56,12 +64,28 @@
       "CachePath": "C9/{C99286CF-B066-BECC-BD29-7171FD49895E}.wem"
      },
      {
+      "Id": "729456618",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "Transition_TV_Out.wav",
+      "CachePath": "16/{165672D5-A0CF-F4C8-143E-658F4EDE90DC}.wem"
+     },
+     {
       "Id": "733063890",
       "Language": "SFX",
       "Streaming": "false",
       "Location": "Memory",
       "ShortName": "SFX_Riser_Noise.wav",
       "CachePath": "96/{96B50628-D87D-504E-1C06-79F2526BCE24}.wem"
+     },
+     {
+      "Id": "744552997",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "Transition_TV_In.wav",
+      "CachePath": "F0/{F0559C60-FC8A-F2CC-2C72-3D20C022E16F}.wem"
      },
      {
       "Id": "829574094",
@@ -192,10 +216,60 @@
         "Id": "101064397"
        }
       ]
+     },
+     {
+      "Id": "4190357639",
+      "Name": "Play_SFX_Typing",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\Play_SFX_Typing",
+      "GUID": "{357BA808-ECBC-400E-BB9A-40C665743E7A}",
+      "DurationType": "Infinite",
+      "MediaRefs": [
+       {
+        "Id": "586666542"
+       }
+      ]
+     },
+     {
+      "Id": "2592472717",
+      "Name": "Play_Transition_TV_Out",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\Play_Transition_TV_Out",
+      "GUID": "{1F78ACDF-14D9-4EC3-9F9A-96538FADE8A5}",
+      "DurationType": "OneShot",
+      "DurationMin": "1.5333333",
+      "DurationMax": "1.5333333",
+      "MediaRefs": [
+       {
+        "Id": "729456618"
+       }
+      ]
+     },
+     {
+      "Id": "2394659421",
+      "Name": "Play_Transiton_TV_In",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\Play_Transiton_TV_In",
+      "GUID": "{7683A7E2-A232-4161-B48A-BF2F759E0217}",
+      "DurationType": "OneShot",
+      "DurationMin": "1.4666667",
+      "DurationMax": "1.4666667",
+      "MediaRefs": [
+       {
+        "Id": "744552997"
+       }
+      ]
+     },
+     {
+      "Id": "329552409",
+      "Name": "Stop_SFX_Typing",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\Stop_SFX_Typing",
+      "GUID": "{645D5EB4-06F4-4A70-82B6-879FD9FAA206}",
+      "MaxAttenuation": "0",
+      "DurationType": "OneShot",
+      "DurationMin": "0",
+      "DurationMax": "0"
      }
     ]
    }
   ],
-  "FileHash": "{BE05492B-44A6-A0D8-052D-9A92042D7F67}"
+  "FileHash": "{73FDCA84-36A4-5908-5851-2620ABE6EEE8}"
  }
 }
