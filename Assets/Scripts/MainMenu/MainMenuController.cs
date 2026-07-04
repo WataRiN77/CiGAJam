@@ -13,9 +13,9 @@ public class MainMenuController : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject lobbyCanvas;         // 联机选择页面 Canvas
     [SerializeField] private GameObject settingsCanvas;      // 设置页面 Canvas
 
-    [Header("设置页面动画配置 (🌟 新增)")]
+    [Header("设置页面动画配置")]
     [SerializeField] private RectTransform rectSettingsPanel; // 设置面板主体的 RectTransform (Canvas 的子物体)
-    [SerializeField] private Image settingsMask;             // 🌟 新增：设置面板背后的黑色遮罩 Image
+    [SerializeField] private Image settingsMask;             // 设置面板背后的黑色遮罩 Image
     [SerializeField] private float settingsSlideDuration = 0.4f; // 滑动时间
     [SerializeField] private float settingsOffScreenY = 1200f; // 初始在屏幕下方多远 (比如 1200 像素)
 
@@ -51,7 +51,7 @@ public class MainMenuController : MonoBehaviourPunCallbacks
     private Coroutine breatheCoroutine;
     private Coroutine settingsSlideCoroutine; // 控制设置面板滑动的协程
 
-    public static MainMenuController Instance { get; private set; } // 🌟 新增单例，方便跨物体调用
+    public static MainMenuController Instance { get; private set; } // 新增单例，方便跨物体调用
 
     private void Awake()
     {
@@ -60,6 +60,9 @@ public class MainMenuController : MonoBehaviourPunCallbacks
 
     private void Start()
     {
+        // 🌟 核心融合（来自 PhotonLobby）：游戏一启动，就在后台悄悄连接 Photon 亚洲 Master 服务器！
+        PhotonNetwork.ConnectUsingSettings();
+
         // 确保 Photon 自动同步场景关闭（因为两边去不同的场景，不使用同步加载）
         PhotonNetwork.AutomaticallySyncScene = false;
 
@@ -108,9 +111,15 @@ public class MainMenuController : MonoBehaviourPunCallbacks
         }
     }
 
+    // 🌟 监听连接到 Photon 服务器的回调
+    public override void OnConnectedToMaster()
+    {
+        Debug.Log("[Photon] 成功连接至中国/亚洲 Master 服务器！现在可以正常联机了。");
+    }
+
     private void Update()
     {
-        // 🌟 监听任意键按下
+        // 监听任意键按下
         if (!hasGameStarted && Input.anyKeyDown)
         {
             StartIntroSequence();
@@ -149,7 +158,7 @@ public class MainMenuController : MonoBehaviourPunCallbacks
     }
 
     // ==========================================
-    // 🌟 供背景动画最后一帧的 Event 调用的公开方法
+    // 供背景动画最后一帧的 Event 调用的公开方法
     // ==========================================
     public void ActivateMenuButtons()
     {
@@ -247,7 +256,7 @@ public class MainMenuController : MonoBehaviourPunCallbacks
         StartCoroutine(TransitionToLobby());
     }
 
-    // 🌟 打开设置（向上滑入 + 遮罩0到215渐显）
+    // 打开设置
     public void OnClickSettings()
     {
         settingsCanvas.SetActive(true);
@@ -255,22 +264,20 @@ public class MainMenuController : MonoBehaviourPunCallbacks
         settingsSlideCoroutine = StartCoroutine(SlideSettingsPanel(true));
     }
 
-    // 🌟 关闭设置（向下滑出 + 遮罩215到0渐隐）
+    // 关闭设置
     public void OnClickCloseSettings()
     {
         if (settingsSlideCoroutine != null) StopCoroutine(settingsSlideCoroutine);
         settingsSlideCoroutine = StartCoroutine(SlideSettingsPanel(false));
     }
 
-    // 🌟 核心修改：设置面板滑动与黑色遮罩渐变联动协程
+    // 设置面板滑动与黑色遮罩渐变行动
     private IEnumerator SlideSettingsPanel(bool isOpening)
     {
-        // 1. 位移起点与终点
         Vector2 startPos = isOpening ? new Vector2(activePosSettings.x, activePosSettings.y - settingsOffScreenY) : activePosSettings;
         Vector2 endPos = isOpening ? activePosSettings : new Vector2(activePosSettings.x, activePosSettings.y - settingsOffScreenY);
 
-        // 2. 遮罩透明度起点与终点（将 0-255 转化为 Unity 0.0 - 1.0 的范围）
-        float maxAlpha = 215f / 255f; // 对应 215 透明度，约为 0.843
+        float maxAlpha = 215f / 255f;
         float startAlpha = isOpening ? 0f : maxAlpha;
         float endAlpha = isOpening ? maxAlpha : 0f;
 
@@ -287,13 +294,9 @@ public class MainMenuController : MonoBehaviourPunCallbacks
             elapsed += Time.deltaTime;
             float t = elapsed / settingsSlideDuration;
 
-            // 使用 SmoothStep 提供物理弹性减速质感
             float smoothT = Mathf.SmoothStep(0f, 1f, t);
-
-            // A. 位移差值
             rectSettingsPanel.anchoredPosition = Vector2.Lerp(startPos, endPos, smoothT);
 
-            // B. 遮罩透明度差值
             if (settingsMask != null)
             {
                 float curAlpha = Mathf.Lerp(startAlpha, endAlpha, smoothT);
@@ -309,7 +312,6 @@ public class MainMenuController : MonoBehaviourPunCallbacks
             settingsMask.color = new Color(settingsMask.color.r, settingsMask.color.g, settingsMask.color.b, endAlpha);
         }
 
-        // 如果是关闭动作，播放完滑出动画后，彻底禁用 Canvas 节省显卡渲染
         if (!isOpening)
         {
             settingsCanvas.SetActive(false);
@@ -334,7 +336,6 @@ public class MainMenuController : MonoBehaviourPunCallbacks
     // ==========================================
     private IEnumerator TransitionToLobby()
     {
-        // 初始状态：按钮在屏幕外，遮罩完全透明
         bgMask.color = new Color(0, 0, 0, 0);
         rectButtonA.anchoredPosition = new Vector2(activePosA.x - offScreenOffset, activePosA.y);
         rectButtonB.anchoredPosition = new Vector2(activePosB.x + offScreenOffset, activePosB.y);
@@ -346,10 +347,8 @@ public class MainMenuController : MonoBehaviourPunCallbacks
             float t = elapsed / slideDuration;
             float tMask = elapsed / maskFadeDuration;
 
-            // 1. 遮罩渐变 (透明 -> 0.6f 不透明)
             bgMask.color = new Color(0, 0, 0, Mathf.Min(0.6f, tMask * 0.6f));
 
-            // 2. 按钮平滑滑入 (使用 SmoothStep 让滑动有缓冲感)
             float smoothT = Mathf.SmoothStep(0f, 1f, t);
             rectButtonA.anchoredPosition = Vector2.Lerp(new Vector2(activePosA.x - offScreenOffset, activePosA.y), activePosA, smoothT);
             rectButtonB.anchoredPosition = Vector2.Lerp(new Vector2(activePosB.x + offScreenOffset, activePosB.y), activePosB, smoothT);
@@ -395,7 +394,6 @@ public class MainMenuController : MonoBehaviourPunCallbacks
         PhotonNetwork.JoinRoom(roomCode);
     }
 
-    // 成功进入房间（双端都会触发此回调）
     public override void OnJoinedRoom()
     {
         Debug.Log($"[Photon] 已进入房间。当前人数: {PhotonNetwork.CurrentRoom.PlayerCount}");
@@ -416,11 +414,14 @@ public class MainMenuController : MonoBehaviourPunCallbacks
         panelLoadingClient.SetActive(false);
         panelMatchSuccess.SetActive(true);
 
-        // 确定身份：如果是房主就是 A 端，否则是 B 端
-        //if (AsymmetricSyncManager.Instance != null)
+        // 🌟 重点修复：用注释包起来！
+        // 等以后创建了 AsymmetricSyncManager 同步脚本并导入后，再把注释解开，彻底解决红字编译报错！
+        /*
+        if (AsymmetricSyncManager.Instance != null)
         {
-            //AsymmetricSyncManager.Instance.isPlayerA_Artist = PhotonNetwork.IsMasterClient;
+            AsymmetricSyncManager.Instance.isPlayerA_Artist = PhotonNetwork.IsMasterClient;
         }
+        */
 
         StartCoroutine(CountdownCoroutine());
     }
@@ -437,6 +438,27 @@ public class MainMenuController : MonoBehaviourPunCallbacks
 
         txtCountdown.text = "GO!";
         yield return new WaitForSeconds(0.5f);
+
+        // 🌟 重点新增：在跳转前，由房主 A 生成种子并广播给 B
+        if (PhotonNetwork.IsMasterClient)
+        {
+            int murdererSeed = Random.Range(100000, 999999); // 随机生成嫌疑人种子
+            int npcCount = 15; // 准备生成的 NPC 数量
+            int[] npcSeeds = new int[npcCount];
+            for (int i = 0; i < npcCount; i++)
+            {
+                npcSeeds[i] = Random.Range(100000, 999999); // 随机生成干扰路人种子
+            }
+            npcSeeds[0] = murdererSeed; // 确保其中一个是正确答案
+
+            // 呼叫总督导，分发种子给客机！
+            if (AsymmetricSyncManager.Instance != null)
+            {
+                AsymmetricSyncManager.Instance.BroadcastSeeds(npcSeeds, murdererSeed);
+            }
+        }
+
+        yield return new WaitForSeconds(0.1f); // 稍等 0.1s 确保数据包发送出去了
 
         // 卸载大厅，分别跳转不同的场景
         if (PhotonNetwork.IsMasterClient)

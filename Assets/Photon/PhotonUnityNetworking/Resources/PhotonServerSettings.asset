@@ -41,6 +41,8 @@ MonoBehaviour:
   - RespawnSpaceship
   - SyncColorOnAllClients
   - RPC_StartMatchCountdown
+  - RPC_SyncGameplaySeeds
+  - RPC_SyncPartChange
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0
