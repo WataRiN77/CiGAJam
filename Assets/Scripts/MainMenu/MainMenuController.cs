@@ -60,8 +60,11 @@ public class MainMenuController : MonoBehaviourPunCallbacks
     {
         Instance = this; // 初始化单例
 
-        // 🌟【最高优先级直连】：在 Awake 启动的一瞬间，立刻连接服务器，一刻也不等！
-        // 加上 !PhotonNetwork.IsConnected 保护，防止从其他场景返回主界面时重复连接
+        // 🌟 核心：强行开启后台运行！
+        // 这样即使你点击了另一个窗口，当前窗口也绝对不会暂停，彻底杜绝掉线和超时！
+        Application.runInBackground = true;
+
+        // 最高优先级在 Awake 中启动服务器连接
         if (!PhotonNetwork.IsConnected)
         {
             PhotonNetwork.ConnectUsingSettings();
@@ -431,13 +434,30 @@ public class MainMenuController : MonoBehaviourPunCallbacks
     // 成功进入房间（双端都会触发此回调）
     public override void OnJoinedRoom()
     {
+        // 🌟 保险一：核心防空保护。如果因为网络同步慢，CurrentRoom 还没就绪，直接拦截等待，防止崩溃！
+        if (PhotonNetwork.CurrentRoom == null)
+        {
+            Debug.LogWarning("[Photon] 已经加入房间，但服务器房间数据尚未同步完毕，等待中...");
+            return;
+        }
+
         Debug.Log($"[Photon] 已进入房间。当前人数: {PhotonNetwork.CurrentRoom.PlayerCount}");
 
         // 如果房间人满了（2人），触发倒计时
         if (PhotonNetwork.CurrentRoom.PlayerCount == 2)
         {
-            // 通过网络同步开启倒计时
-            photonView.RPC("RPC_StartMatchCountdown", RpcTarget.All);
+            // 🌟 保险二：不依赖父类的默认缓存，直接通过 GetComponent 物理抓取 PhotonView
+            PhotonView pv = GetComponent<PhotonView>();
+
+            if (pv != null)
+            {
+                pv.RPC("RPC_StartMatchCountdown", RpcTarget.All);
+                Debug.Log("[Photon] 人数已满，已成功通过 RPC 发送倒计时启动指令。");
+            }
+            else
+            {
+                Debug.LogError("[Photon] 严重错误：在 主视觉Canvas 上未找到 PhotonView 组件，无法发送同步指令！");
+            }
         }
     }
 
