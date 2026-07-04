@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15c27b2716d864a4690c9f75e0c17281, type: 3}
+  m_Name: "Mouth_Rotation\u3001"
+  m_EditorClassIdentifier: 
+  parameterId: mouthrotation
+  displayName: "\u5634\u5DF4\u65CB\u8F6C"
+  type: 1
+  minValue: -15
+  maxValue: 15
+  defaultValue: 0
+  affectMode: 4
+  targetBoneNames:
+  - Mouth/Mouth_Style
