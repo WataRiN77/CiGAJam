@@ -13,13 +13,14 @@ MonoBehaviour:
   m_Name: Eyebrow_Style_L
   m_EditorClassIdentifier: 
   parameterId: eyebrowstylel
-  displayName: "\u7709\u6BDB"
+  displayName: "\u5DE6\u7709\u6BDB"
   type: 0
   sprites:
   - {fileID: 21300000, guid: 0e4f17284870f55479c2de1d27efdde0, type: 3}
   - {fileID: 21300000, guid: 85df591ebe50fbf4f8f821d061a66d87, type: 3}
   - {fileID: 21300000, guid: 14cd08319c1cb4e41916477c61658334, type: 3}
   - {fileID: 21300000, guid: 3b0114dd739526e4c94a7a7ef2131d48, type: 3}
+  - {fileID: 0}
   - {fileID: 21300000, guid: 1403465421c22834dad9316ad4e67619, type: 3}
   - {fileID: 21300000, guid: 8ee5ec95e21c1ab4b961068ac6628efe, type: 3}
   targetBoneNames:
