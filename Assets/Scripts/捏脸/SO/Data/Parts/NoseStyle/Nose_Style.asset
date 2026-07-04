@@ -16,9 +16,14 @@ MonoBehaviour:
   displayName: "\u9F3B\u5B50"
   type: 0
   sprites:
-  - {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 10915, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 21300000, guid: 13c1ba4b60a999a4aa854e9b66df27f8, type: 3}
+  - {fileID: 21300000, guid: 333fec1bc02cfdb4bafac2729be7d5c0, type: 3}
+  - {fileID: 21300000, guid: e796c702565314c429f7da5c191d0126, type: 3}
+  - {fileID: 21300000, guid: 3928b59caefc3424198998e2ca39bb53, type: 3}
   targetBoneNames:
   - Nose/Nose_Style
+  overrideRandomRange: 0
+  randomPosRange: 0.05
+  randomRotationRange: 15
+  randomScaleMin: 0.8
+  randomScaleMax: 1.2
