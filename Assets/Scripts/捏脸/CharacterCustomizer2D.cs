@@ -23,6 +23,8 @@ public class CharacterCustomizer2D : MonoBehaviour
     private readonly Dictionary<string, TransformData> originalTransforms = new Dictionary<string, TransformData>();
     private Dictionary<ParameterType, IFeatureApplier> appliers;
 
+    public event System.Action OnFaceChanged;
+
     private void Awake()
     {
         appliers = new Dictionary<ParameterType, IFeatureApplier>
@@ -82,6 +84,7 @@ public class CharacterCustomizer2D : MonoBehaviour
         partVisible[id] = true;
         ApplyPart(id, index);
         SetPartRenderersVisible(part, true);
+        OnFaceChanged?.Invoke();
     }
 
     public void HidePart(string id)
@@ -167,6 +170,7 @@ public class CharacterCustomizer2D : MonoBehaviour
         }
 
         SelectionManager.Instance?.DeselectCurrent();
+        OnFaceChanged?.Invoke();
     }
 
     #endregion
@@ -268,6 +272,7 @@ public class CharacterCustomizer2D : MonoBehaviour
             target.localScale = state.localScale;
             target.localRotation = state.localRotation;
         }
+        OnFaceChanged?.Invoke();
     }
 
     private string GetRelativePath(Transform root, Transform target)
@@ -334,6 +339,7 @@ public class CharacterCustomizer2D : MonoBehaviour
         }
 
         SelectionManager.Instance?.DeselectCurrent();
+        OnFaceChanged?.Invoke();
     }
 
     private void RandomizeTransform(Transform t, float posRange, float rotRange, float scaleMin, float scaleMax)
