@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731713, g: 0.13414736, b: 0.12107852, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -4869,7 +4869,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1511395221}
   m_HandleRect: {fileID: 1511395220}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -6408,13 +6408,6 @@ MonoBehaviour:
   indexText: {fileID: 151396442}
   parameterId: nosestyle
   customizer: {fileID: 1570621692}
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
---- !u!1 &584156416
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 --- !u!1 &588588184
 GameObject:
   m_ObjectHideFlags: 0
@@ -6423,63 +6416,15 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-<<<<<<< Updated upstream
   - component: {fileID: 588588185}
   - component: {fileID: 588588186}
   m_Layer: 0
-=======
-<<<<<<< Updated upstream
-  - component: {fileID: 588588185}
-  - component: {fileID: 588588186}
-  m_Layer: 0
-=======
-- component: {fileID: 584156418}
-  - component: {fileID: 584156417}
-  m_Layer: 0
-  m_Name: AudioStateManager
-- component: {fileID: 588588185}
-  - component: {fileID: 588588186}
-  m_Layer: 0
->>>>>>> Stashed changes
->>>>>>> Stashed changes
   m_Name: "\u7F51\u683C"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
---- !u!114 &584156417
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 584156416}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f68a98e979a1b44faf8f1127839dad8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  triggerList: ae8d9d44
-  useOtherObject: 0
-  data:
-    idInternal: 0
-    valueGuidInternal: 
-    groupIdInternal: 0
-    groupGuidInternal: 
-    WwiseObjectReference: {fileID: 11400000, guid: bfa53eb914287964e815d7f5e49d9dad,
-      type: 2}
-  valueIdInternal: 0
-  groupIdInternal: 0
-  valueGuidInternal: 
-  groupGuidInternal: 
---- !u!4 &584156418
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 --- !u!4 &588588185
 Transform:
   m_ObjectHideFlags: 0
@@ -6495,21 +6440,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1311557909}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
-  m_GameObject: {fileID: 588588184}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -10.155, y: 9.92, z: 1.4800034}
-  m_LocalScale: {x: 1.8123779, y: 1.8123779, z: 1.8123779}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1311557909}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 --- !u!212 &588588186
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -15873,7 +15803,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1703543666}
   - component: {fileID: 1703543665}
-  - component: {fileID: 1703543667}
   m_Layer: 0
   m_Name: WwiseGlobal
   m_TagString: Untagged
@@ -15922,32 +15851,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1703543667
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1703543664}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b30ef2b1d370a7a4eb53efefb17cea89, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  triggerList: f7e1664c
-  useOtherObject: 0
-  data:
-    idInternal: 0
-    valueGuidInternal: 
-    WwiseObjectReference: {fileID: 11400000, guid: 1e9ed36c2cc57d74887fa443d6c11dae,
-      type: 2}
-  decodeBank: 0
-  overrideLoadSetting: 0
-  loadAsynchronous: 0
-  saveDecodedBank: 0
-  unloadTriggerList: 958ca0ea
-  bankNameInternal: 
-  valueGuidInternal: 
 --- !u!1 &1715277944
 GameObject:
   m_ObjectHideFlags: 0
@@ -18494,13 +18397,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1948046244}
   m_CullTransparentMesh: 1
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
---- !u!1 &1948726068
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 --- !u!1 &1954177773
 GameObject:
   m_ObjectHideFlags: 0
@@ -18509,110 +18405,23 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-<<<<<<< Updated upstream
   - component: {fileID: 1954177775}
   - component: {fileID: 1954177774}
   m_Layer: 0
-=======
-<<<<<<< Updated upstream
-  - component: {fileID: 1954177775}
-  - component: {fileID: 1954177774}
-  m_Layer: 0
-=======
-- component: {fileID: 1948726071}
-  - component: {fileID: 1948726070}
-  - component: {fileID: 1948726069}
-  m_Layer: 0
-  m_Name: BGM_Initiator
-- component: {fileID: 1954177775}
-  - component: {fileID: 1954177774}
-  m_Layer: 0
->>>>>>> Stashed changes
->>>>>>> Stashed changes
   m_Name: 66258f2d-9006-46b5-b429-f20c09303701
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-<<<<<<< Updated upstream
   m_IsActive: 0
 --- !u!212 &1954177774
 SpriteRenderer:
-=======
-<<<<<<< Updated upstream
-  m_IsActive: 0
---- !u!212 &1954177774
-SpriteRenderer:
-=======
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1948726069
-MonoBehaviour:
->>>>>>> Stashed changes
->>>>>>> Stashed changes
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1954177773}
   m_Enabled: 1
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7ef0543f2c1448843bff9cafc574a92a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  triggerList: f7e1664c
-  useOtherObject: 0
-  actionOnEventType: 0
-  curveInterpolation: 4
-  enableActionOnEvent: 0
-  data:
-    idInternal: 0
-    valueGuidInternal: 
-    WwiseObjectReference: {fileID: 11400000, guid: 58d0e96b68495fa4f9f9c18edb1857c7,
-      type: 2}
-  useCallbacks: 0
-  stopSoundOnDestroy: 0
-  Callbacks: []
-  soundEmitterObject: {fileID: 0}
-  transitionDuration: 0
-  eventIdInternal: 0
-  valueGuidInternal: 
-  m_callbackDataInternal: {fileID: 0}
---- !u!212 &1954177774
-SpriteRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1948726068}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4cb39df36ed447946bbcbadb15e9d25f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_listeners:
-    initialListenerList: []
-    useDefaultListeners: 1
-  isEnvironmentAware: 1
-  isStaticObject: 0
-  usePositionOffsetData: 0
-  m_positionOffsetData:
-    KeepMe: 0
-    positionOffset: {x: 0, y: 0, z: 0}
-  scalingFactor: 1
-  m_posOffsetData: {fileID: 0}
-  listenerMask: 1
---- !u!4 &1948726071
-  m_GameObject: {fileID: 1954177773}
-  m_Enabled: 1
->>>>>>> Stashed changes
->>>>>>> Stashed changes
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
@@ -18665,17 +18474,6 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1954177773}
   serializedVersion: 2
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_GameObject: {fileID: 1954177773}
-  serializedVersion: 2
->>>>>>> Stashed changes
->>>>>>> Stashed changes
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.44, y: 1.2, z: 103.2}
   m_LocalScale: {x: 1.63, y: 1.6021, z: 1}
@@ -20000,16 +19798,5 @@ SceneRoots:
   - {fileID: 820612539}
   - {fileID: 1015837149}
   - {fileID: 8698633629909329373}
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
-- {fileID: 820612539}
-  - {fileID: 1015837149}
-  - {fileID: 8698633629909329373}
-  - {fileID: 584156418}
-  - {fileID: 1948726071}
->>>>>>> Stashed changes
->>>>>>> Stashed changes
   - {fileID: 1954177775}
   - {fileID: 1311557909}
