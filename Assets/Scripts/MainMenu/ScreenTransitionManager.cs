@@ -57,6 +57,16 @@ public class ScreenTransitionManager : MonoBehaviour
         StartCoroutine(LoadSceneCoroutine(sceneName));
     }
 
+    public IEnumerator FadeScreen(float targetAlpha)
+    {
+        yield return FadeScreen(targetAlpha, defaultDuration);
+    }
+
+    public IEnumerator FadeScreen(float targetAlpha, float duration)
+    {
+        yield return StartCoroutine(Fade(targetAlpha, duration));
+    }
+
     /// <summary>
     /// 🌟 修改后：点击退出游戏时，调用特殊结算雪花转场
     /// </summary>
