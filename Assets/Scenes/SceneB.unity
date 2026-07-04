@@ -10826,7 +10826,10 @@ MonoBehaviour:
   spawnMissingMurdererSeed: 1
   preferPendingKeys: 1
   clearPendingSeedsAfterSpawn: 0
-  useSceneBJsonSeedsOnStart: 1
+  useSceneBJsonSeedsOnStart: 0
+  waitForSceneBJsonSeeds: 1
+  sceneBJsonSeedWaitTimeout: 5
+  fallbackToConfiguredSeedsWhenJsonMissing: 0
   generateSeedsWhenNoneConfigured: 1
   generatedNpcCount: 5
   generatedSeedMin: 1000
@@ -10837,6 +10840,8 @@ MonoBehaviour:
   spawnRange: {x: 12.65, y: 0, z: 5.92}
   minDistanceBetweenNpcs: 1.2
   spawnRotationEuler: {x: 0, y: 0, z: 0}
+  previewPositionSeed: 0
+  previewInitialPoint: {x: 0, y: 0, z: 0}
   murdererTag: Murderer
   alwaysShowSpawnRange: 1
   rangeColor: {r: 1, g: 0.85, b: 0.1, a: 0.25}
@@ -14303,6 +14308,21 @@ MonoBehaviour:
   onGameEnded:
     m_PersistentCalls:
       m_Calls: []
+--- !u!4 &1563597065
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1563597063}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 4.7907352, y: -5.6547546, z: -1.7647156}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1563597066
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14323,21 +14343,6 @@ MonoBehaviour:
   logSavePath: 0
   npcSpawnManager: {fileID: 1173872826}
   gameSessionManager: {fileID: 1563597064}
---- !u!4 &1563597065
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1563597063}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.7907352, y: -5.6547546, z: -1.7647156}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1567946712 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 485062, guid: 260ea4bf1ba71314c9c3833b491586bc,

@@ -43,21 +43,9 @@ public class SceneBStateJsonSaver : MonoBehaviour
                 : FindObjectOfType<GameSessionManager>();
         }
 
-        if (Photon.Pun.PhotonNetwork.InRoom && AsymmetricSyncManager.Instance != null)
-        {
-            int[] networkNpcSeeds = AsymmetricSyncManager.Instance.SyncedNpcSeeds;
-            int networkMurdererSeed = AsymmetricSyncManager.Instance.SyncedMurdererSeed;
-            int mapNum = gameSessionManager != null ? gameSessionManager.SelectedTerrainNumber : 1;
-
-            if (networkNpcSeeds != null && networkNpcSeeds.Length > 0)
-            {
-                Debug.Log($"[Saver-网络初始化] 检测到网络种子，正在自动写入初始配置以启动生成...");
-                WriteInitialConfigFromFaceManager(networkNpcSeeds, networkMurdererSeed, mapNum, npcSpawnManager);
-            }
-        }
-
         RefreshNpcListFromScene();
 
+        // 恢复原生逻辑：检测本地状态并正常加载缓存
         if (saveOnStart)
         {
             if (npcStates.Count > 0 || !TryReadState(out SceneBStateSaveData state) || !HasValidSeedConfig(state))
@@ -207,30 +195,30 @@ public class SceneBStateJsonSaver : MonoBehaviour
 
     private void WriteState(SceneBStateSaveData saveData)
     {
-        // 1.  转换成紧凑版的 JSON（不包含缩进换行，减少网络传输流量）
         string compactJson = JsonUtility.ToJson(saveData, false);
 
-        // 2.  如果在联网状态，通过 Photon 发送给 A 端
+        // 诊断数据是否正常
+        Debug.Log($"[Saver-Debug] 正在进行状态打包。当前统计路人总数: {saveData.npcs?.Length ?? 0}, 嫌疑人种子: {saveData.murdererSeed}, 开枪数: {saveData.shotsFired}");
+
         if (Photon.Pun.PhotonNetwork.InRoom && AsymmetricSyncManager.Instance != null)
         {
+            Debug.Log($"[Saver-Debug] 联网状态正常。正在通过网络发送 JSON 数据包 (大小: {compactJson.Length} 字节)...");
             AsymmetricSyncManager.Instance.SendSceneBStateToArtist(compactJson);
         }
+        else
+        {
+            Debug.LogWarning($"[Saver-Debug] 警告：未执行网络同步发送。是否在房间中: {Photon.Pun.PhotonNetwork.InRoom}, SyncManager是否存在: {AsymmetricSyncManager.Instance != null}");
+        }
 
-        // 3.  保留本地磁盘保存作为单机测试和备份方案
         try
         {
             Directory.CreateDirectory(saveDirectory);
-            string prettyJson = JsonUtility.ToJson(saveData, true); // 本地磁盘用带格式排版的 JSON
+            string prettyJson = JsonUtility.ToJson(saveData, true);
             File.WriteAllText(SavePath, prettyJson);
-
-            if (logSavePath)
-            {
-                Debug.Log($"SceneB state saved to disk fallback: {SavePath}", this);
-            }
         }
         catch (Exception exception)
         {
-            Debug.LogError($"Failed to save SceneB state to disk fallback '{SavePath}'. {exception.Message}", this);
+            Debug.LogError($"[Saver-Debug] 磁盘备份保存失败: {exception.Message}", this);
         }
     }
 

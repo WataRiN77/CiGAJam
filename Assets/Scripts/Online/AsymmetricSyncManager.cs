@@ -79,20 +79,24 @@ public class AsymmetricSyncManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsMasterClient)
         {
+            Debug.Log($"[Sync-Debug] 房主 A 正在广播种子数据。路人数: {npcSeeds?.Length ?? 0}, 嫌疑人种子: {murdererSeed}");
             photonView.RPC("RPC_SyncGameplaySeeds", RpcTarget.AllBuffered, npcSeeds, murdererSeed);
+        }
+        else
+        {
+            Debug.LogWarning("[Sync-Debug] 警告：非房主客户端尝试广播种子，已拦截。");
         }
     }
 
     [PunRPC]
     private void RPC_SyncGameplaySeeds(int[] npcSeeds, int murdererSeed)
     {
-        Debug.Log($"[Sync] 收到游戏种子。路人数: {npcSeeds.Length}，嫌疑人: {murdererSeed}");
-
-        // 缓存到本地单例中
+        Debug.Log($"[Sync-Debug] 收到网络同步种子。路人数: {npcSeeds?.Length ?? 0}, 嫌疑人: {murdererSeed}。正在写入缓存...");
         SyncedNpcSeeds = npcSeeds;
         SyncedMurdererSeed = murdererSeed;
 
         SeededNpcSpawnManager.SetPendingSeeds(npcSeeds, murdererSeed);
+        Debug.Log($"[Sync-Debug] 种子已成功写入 SeededNpcSpawnManager 静态内存。当前静态缓存大小: {SeededNpcSpawnManager.PendingNpcSeeds?.Length ?? 0}");
     }
 
     // ==========================================
@@ -175,9 +179,9 @@ public class AsymmetricSyncManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void RPC_SyncSceneBState(string jsonState)
     {
-        // 只有画像师 A 需要接收并更新画面
         if (isPlayerA_Artist)
         {
+            Debug.Log($"[Sync-Debug] A端成功接收到 B 端推送的最新局势 JSON (数据大小: {jsonState.Length} 字节)。");
             BinASceneJsonDriver driver = FindObjectOfType<BinASceneJsonDriver>();
             if (driver != null)
             {
@@ -185,7 +189,7 @@ public class AsymmetricSyncManager : MonoBehaviourPunCallbacks
             }
             else
             {
-                Debug.LogWarning("[Sync-警告] 收到 B 端数据，但在 A 端未找到 BinASceneJsonDriver 组件。");
+                Debug.LogWarning("[Sync-Debug] 警告：收到 B 端数据，但 A 端当前场景内未找到 BinASceneJsonDriver！");
             }
         }
     }

@@ -83,14 +83,19 @@ public class SeededNpcSpawnManager : MonoBehaviour
 
     private void Start()
     {
+        Debug.Log($"[Spawn-Debug] SeededNpcSpawnManager 启动。spawnOnStart: {spawnOnStart}, useSceneBJsonSeedsOnStart: {useSceneBJsonSeedsOnStart}");
+        Debug.Log($"[Spawn-Debug] 静态缓存内 PendingNpcSeeds 状态: {(PendingNpcSeeds != null ? $"存在 ({PendingNpcSeeds.Length} 个种子)" : "为 null")}");
+
         if (spawnOnStart)
         {
             if (useSceneBJsonSeedsOnStart)
             {
+                Debug.Log("[Spawn-Debug] 流程分支：进入 [等待本地JSON文件] 模式。启动协程...");
                 StartCoroutine(SpawnFromSceneBJsonWhenReady());
             }
             else
             {
+                Debug.Log("[Spawn-Debug] 流程分支：进入 [直接使用内存种子生成] 模式。开始解析...");
                 SpawnFromConfiguredKeys();
             }
         }
@@ -154,9 +159,11 @@ public class SeededNpcSpawnManager : MonoBehaviour
 
     public void SpawnFromSeeds(int[] npcSeeds, int? murdererSeed)
     {
+        Debug.Log($"[Spawn-Debug] 开始执行核心生成逻辑。接收到的种子数: {npcSeeds?.Length ?? 0}, 嫌疑人种子: {(murdererSeed.HasValue ? murdererSeed.Value.ToString() : "无")}");
+
         if (npcPrefab == null)
         {
-            Debug.LogWarning($"{nameof(SeededNpcSpawnManager)} needs an NPC prefab.", this);
+            Debug.LogError("[Spawn-Debug] 错误：NPC Prefab 为空，生成终止！", this);
             return;
         }
 
@@ -167,7 +174,7 @@ public class SeededNpcSpawnManager : MonoBehaviour
 
         if ((npcSeeds == null || npcSeeds.Length == 0) && !murdererSeed.HasValue)
         {
-            Debug.LogWarning($"{nameof(SeededNpcSpawnManager)} has no NPC seeds to spawn.", this);
+            Debug.LogWarning("[Spawn-Debug] 警告：没有收到任何有效种子，停止实例化。", this);
             return;
         }
 
@@ -192,13 +199,8 @@ public class SeededNpcSpawnManager : MonoBehaviour
             SpawnSingleNpc(murdererSeed.Value, spawnedCount, true, usedPositions);
             foundMurdererSeed = true;
         }
-        else if (!foundMurdererSeed && murdererSeed.HasValue)
-        {
-            Debug.LogWarning(
-                $"{nameof(SeededNpcSpawnManager)} did not find Murderer Seed '{murdererSeed.Value}' in NPC seeds.",
-                this
-            );
-        }
+
+        Debug.Log($"[Spawn-Debug] 角色生成阶段完毕。成功实例化了 {spawnedNpcs.Count} 个 NPC。开始刷新并保存状态...");
 
         SceneBStateJsonSaver.Instance?.RefreshNpcListFromScene();
         SceneBStateJsonSaver.Instance?.SaveNow();
