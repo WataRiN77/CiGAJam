@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c2726edb0f422fc419ca8ee1a281a430, type: 3}
-  m_Name: Eyebrow_Style
+  m_Name: Eyebrow_Style_L
   m_EditorClassIdentifier: 
-  parameterId: eyebrowstyle
+  parameterId: eyebrowstylel
   displayName: "\u7709\u6BDB"
   type: 0
   sprites:
@@ -22,4 +22,8 @@ MonoBehaviour:
   - {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   targetBoneNames:
   - Eyebrow/Eyebrow_L
-  - Eyebrow/Eyebrow_R
+  overrideRandomRange: 0
+  randomPosRange: 0.05
+  randomRotationRange: 15
+  randomScaleMin: 0.8
+  randomScaleMax: 1.2

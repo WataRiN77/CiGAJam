@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c2726edb0f422fc419ca8ee1a281a430, type: 3}
-  m_Name: Mouth_Style
+  m_Name: Eye_Style_R
   m_EditorClassIdentifier: 
-  parameterId: mouthstyle
-  displayName: "\u5634\u5DF4"
+  parameterId: eyestyler
+  displayName: "\u773C\u775B"
   type: 0
   sprites:
-  - {fileID: 21300000, guid: 6a0f3a1c5d5ed3341ae107b50c725789, type: 3}
-  - {fileID: 21300000, guid: ca679a5c79db30c4ca3e70e24588929b, type: 3}
-  - {fileID: 21300000, guid: 226bca84e6cbb6a4bb7aca6e78c9dd2f, type: 3}
-  - {fileID: 21300000, guid: 8fa7366fd884dd94fbb3e80d3b06cccb, type: 3}
+  - {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 10915, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   targetBoneNames:
-  - Mouth/Mouth_Style
+  - Eye/Eye_R
   overrideRandomRange: 0
   randomPosRange: 0.05
   randomRotationRange: 15
