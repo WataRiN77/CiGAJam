@@ -103,6 +103,7 @@ public class GameSessionManager : MonoBehaviour
         }
 
         LastResult.selectedTerrainNumber = selectedTerrainNumber;
+        SceneBStateJsonSaver.Instance?.SaveNow();
 
         if (countdownTimer != null)
         {
@@ -123,6 +124,7 @@ public class GameSessionManager : MonoBehaviour
         }
 
         shotsFired++;
+        SceneBStateJsonSaver.Instance?.SaveNow();
 
         bool killedMurderer = target != null && target.CompareTag(murdererTag);
 
@@ -165,6 +167,8 @@ public class GameSessionManager : MonoBehaviour
             elapsedSeconds = ElapsedSeconds,
             selectedTerrainNumber = selectedTerrainNumber
         };
+
+        SceneBStateJsonSaver.Instance?.SaveNow();
 
         if (success)
         {
@@ -228,6 +232,8 @@ public class GameSessionManager : MonoBehaviour
         {
             Debug.Log($"Selected Terrain: {selectedTerrainNumber}", this);
         }
+
+        SceneBStateJsonSaver.Instance?.SaveNow();
     }
 
     private void OnValidate()

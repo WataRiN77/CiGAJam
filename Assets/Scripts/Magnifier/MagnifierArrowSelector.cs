@@ -220,9 +220,11 @@ public class MagnifierArrowSelector : MonoBehaviour
         {
             GetFocusedShootPoint(target, out Vector3 hitPoint, out Vector3 hitNormal);
             CloseArrow(arrow);
+            SceneBStateJsonSaver.Instance?.SetNpcMarked(target, false);
             ActivateShotPointChildren(target);
             PlayBloodFx(target, hitPoint, hitNormal);
             wander.Die(GetFocusedShootBackwardDirection(target));
+            SceneBStateJsonSaver.Instance?.SetNpcShot(target, true);
             NotifyKillUi();
             NotifyShot(target);
         }
@@ -294,9 +296,11 @@ public class MagnifierArrowSelector : MonoBehaviour
         }
 
         CloseArrow(arrow);
+        SceneBStateJsonSaver.Instance?.SetNpcMarked(wander.transform, false);
         ActivateShotPointChildren(wander.transform);
         PlayBloodFx(wander.transform, hit.point, hit.normal);
         wander.Die(GetBackwardDirectionFromRay(ray));
+        SceneBStateJsonSaver.Instance?.SetNpcShot(wander.transform, true);
         NotifyKillUi();
         NotifyShot(wander.transform);
     }
@@ -385,6 +389,8 @@ public class MagnifierArrowSelector : MonoBehaviour
         }
 
         focusedPerson = person;
+        SceneBStateJsonSaver.Instance?.ClearFollowing();
+        SceneBStateJsonSaver.Instance?.SetNpcFollowing(focusedPerson, true);
 
         if (focusState == FocusState.Idle)
         {
@@ -438,6 +444,7 @@ public class MagnifierArrowSelector : MonoBehaviour
 
         SetFocusButtonsVisible(false);
         SetMagnifierShotVisible(false);
+        SceneBStateJsonSaver.Instance?.ClearFollowing();
         UnlockMagnifierFollowTowardMouse();
         transitionCameraStartPosition = focusCamera.transform.position;
         transitionCameraStartRotation = focusCamera.transform.rotation;
@@ -993,11 +1000,13 @@ public class MagnifierArrowSelector : MonoBehaviour
         if (activeArrows.TryGetValue(arrow, out ArrowState state))
         {
             CloseArrow(arrow, state);
+            NotifyArrowMarkChanged(arrow, false);
             return;
         }
 
         activeArrows.Add(arrow, new ArrowState(arrow));
         arrow.gameObject.SetActive(true);
+        NotifyArrowMarkChanged(arrow, true);
     }
 
     private void CloseArrow(Transform arrow)
@@ -1010,10 +1019,12 @@ public class MagnifierArrowSelector : MonoBehaviour
         if (activeArrows.TryGetValue(arrow, out ArrowState state))
         {
             CloseArrow(arrow, state);
+            NotifyArrowMarkChanged(arrow, false);
             return;
         }
 
         arrow.gameObject.SetActive(false);
+        NotifyArrowMarkChanged(arrow, false);
     }
 
     private void CloseArrow(Transform arrow, ArrowState state)
@@ -1047,7 +1058,23 @@ public class MagnifierArrowSelector : MonoBehaviour
 
         RestoreArrow(state);
         activeArrows.Remove(arrow);
+        NotifyArrowMarkChanged(arrow, false);
         return true;
+    }
+
+    private void NotifyArrowMarkChanged(Transform arrow, bool isMarked)
+    {
+        if (arrow == null)
+        {
+            return;
+        }
+
+        RandomWanderFloat owner = arrow.GetComponentInParent<RandomWanderFloat>();
+
+        if (owner != null)
+        {
+            SceneBStateJsonSaver.Instance?.SetNpcMarked(owner.transform, isMarked);
+        }
     }
 
     private void SortHitsByDistance(int hitCount)
