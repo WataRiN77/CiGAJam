@@ -1,14 +1,15 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class PartSelectorUI : MonoBehaviour
 {
-    [Header("UI ¿Ø¼ş")]
+    [Header("UI æ§ä»¶")]
     [SerializeField] private Button prevButton;
     [SerializeField] private Button nextButton;
-    [SerializeField] private Text indexText;
+    [SerializeField] private TMP_Text indexText;
 
-    [Header("²ÎÊıÅäÖÃ")]
+    [Header("å‚æ•°é…ç½®")]
     [SerializeField] private string parameterId = "hair_style";
     [SerializeField] private CharacterCustomizer2D customizer;
 
@@ -20,15 +21,13 @@ public class PartSelectorUI : MonoBehaviour
         if (customizer == null)
             customizer = FindObjectOfType<CharacterCustomizer2D>();
 
-        // »ñÈ¡×ÜÑ¡ÏîÊı
         totalCount = GetPartCount();
         if (totalCount == 0)
         {
-            Debug.LogError($"²ÎÊı {parameterId} ²»ÊÇÓĞĞ§µÄ Part ²ÎÊı£¬»òÎŞ Sprite");
+            Debug.LogError($"å‚æ•° {parameterId} ä¸æ˜¯æœ‰æ•ˆçš„ Part å‚æ•°ï¼Œæˆ–æ—  Sprite");
             return;
         }
 
-        // ´Óµ±Ç°×´Ì¬¶ÁÈ¡³õÊ¼Ë÷Òı
         var indexes = customizer.GetPartIndexes();
         if (indexes.TryGetValue(parameterId, out int savedIndex))
             currentIndex = savedIndex;

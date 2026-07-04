@@ -1,11 +1,12 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class WitnessTimerUI : MonoBehaviour
 {
-    [Header("½ø¶ÈÌõ")]
-    [SerializeField] private Slider progressSlider;        // ½ø¶ÈÌõ 0~1
-    [SerializeField] private Text timeText;                // ¿ÉÑ¡£ºÏÔÊ¾Ê£ÓàÃëÊı
+    [Header("è¿›åº¦æ¡")]
+    [SerializeField] private Slider progressSlider;        // è¿›åº¦æ¡ 0~1
+    [SerializeField] private TMP_Text timeText;            // å¯é€‰ï¼šæ˜¾ç¤ºå‰©ä½™ç§’æ•°
 
     private FaceCustomizationGameManager gameManager;
     private float totalInterval;
@@ -15,14 +16,11 @@ public class WitnessTimerUI : MonoBehaviour
         gameManager = FaceCustomizationGameManager.Instance;
         if (gameManager == null)
         {
-            Debug.LogWarning("FaceCustomizationGameManager Î´ÕÒµ½");
+            Debug.LogWarning("FaceCustomizationGameManager æœªæ‰¾åˆ°");
             return;
         }
 
-        // ´Ó Manager »ñÈ¡¼ä¸ô£¨ĞèÒªÔÚ Inspector ÖĞ±£³Ö public »òÌí¼ÓÊôĞÔ£¬Èç¹û statementInterval ÊÇ private serialized£¬¿ÉÍ¨¹ı·´Éä»ò¸Ä³É public£©
-        // ¼ò±ã·½·¨£ºÔÚ FaceCustomizationGameManager ÖĞÌí¼ÓÒ»¸ö¹«¹²·½·¨»òÊôĞÔ»ñÈ¡¼ä¸ô
-        // ÎÒÃÇÕâÀï¼ÙÉèÒÑ¾­Ìí¼ÓÁË public float StatementInterval => statementInterval;
-        totalInterval = gameManager.StatementInterval; // ĞèÒªÔÚ Manager ÖĞÌí¼Ó´ËÊôĞÔ
+        totalInterval = gameManager.StatementInterval;
 
         gameManager.OnTimerProgress += UpdateProgress;
         UpdateProgress(0f);
@@ -42,13 +40,7 @@ public class WitnessTimerUI : MonoBehaviour
         if (timeText != null)
         {
             float remaining = (1f - progress) * totalInterval;
-            timeText.text = $"ÏÂÒ»ÌõÖ¤´Ê: {remaining:F1}Ãë";
+            timeText.text = $"ä¸‹ä¸€æ¡è¯è¯: {remaining:F1}ç§’";
         }
-
-        //// È«²¿Ö¤´ÊÉú³ÉÍê±ÏÊ±¿ÉÒş²Ø½ø¶ÈÌõ
-        //if (progress >= 1f)
-        //{
-        //    gameObject.SetActive(false);   // »ò½ûÓÃ Slider
-        //}
     }
 }
