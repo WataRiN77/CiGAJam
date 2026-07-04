@@ -16,10 +16,14 @@ MonoBehaviour:
   displayName: "\u5634\u5DF4"
   type: 0
   sprites:
-  - {fileID: 21300000, guid: 6a0f3a1c5d5ed3341ae107b50c725789, type: 3}
-  - {fileID: 21300000, guid: ca679a5c79db30c4ca3e70e24588929b, type: 3}
-  - {fileID: 21300000, guid: 226bca84e6cbb6a4bb7aca6e78c9dd2f, type: 3}
-  - {fileID: 21300000, guid: 8fa7366fd884dd94fbb3e80d3b06cccb, type: 3}
+  - {fileID: 21300000, guid: 60922e7ca25d4134b9d54d7418c03268, type: 3}
+  - {fileID: 21300000, guid: db7f5ee0a6a0cb1489b7c2abb46c8f26, type: 3}
+  - {fileID: 21300000, guid: 68890f83675606642b326121f735e028, type: 3}
+  - {fileID: 21300000, guid: ffb1358e0bdfd70429238a23b4bdcd8b, type: 3}
+  - {fileID: 21300000, guid: edbca44422e189242a0fc748a212e513, type: 3}
+  - {fileID: 21300000, guid: 2114516dee2b77a4ba451431665a893e, type: 3}
+  - {fileID: 21300000, guid: 2ea6c6c9dda059f43a343475cb15693b, type: 3}
+  - {fileID: 21300000, guid: aad87d1ea6185b34fa003e9694ed5374, type: 3}
   targetBoneNames:
   - Mouth/Mouth_Style
   overrideRandomRange: 0

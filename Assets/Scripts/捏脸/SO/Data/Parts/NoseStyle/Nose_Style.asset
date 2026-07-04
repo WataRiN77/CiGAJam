@@ -16,10 +16,14 @@ MonoBehaviour:
   displayName: "\u9F3B\u5B50"
   type: 0
   sprites:
-  - {fileID: 21300000, guid: 13c1ba4b60a999a4aa854e9b66df27f8, type: 3}
-  - {fileID: 21300000, guid: 333fec1bc02cfdb4bafac2729be7d5c0, type: 3}
-  - {fileID: 21300000, guid: e796c702565314c429f7da5c191d0126, type: 3}
-  - {fileID: 21300000, guid: 3928b59caefc3424198998e2ca39bb53, type: 3}
+  - {fileID: 21300000, guid: 3c6f52b3fb2c2144ab4f40c047fc63a0, type: 3}
+  - {fileID: 21300000, guid: f399fc5d85ede594bb05965d95ea021f, type: 3}
+  - {fileID: 21300000, guid: 08158559a6bd8804c904cd6b8c260d4b, type: 3}
+  - {fileID: 21300000, guid: 99538b32c402d934e970ef9f18e41199, type: 3}
+  - {fileID: 21300000, guid: 56b0a7e51f9bbed419fe47ea4d141720, type: 3}
+  - {fileID: 21300000, guid: 9dad2bddb63f8834683d9cb6d7a1183a, type: 3}
+  - {fileID: 21300000, guid: ae607e2bddb92a54383dc23356c27092, type: 3}
+  - {fileID: 21300000, guid: fbb5ffdf44a54f24cab31247756d8a21, type: 3}
   targetBoneNames:
   - Nose/Nose_Style
   overrideRandomRange: 0

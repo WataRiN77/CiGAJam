@@ -40,7 +40,7 @@ public class SelectionManager : MonoBehaviour
             SelectionGizmo gizmoScript = currentGizmo.GetComponent<SelectionGizmo>();
             if (gizmoScript != null)
             {
-                Debug.Log("1");
+                //Debug.Log("1");
                 gizmoScript.SetTarget(organ);
             }
         }
