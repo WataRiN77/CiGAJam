@@ -21,6 +21,7 @@ public class FaceCustomizationGameManager : MonoBehaviour
     [SerializeField] private float statementInterval = 10f;
     [SerializeField] private int initialStatements = 1;
     public float StatementInterval => statementInterval;
+    public int TotalStatementCount => totalStatementCount;
 
     private FaceSaveData currentAnswer;
     private List<WitnessStatement> witnessStatements = new List<WitnessStatement>();
@@ -28,11 +29,8 @@ public class FaceCustomizationGameManager : MonoBehaviour
 
     private Coroutine statementCoroutine;
 
-    // 事件：新证词生成时通知 UI
     public event Action<WitnessStatement> OnNewStatement;
-
-    // 在类中添加新事件
-    public event Action<float> OnTimerProgress;   // 参数为进度 0~1
+    public event Action<float> OnTimerProgress;
 
     private void Awake()
     {
@@ -41,22 +39,19 @@ public class FaceCustomizationGameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 开始新一局：生成目标答案、初始证词、干扰项，并启动定时证词生成
+    /// 开始新一局：生成目标答案、初始证词、干扰项，并启动定时证词生成。
     /// </summary>
     public FaceSaveData GenerateNewRound()
     {
-        // 1. 生成目标答案（含 seed）
         currentAnswer = answerGenerator.GenerateAnswer();
         SaveAnswerToFile(currentAnswer);
 
-        // 2. 生成干扰项（可选）
         if (useDistractors && currentAnswer != null)
         {
             currentDistractors = answerGenerator.GenerateDistractors(defaultDistractorCount, currentAnswer);
             SaveDistractorsToFile(currentDistractors);
         }
 
-        // 3. 生成初始证词（使用答案种子确保证词可复现）
         UnityEngine.Random.State oldState = UnityEngine.Random.state;
         UnityEngine.Random.InitState(currentAnswer.seed);
 
@@ -67,7 +62,6 @@ public class FaceCustomizationGameManager : MonoBehaviour
 
         UnityEngine.Random.state = oldState;
 
-        // 4. 启动定时生成证词协程
         if (statementCoroutine != null) StopCoroutine(statementCoroutine);
         statementCoroutine = StartCoroutine(GenerateStatementsOverTime());
 
@@ -75,24 +69,22 @@ public class FaceCustomizationGameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 定时生成新证词，直到达到 totalStatementCount
+    /// 定时生成新证词，直到达到 totalStatementCount。
     /// </summary>
-    // 替换原有的 GenerateStatementsOverTime 协程
     private IEnumerator GenerateStatementsOverTime()
     {
         while (witnessStatements.Count < totalStatementCount)
         {
             float timer = 0f;
-            // 每一帧更新进度条，直到 interval 结束
+
             while (timer < statementInterval && witnessStatements.Count < totalStatementCount)
             {
                 timer += Time.deltaTime;
-                float progress = timer / statementInterval;  // 0->1
+                float progress = timer / statementInterval;
                 OnTimerProgress?.Invoke(progress);
                 yield return null;
             }
 
-            // 生成证词
             UnityEngine.Random.State oldState = UnityEngine.Random.state;
             UnityEngine.Random.InitState(currentAnswer.seed + witnessStatements.Count * 100);
 
@@ -107,12 +99,11 @@ public class FaceCustomizationGameManager : MonoBehaviour
             UnityEngine.Random.state = oldState;
         }
 
-        // 全部生成完毕，进度条满（或隐藏）
         OnTimerProgress?.Invoke(1f);
     }
 
     /// <summary>
-    /// A玩家提交捏脸，返回与答案的相似度分数（0~100）
+    /// A 玩家提交捏脸，返回与答案的相似度分数（0~100）。
     /// </summary>
     public float SubmitCurrentFace()
     {
@@ -128,7 +119,6 @@ public class FaceCustomizationGameManager : MonoBehaviour
         return FaceComparer.CompareFaces(currentAnswer, playerFace);
     }
 
-    // ==================== 公共获取方法 ====================
     public FaceSaveData GetCurrentAnswer() => currentAnswer;
     public List<WitnessStatement> GetStatements() => witnessStatements;
     public List<FaceSaveData> GetDistractors() => currentDistractors;
@@ -143,7 +133,6 @@ public class FaceCustomizationGameManager : MonoBehaviour
         return seeds;
     }
 
-    // ==================== 文件存储 ====================
     private void SaveAnswerToFile(FaceSaveData answer)
     {
         string path = Application.persistentDataPath + "/AnswerData/";

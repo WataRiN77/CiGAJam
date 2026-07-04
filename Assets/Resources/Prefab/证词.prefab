@@ -364,7 +364,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   source: {fileID: 9130512822477386093}
   minSoundDelay: 0
-  interruptPreviousSound: 0
+  interruptPreviousSound: 1
   randomSequence: 0
   sounds:
   - {fileID: 8300000, guid: 0dae724cb893d234693f768c9f4c20b9, type: 3}
