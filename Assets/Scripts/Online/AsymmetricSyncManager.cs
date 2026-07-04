@@ -16,13 +16,17 @@ public class AsymmetricSyncManager : MonoBehaviourPunCallbacks
 
     private void Awake()
     {
+        Debug.Log($"[Sync-Awake] AsymmetricSyncManager 在物体 '{gameObject.name}' 上启动。");
+
         if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject); // 跨场景不销毁
+            Debug.Log("[Sync-Awake] 单例初始化成功，已设置为 DontDestroyOnLoad。");
         }
         else
         {
+            Debug.Log($"[Sync-Awake] 发现重复的管理器，正在销毁物体: {gameObject.name}");
             Destroy(gameObject);
         }
     }
@@ -32,30 +36,35 @@ public class AsymmetricSyncManager : MonoBehaviourPunCallbacks
     /// </summary>
     public void RegisterLocalCustomizer(CharacterCustomizer2D customizer)
     {
-        // 🌟 卸载旧事件，防止换场景时内存泄露
+        if (customizer == null)
+        {
+            Debug.LogWarning("[Sync] 尝试注册一个空的脸部渲染器！已拒绝。");
+            return;
+        }
+
+        // 卸载旧事件，防止换场景时内存泄露
         if (activeCustomizer != null)
         {
             activeCustomizer.OnFaceChanged -= OnLocalFaceChanged;
         }
 
         activeCustomizer = customizer;
-        Debug.Log($"[Sync] 脸部渲染器注册成功！当前身份是否为A端: {isPlayerA_Artist}");
 
-        // 🌟 核心：如果是 A 端（画像师），自动监听本地脸部的任何修改（贴图/位移/大小）
-        if (isPlayerA_Artist && activeCustomizer != null)
-        {
-            activeCustomizer.OnFaceChanged += OnLocalFaceChanged;
-        }
+        // 🌟 注册成功：绑定本地修改监听事件
+        activeCustomizer.OnFaceChanged += OnLocalFaceChanged;
+
+        Debug.Log($"[Sync-注册] 成功注册了本地脸部渲染器！物体名: '{customizer.gameObject.name}', 身份是否为画家 A: {isPlayerA_Artist}");
     }
 
     /// <summary>
-    /// 🌟 核心：当 A 端本地捏脸发生任何改动时，自动打包数据发送
+    /// 监听本地捏脸修改事件（仅在 A 端生效）
     /// </summary>
     private void OnLocalFaceChanged()
     {
-        if (activeCustomizer != null && isPlayerA_Artist)
+        if (isPlayerA_Artist && activeCustomizer != null)
         {
             string faceJson = activeCustomizer.SaveToJson();
+            Debug.Log($"[Sync-事件] 检测到本地人脸修改！正在发送全脸同步数据 (JSON 长度: {faceJson.Length})");
             SendFullFaceSync(faceJson);
         }
     }
@@ -79,17 +88,14 @@ public class AsymmetricSyncManager : MonoBehaviourPunCallbacks
     }
 
     // ==========================================
-    // 🌟 2. 【核心同步】：A 端 ➡️ B 端：全脸数据同步
+    // 2. 【核心同步】：A 端 ➡️ B 端：全脸数据同步
     // ==========================================
-    
-    /// <summary>
-    /// 发送整张脸的 JSON 字符串
-    /// </summary>
+
     public void SendFullFaceSync(string faceJson)
     {
         if (isPlayerA_Artist)
         {
-            // 使用 Others 保证数据只发给 B 端
+            Debug.Log($"[Sync-网络] 正在广播发送全脸 JSON 数据...");
             photonView.RPC("RPC_SyncFullFace", RpcTarget.Others, faceJson);
         }
     }
@@ -97,11 +103,23 @@ public class AsymmetricSyncManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void RPC_SyncFullFace(string faceJson)
     {
-        // B 端收到后，直接 Load 还原
-        if (!isPlayerA_Artist && activeCustomizer != null)
+        Debug.Log($"[Sync-网络] 接收到对方发来的全脸 JSON 数据！大小: {faceJson.Length} 字节。");
+
+        if (activeCustomizer != null)
         {
-            activeCustomizer.LoadFromJson(faceJson);
-            Debug.Log("[Sync网络同步] 成功同步 A 端的脸部（包含位置、大小、贴图）！");
+            if (!isPlayerA_Artist)
+            {
+                activeCustomizer.LoadFromJson(faceJson);
+                Debug.Log("[Sync-成功] 对方发来的全脸数据已在本地完美解析渲染！");
+            }
+            else
+            {
+                Debug.LogWarning("[Sync-警告] 我是画家 A，忽略对方发来的脸部同步请求。");
+            }
+        }
+        else
+        {
+            Debug.LogError("[Sync-错误] 收到同步数据，但本地 activeCustomizer 为空（注册未成功）！无法渲染。");
         }
     }
 

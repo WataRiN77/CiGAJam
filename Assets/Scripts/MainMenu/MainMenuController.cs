@@ -74,6 +74,7 @@ public class MainMenuController : MonoBehaviourPunCallbacks
 
     private void Start()
     {
+
         // 确保 Photon 自动同步场景关闭（因为两边去不同的场景，不使用同步加载）
         PhotonNetwork.AutomaticallySyncScene = false;
 

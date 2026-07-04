@@ -58,6 +58,21 @@ public class CharacterCustomizer2D : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        Debug.Log($"[Customizer-Start] 物体 '{gameObject.name}' 的 CharacterCustomizer2D 脚本启动了。");
+
+        if (AsymmetricSyncManager.Instance != null)
+        {
+            Debug.Log($"[Customizer-Start] 成功找到 AsymmetricSyncManager 单例，开始调用注册...");
+            AsymmetricSyncManager.Instance.RegisterLocalCustomizer(this);
+        }
+        else
+        {
+            Debug.LogWarning($"[Customizer-Start] 未能找到 AsymmetricSyncManager 单例（单机测试不报红，属正常）");
+        }
+    }
+
     #region Part selection
 
     public void SetPart(string id, int index)
