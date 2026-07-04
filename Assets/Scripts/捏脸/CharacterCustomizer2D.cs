@@ -24,6 +24,7 @@ public class CharacterCustomizer2D : MonoBehaviour
     private Dictionary<ParameterType, IFeatureApplier> appliers;
 
     public event System.Action OnFaceChanged;
+    public void NotifyFaceChanged() => OnFaceChanged?.Invoke();
 
     private void Awake()
     {
