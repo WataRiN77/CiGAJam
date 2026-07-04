@@ -16,9 +16,14 @@ MonoBehaviour:
   displayName: "\u5634\u5DF4"
   type: 0
   sprites:
-  - {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 10915, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 21300000, guid: 6a0f3a1c5d5ed3341ae107b50c725789, type: 3}
+  - {fileID: 21300000, guid: ca679a5c79db30c4ca3e70e24588929b, type: 3}
+  - {fileID: 21300000, guid: 226bca84e6cbb6a4bb7aca6e78c9dd2f, type: 3}
+  - {fileID: 21300000, guid: 8fa7366fd884dd94fbb3e80d3b06cccb, type: 3}
   targetBoneNames:
   - Mouth/Mouth_Style
+  overrideRandomRange: 0
+  randomPosRange: 0.05
+  randomRotationRange: 15
+  randomScaleMin: 0.8
+  randomScaleMax: 1.2

@@ -16,9 +16,14 @@ MonoBehaviour:
   displayName: "\u53D1\u578B"
   type: 0
   sprites:
-  - {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 10915, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 21300000, guid: 9738366a49bc3f14db692a0e658e2bec, type: 3}
+  - {fileID: 21300000, guid: e3bb45f5c674884439f7f6bb26a69499, type: 3}
+  - {fileID: 21300000, guid: b4abbb3e4fdc67844b2181704f56fe5f, type: 3}
+  - {fileID: 21300000, guid: 476dd20310de4714eb27fa2656c149c5, type: 3}
   targetBoneNames:
-  - Hair/Hair_Style
+  - Base_Face
+  overrideRandomRange: 1
+  randomPosRange: 0
+  randomRotationRange: 0
+  randomScaleMin: 1
+  randomScaleMax: 1

@@ -21,15 +21,20 @@ public class MagnifierArrowSelector : MonoBehaviour
     [SerializeField] private Camera focusCamera;
     [SerializeField] private Transform cameraChildCharacterRoot;
     [SerializeField] private string cameraChildCharacterRootName = "Character_Root";
+    [SerializeField] private string shotPointChildName = "shotpoint";
     [SerializeField] private string[] headFocusChildNames = { "面部", "Head", "头部", "Face" };
     [SerializeField] private Vector3 headFocusOffset;
-    [SerializeField] private float focusTransitionDuration = 0.3f;
+    [SerializeField] private float focusMoveDuration = 0.2f;
+    [SerializeField] private float focusZoomDelay = 0.1f;
+    [SerializeField] private float focusZoomDuration = 0.2f;
     [SerializeField] private float focusedOrthographicSize = 5f;
     [SerializeField] private Vector2 focusedTargetViewportPoint = new Vector2(0.63f, 0.5f);
     [SerializeField] private Vector3 focusedCharacterRootLocalPosition = new Vector3(-5.5f, 0f, 16f);
 
     [Header("Focus Buttons")]
     [SerializeField] private GameObject[] focusModeButtons;
+    [SerializeField] private Transform magnifierShotObject;
+    [SerializeField] private string magnifierShotChildName = "shot";
 
     [Header("Focused Shoot")]
     [SerializeField] private float shootSequenceDuration = 1f;
@@ -99,6 +104,12 @@ public class MagnifierArrowSelector : MonoBehaviour
             magnifierController = FindObjectOfType<MagnifierRenderTextureController>();
         }
 
+        if (magnifierShotObject == null)
+        {
+            magnifierShotObject = FindMagnifierShotObject();
+        }
+
+        SetMagnifierShotVisible(false);
         SetFocusButtonsVisible(false);
     }
 
@@ -134,6 +145,7 @@ public class MagnifierArrowSelector : MonoBehaviour
         focusCameraShakeOffset = Vector3.zero;
         isShootingFocusedPerson = false;
         SetFocusButtonsVisible(false);
+        SetMagnifierShotVisible(false);
         UnlockMagnifierFollow();
         RestoreAllArrows();
         RestoreFocusImmediately();
@@ -363,7 +375,8 @@ public class MagnifierArrowSelector : MonoBehaviour
             transitionCharacterRootStartLocalPosition = cameraChildCharacterRoot.localPosition;
         }
 
-        focusForwardDistance = Vector3.Dot(person.position - focusCamera.transform.position, focusCamera.transform.forward);
+        Vector3 focusTargetPosition = person.position;
+        focusForwardDistance = Vector3.Dot(focusTargetPosition - focusCamera.transform.position, focusCamera.transform.forward);
 
         if (focusForwardDistance <= 0.01f)
         {
@@ -375,6 +388,7 @@ public class MagnifierArrowSelector : MonoBehaviour
         isShootingFocusedPerson = false;
         SetFocusButtonsVisible(false);
         LockMagnifierFollow(person);
+        SetMagnifierShotVisible(true);
         focusState = FocusState.MovingIn;
     }
 
@@ -386,6 +400,7 @@ public class MagnifierArrowSelector : MonoBehaviour
         }
 
         SetFocusButtonsVisible(false);
+        SetMagnifierShotVisible(false);
         transitionCameraStartPosition = focusCamera.transform.position;
         transitionCameraStartRotation = focusCamera.transform.rotation;
         transitionCameraStartSize = focusCamera.orthographicSize;
@@ -418,10 +433,10 @@ public class MagnifierArrowSelector : MonoBehaviour
             return;
         }
 
-        float duration = Mathf.Max(0.01f, focusTransitionDuration);
+        float duration = GetFocusTransitionTotalDuration();
         focusTransitionTimer += Time.deltaTime;
-        float t = Mathf.Clamp01(focusTransitionTimer / duration);
-        float easedT = Smooth01(t);
+        float moveT = Mechanical01(GetSegmentT(focusTransitionTimer, 0f, focusMoveDuration));
+        float zoomT = Mechanical01(GetSegmentT(focusTransitionTimer, focusZoomDelay, focusZoomDuration));
 
         if (focusState == FocusState.MovingIn)
         {
@@ -430,20 +445,20 @@ public class MagnifierArrowSelector : MonoBehaviour
                 : transitionCameraStartPosition;
 
             UpdateMagnifierHeadLock();
-            focusCamera.transform.position = Vector3.Lerp(transitionCameraStartPosition, targetCameraPosition, easedT) + focusCameraShakeOffset;
-            focusCamera.transform.rotation = Quaternion.Slerp(transitionCameraStartRotation, originalCameraRotation, easedT);
-            focusCamera.orthographicSize = Mathf.Lerp(transitionCameraStartSize, focusedOrthographicSize, easedT);
+            focusCamera.transform.position = Vector3.Lerp(transitionCameraStartPosition, targetCameraPosition, moveT) + focusCameraShakeOffset;
+            focusCamera.transform.rotation = Quaternion.Slerp(transitionCameraStartRotation, originalCameraRotation, moveT);
+            focusCamera.orthographicSize = Mathf.Lerp(transitionCameraStartSize, focusedOrthographicSize, zoomT);
 
             if (cameraChildCharacterRoot != null)
             {
                 cameraChildCharacterRoot.localPosition = Vector3.Lerp(
                     transitionCharacterRootStartLocalPosition,
                     focusedCharacterRootLocalPosition,
-                    easedT
+                    moveT
                 );
             }
 
-            if (t >= 1f)
+            if (focusTransitionTimer >= duration)
             {
                 focusState = FocusState.Focused;
                 SetFocusButtonsVisible(true);
@@ -454,20 +469,20 @@ public class MagnifierArrowSelector : MonoBehaviour
 
         if (focusState == FocusState.MovingOut)
         {
-            focusCamera.transform.position = Vector3.Lerp(transitionCameraStartPosition, originalCameraPosition, easedT);
-            focusCamera.transform.rotation = Quaternion.Slerp(transitionCameraStartRotation, originalCameraRotation, easedT);
-            focusCamera.orthographicSize = Mathf.Lerp(transitionCameraStartSize, originalCameraOrthographicSize, easedT);
+            focusCamera.transform.position = Vector3.Lerp(transitionCameraStartPosition, originalCameraPosition, moveT);
+            focusCamera.transform.rotation = Quaternion.Slerp(transitionCameraStartRotation, originalCameraRotation, moveT);
+            focusCamera.orthographicSize = Mathf.Lerp(transitionCameraStartSize, originalCameraOrthographicSize, zoomT);
 
             if (cameraChildCharacterRoot != null)
             {
                 cameraChildCharacterRoot.localPosition = Vector3.Lerp(
                     transitionCharacterRootStartLocalPosition,
                     originalCharacterRootLocalPosition,
-                    easedT
+                    moveT
                 );
             }
 
-            if (t >= 1f)
+            if (focusTransitionTimer >= duration)
             {
                 focusedPerson = null;
                 focusCameraShakeOffset = Vector3.zero;
@@ -479,7 +494,7 @@ public class MagnifierArrowSelector : MonoBehaviour
         }
     }
 
-    private Vector3 GetFocusedCameraPosition(Vector3 personPosition, float orthographicSize)
+    private Vector3 GetFocusedCameraPosition(Vector3 focusTargetPosition, float orthographicSize)
     {
         Vector3 viewportOffset = new Vector3(
             (focusedTargetViewportPoint.x - 0.5f) * 2f * orthographicSize * focusCamera.aspect,
@@ -487,15 +502,25 @@ public class MagnifierArrowSelector : MonoBehaviour
             0f
         );
 
-        return personPosition
+        return focusTargetPosition
             - focusCamera.transform.right * viewportOffset.x
             - focusCamera.transform.up * viewportOffset.y
             - focusCamera.transform.forward * focusForwardDistance;
     }
 
-    private float Smooth01(float value)
+    private float GetFocusTransitionTotalDuration()
     {
-        return value * value * (3f - 2f * value);
+        return Mathf.Max(0.01f, focusMoveDuration, focusZoomDelay + focusZoomDuration);
+    }
+
+    private float GetSegmentT(float elapsed, float delay, float segmentDuration)
+    {
+        return Mathf.Clamp01((elapsed - delay) / Mathf.Max(0.01f, segmentDuration));
+    }
+
+    private float Mechanical01(float value)
+    {
+        return Mathf.Clamp01(value);
     }
 
     private void SetFocusButtonsVisible(bool visible)
@@ -512,6 +537,44 @@ public class MagnifierArrowSelector : MonoBehaviour
                 focusModeButtons[i].SetActive(visible);
             }
         }
+    }
+
+    private void SetMagnifierShotVisible(bool visible)
+    {
+        if (magnifierShotObject != null)
+        {
+            magnifierShotObject.gameObject.SetActive(visible);
+        }
+    }
+
+    private Transform FindMagnifierShotObject()
+    {
+        if (!string.IsNullOrWhiteSpace(magnifierShotChildName))
+        {
+            if (magnifierController != null)
+            {
+                Transform shot = FindChildRecursive(magnifierController.transform, magnifierShotChildName);
+
+                if (shot != null)
+                {
+                    return shot;
+                }
+            }
+
+            GameObject magnifier = GameObject.Find("Magnifier");
+
+            if (magnifier != null)
+            {
+                Transform shot = FindChildRecursive(magnifier.transform, magnifierShotChildName);
+
+                if (shot != null)
+                {
+                    return shot;
+                }
+            }
+        }
+
+        return null;
     }
 
     private bool IsPointerOverUi()
@@ -556,6 +619,13 @@ public class MagnifierArrowSelector : MonoBehaviour
         if (person == null)
         {
             return Vector3.zero;
+        }
+
+        Transform shotPoint = FindChildRecursive(person, shotPointChildName);
+
+        if (shotPoint != null)
+        {
+            return shotPoint.position;
         }
 
         Transform head = FindHeadFocusTransform(person);
@@ -889,7 +959,9 @@ public class MagnifierArrowSelector : MonoBehaviour
     {
         maxClickDistance = Mathf.Max(0.1f, maxClickDistance);
         clickSphereRadius = Mathf.Max(0f, clickSphereRadius);
-        focusTransitionDuration = Mathf.Max(0.01f, focusTransitionDuration);
+        focusMoveDuration = Mathf.Max(0.01f, focusMoveDuration);
+        focusZoomDelay = Mathf.Max(0f, focusZoomDelay);
+        focusZoomDuration = Mathf.Max(0.01f, focusZoomDuration);
         focusedOrthographicSize = Mathf.Max(0.01f, focusedOrthographicSize);
         shootSequenceDuration = Mathf.Max(0.01f, shootSequenceDuration);
         shootSlowMotionScale = Mathf.Clamp(shootSlowMotionScale, 0.01f, 1f);
@@ -919,6 +991,7 @@ public class MagnifierArrowSelector : MonoBehaviour
         focusCameraShakeOffset = Vector3.zero;
         isShootingFocusedPerson = false;
         SetFocusButtonsVisible(false);
+        SetMagnifierShotVisible(false);
         UnlockMagnifierFollowAndSnapToMouse();
         focusState = FocusState.Idle;
     }
