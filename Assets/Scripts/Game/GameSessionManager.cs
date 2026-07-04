@@ -15,6 +15,11 @@ public class GameSessionManager : MonoBehaviour
     [SerializeField] private bool startTimerOnEnable = true;
     [SerializeField] private bool dontDestroyOnLoad = true;
 
+    [Header("Terrain")]
+    [SerializeField] private GameObject[] terrains;
+    [SerializeField] private bool randomizeTerrainOnSessionStart = true;
+    [SerializeField] private bool logSelectedTerrain;
+
     [Header("End Scene")]
     [SerializeField] private bool loadSceneOnEnd;
     [SerializeField] private string endSceneName;
@@ -26,11 +31,13 @@ public class GameSessionManager : MonoBehaviour
 
     private float sessionStartTime;
     private int shotsFired;
+    private int selectedTerrainNumber;
     private bool hasEnded;
     private bool lastGameSucceeded;
     private bool isDuplicateInstance;
 
     public int ShotsFired => shotsFired;
+    public int SelectedTerrainNumber => selectedTerrainNumber;
     public bool HasEnded => hasEnded;
     public bool LastGameSucceeded => lastGameSucceeded;
     public float ElapsedSeconds => countdownTimer != null ? countdownTimer.ElapsedSeconds : Time.time - sessionStartTime;
@@ -90,6 +97,13 @@ public class GameSessionManager : MonoBehaviour
         sessionStartTime = Time.time;
         LastResult = new GameSessionResult();
 
+        if (randomizeTerrainOnSessionStart)
+        {
+            RandomizeTerrain();
+        }
+
+        LastResult.selectedTerrainNumber = selectedTerrainNumber;
+
         if (countdownTimer != null)
         {
             countdownTimer.ResetTimer();
@@ -148,7 +162,8 @@ public class GameSessionManager : MonoBehaviour
             success = success,
             reason = reason,
             shotsFired = shotsFired,
-            elapsedSeconds = ElapsedSeconds
+            elapsedSeconds = ElapsedSeconds,
+            selectedTerrainNumber = selectedTerrainNumber
         };
 
         if (success)
@@ -173,6 +188,48 @@ public class GameSessionManager : MonoBehaviour
         EndGame(false, GameEndReason.TimeUp);
     }
 
+    public void RandomizeTerrain()
+    {
+        if (terrains == null || terrains.Length == 0)
+        {
+            selectedTerrainNumber = 0;
+            return;
+        }
+
+        int selectedIndex = UnityEngine.Random.Range(0, terrains.Length);
+        SetTerrainByIndex(selectedIndex);
+    }
+
+    public void SetTerrainByNumber(int terrainNumber)
+    {
+        if (terrains == null || terrains.Length == 0)
+        {
+            selectedTerrainNumber = 0;
+            return;
+        }
+
+        int selectedIndex = Mathf.Clamp(terrainNumber - 1, 0, terrains.Length - 1);
+        SetTerrainByIndex(selectedIndex);
+    }
+
+    private void SetTerrainByIndex(int selectedIndex)
+    {
+        selectedTerrainNumber = selectedIndex + 1;
+
+        for (int i = 0; i < terrains.Length; i++)
+        {
+            if (terrains[i] != null)
+            {
+                terrains[i].SetActive(i == selectedIndex);
+            }
+        }
+
+        if (logSelectedTerrain)
+        {
+            Debug.Log($"Selected Terrain: {selectedTerrainNumber}", this);
+        }
+    }
+
     private void OnValidate()
     {
         maxShots = Mathf.Max(1, maxShots);
@@ -186,6 +243,7 @@ public class GameSessionResult
     public GameEndReason reason;
     public int shotsFired;
     public float elapsedSeconds;
+    public int selectedTerrainNumber;
 }
 
 public enum GameEndReason

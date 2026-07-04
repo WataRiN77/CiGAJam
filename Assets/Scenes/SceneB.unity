@@ -7738,7 +7738,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &808855022
 Transform:
   m_ObjectHideFlags: 0
@@ -14269,6 +14269,13 @@ MonoBehaviour:
   murdererTag: Murderer
   startTimerOnEnable: 1
   dontDestroyOnLoad: 1
+  terrains:
+  - {fileID: 865667116}
+  - {fileID: 925880180}
+  - {fileID: 1591516581}
+  - {fileID: 808855021}
+  randomizeTerrainOnSessionStart: 1
+  logSelectedTerrain: 0
   loadSceneOnEnd: 0
   endSceneName: 
   onSuccess:
@@ -17108,6 +17115,7 @@ GameObject:
   - component: {fileID: 1849826276}
   - component: {fileID: 1849826273}
   - component: {fileID: 1849826272}
+  - component: {fileID: 1849826278}
   m_Layer: 5
   m_Name: UI
   m_TagString: Untagged
@@ -17144,12 +17152,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -17243,6 +17251,21 @@ MonoBehaviour:
   playModeZ: 0
   applyInEditMode: 1
   applyInPlayMode: 1
+--- !u!114 &1849826278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1849826271}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f171f907cb044f45a7021acfb3857bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  referenceResolution: {x: 1920, y: 1080}
+  matchWidthOrHeight: 0.5
+  referencePixelsPerUnit: 100
 --- !u!4 &1852993009 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 412702, guid: 7b30b5ba44201104fba4e71a527b6905,

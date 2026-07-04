@@ -5,6 +5,7 @@ using UnityEngine;
 public class SeededClothingSelector : MonoBehaviour
 {
     [SerializeField] private Transform searchRoot;
+    [SerializeField] private string bodyContainerName = "body";
     [SerializeField] private string bodyNamePrefix = "身体";
     [SerializeField] private Transform[] clothingBodies;
     [SerializeField] private bool autoCollectBodies = true;
@@ -49,6 +50,18 @@ public class SeededClothingSelector : MonoBehaviour
         }
 
         Transform root = searchRoot != null ? searchRoot : transform;
+        Transform bodyContainer = FindChildByName(root, bodyContainerName);
+
+        if (bodyContainer != null)
+        {
+            Transform[] bodyChildren = GetDirectChildren(bodyContainer);
+
+            if (bodyChildren.Length > 0)
+            {
+                return bodyChildren;
+            }
+        }
+
         List<Transform> foundBodies = new List<Transform>();
         Transform[] allTransforms = root.GetComponentsInChildren<Transform>(true);
 
@@ -71,6 +84,48 @@ public class SeededClothingSelector : MonoBehaviour
         }
 
         return clothingBodies != null ? RemoveNulls(clothingBodies) : new Transform[0];
+    }
+
+    private static Transform FindChildByName(Transform root, string childName)
+    {
+        if (root == null || string.IsNullOrEmpty(childName))
+        {
+            return null;
+        }
+
+        Transform[] allTransforms = root.GetComponentsInChildren<Transform>(true);
+
+        foreach (Transform child in allTransforms)
+        {
+            if (child == root)
+            {
+                continue;
+            }
+
+            if (string.Equals(child.name, childName, StringComparison.OrdinalIgnoreCase))
+            {
+                return child;
+            }
+        }
+
+        return null;
+    }
+
+    private static Transform[] GetDirectChildren(Transform root)
+    {
+        List<Transform> children = new List<Transform>();
+
+        for (int i = 0; i < root.childCount; i++)
+        {
+            Transform child = root.GetChild(i);
+
+            if (child != null)
+            {
+                children.Add(child);
+            }
+        }
+
+        return children.ToArray();
     }
 
     private static Transform[] RemoveNulls(Transform[] source)
