@@ -3,16 +3,19 @@ using UnityEngine;
 public class InteractionHandler : MonoBehaviour
 {
     [Header("层设置")]
-    [SerializeField] private LayerMask organLayer;          // FaceOrgan 层
-    [SerializeField] private LayerMask gizmoLayer;          // Gizmo 层（包含角和边）
+    [SerializeField] private LayerMask organLayer;      // FaceOrgan 层
+    [SerializeField] private LayerMask gizmoLayer;      // Gizmo 层（角、边、旋转手柄）
 
     [Header("引用")]
-    [SerializeField] private SelectionManager selectionManager; // 可留空自动查找
+    [SerializeField] private SelectionManager selectionManager;
 
     private Camera mainCamera;
+
+    // 当前拖拽状态
     private DraggableOrgan currentDraggedOrgan;
     private GizmoCornerHandle currentDraggedCorner;
     private GizmoEdgeHandle currentDraggedEdge;
+    private GizmoRotateHandle currentRotateHandle;
 
     private void Start()
     {
@@ -28,10 +31,20 @@ public class InteractionHandler : MonoBehaviour
         // 鼠标按下
         if (Input.GetMouseButtonDown(0))
         {
-            // 1. 优先检测 Gizmo 层（角和边）
+            // 1. 优先检测 Gizmo 层
             Collider2D gizmoHit = Physics2D.OverlapPoint(mouseWorld, gizmoLayer);
             if (gizmoHit != null)
             {
+                // 旋转手柄
+                GizmoRotateHandle rotate = gizmoHit.GetComponent<GizmoRotateHandle>();
+                if (rotate != null && rotate.TargetOrgan != null)
+                {
+                    currentRotateHandle = rotate;
+                    rotate.OnBeginDrag(mainCamera);
+                    selectionManager?.SelectOrgan(rotate.TargetOrgan);
+                    return;
+                }
+
                 // 角手柄
                 GizmoCornerHandle corner = gizmoHit.GetComponent<GizmoCornerHandle>();
                 if (corner != null && corner.TargetOrgan != null)
@@ -53,11 +66,10 @@ public class InteractionHandler : MonoBehaviour
                 }
             }
 
-            // 2. 检测器官层（所有器官）
+            // 2. 检测器官层
             Collider2D[] organHits = Physics2D.OverlapPointAll(mouseWorld, organLayer);
             if (organHits.Length > 0)
             {
-                // 找出距离鼠标最近的器官
                 Collider2D nearest = null;
                 float minDist = float.MaxValue;
                 foreach (var col in organHits)
@@ -82,14 +94,18 @@ public class InteractionHandler : MonoBehaviour
                 }
             }
 
-            // 3. 什么都没点到 — 取消选中
+            // 3. 点到空白 — 取消选中
             selectionManager?.DeselectCurrent();
         }
 
         // 鼠标拖拽中
         if (Input.GetMouseButton(0))
         {
-            if (currentDraggedCorner != null)
+            if (currentRotateHandle != null)
+            {
+                currentRotateHandle.OnDrag(mainCamera);
+            }
+            else if (currentDraggedCorner != null)
             {
                 currentDraggedCorner.OnDrag(mainCamera);
             }
@@ -108,6 +124,11 @@ public class InteractionHandler : MonoBehaviour
         // 鼠标释放
         if (Input.GetMouseButtonUp(0))
         {
+            if (currentRotateHandle != null)
+            {
+                currentRotateHandle.OnEndDrag();
+                currentRotateHandle = null;
+            }
             if (currentDraggedCorner != null)
             {
                 currentDraggedCorner.OnEndDrag();
@@ -125,7 +146,7 @@ public class InteractionHandler : MonoBehaviour
             }
         }
 
-        // 鼠标滚轮缩放（仅对当前选中的器官）
+        // 滚轮缩放（仅选中器官）
         float scroll = Input.GetAxis("Mouse ScrollWheel");
         if (scroll != 0 && selectionManager != null && selectionManager.SelectedOrgan != null)
         {

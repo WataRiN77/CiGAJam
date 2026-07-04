@@ -18,7 +18,11 @@ public class SelectionGizmo : MonoBehaviour
     [SerializeField] private GizmoEdgeHandle edgeLeftHandle;
     [SerializeField] private GizmoEdgeHandle edgeRightHandle;
 
-    [Header("矩形线框（LineRenderer）")]
+    [Header("旋转手柄")]
+    [SerializeField] private GizmoRotateHandle rotateHandle;
+    [SerializeField] private float rotateHandleDistance = 0.3f;   // 手柄距边界外侧的距离
+
+    [Header("矩形线框 (LineRenderer)")]
     [SerializeField] private LineRenderer lineTop;
     [SerializeField] private LineRenderer lineBottom;
     [SerializeField] private LineRenderer lineLeft;
@@ -29,7 +33,7 @@ public class SelectionGizmo : MonoBehaviour
 
     private void Awake()
     {
-        // 自动查找（若命名符合且未手动拖入）
+        // 自动查找（若未手动拖入）
         if (cornerTopLeft == null) cornerTopLeft = transform.Find("Corner_TL")?.GetComponent<GizmoCornerHandle>();
         if (cornerTopRight == null) cornerTopRight = transform.Find("Corner_TR")?.GetComponent<GizmoCornerHandle>();
         if (cornerBottomLeft == null) cornerBottomLeft = transform.Find("Corner_BL")?.GetComponent<GizmoCornerHandle>();
@@ -40,12 +44,13 @@ public class SelectionGizmo : MonoBehaviour
         if (edgeLeftHandle == null) edgeLeftHandle = transform.Find("Edge_Left")?.GetComponent<GizmoEdgeHandle>();
         if (edgeRightHandle == null) edgeRightHandle = transform.Find("Edge_Right")?.GetComponent<GizmoEdgeHandle>();
 
+        if (rotateHandle == null) rotateHandle = transform.Find("RotateHandle")?.GetComponent<GizmoRotateHandle>();
+
         if (lineTop == null) lineTop = transform.Find("Line_Top")?.GetComponent<LineRenderer>();
         if (lineBottom == null) lineBottom = transform.Find("Line_Bottom")?.GetComponent<LineRenderer>();
         if (lineLeft == null) lineLeft = transform.Find("Line_Left")?.GetComponent<LineRenderer>();
         if (lineRight == null) lineRight = transform.Find("Line_Right")?.GetComponent<LineRenderer>();
 
-        // 初始化 LineRenderer 设置
         SetupLine(lineTop);
         SetupLine(lineBottom);
         SetupLine(lineLeft);
@@ -58,13 +63,13 @@ public class SelectionGizmo : MonoBehaviour
     {
         if (lr == null) return;
         lr.positionCount = 2;
-        lr.useWorldSpace = false;   // 使用本地坐标，跟随 Gizmo 根
+        lr.useWorldSpace = false;
         lr.startWidth = lineWidth;
         lr.endWidth = lineWidth;
-        lr.sortingOrder = 9;     // 确保线框显示在角和边之上/之下？按需调整
-        //lr.material = new Material(Shader.Find("Sprites/Default"));
-        //lr.startColor = Color.white;
-        //lr.endColor = Color.white;
+        lr.sortingOrder = 100;
+        lr.material = new Material(Shader.Find("Sprites/Default"));
+        lr.startColor = Color.white;
+        lr.endColor = Color.white;
     }
 
     public void SetTarget(DraggableOrgan organ)
@@ -81,6 +86,8 @@ public class SelectionGizmo : MonoBehaviour
         edgeBottomHandle?.SetTarget(organ);
         edgeLeftHandle?.SetTarget(organ);
         edgeRightHandle?.SetTarget(organ);
+
+        rotateHandle?.SetTarget(organ);
 
         gameObject.SetActive(targetRenderer != null);
     }
@@ -99,6 +106,8 @@ public class SelectionGizmo : MonoBehaviour
         edgeBottomHandle?.SetTarget(null);
         edgeLeftHandle?.SetTarget(null);
         edgeRightHandle?.SetTarget(null);
+
+        rotateHandle?.SetTarget(null);
 
         gameObject.SetActive(false);
     }
@@ -121,22 +130,27 @@ public class SelectionGizmo : MonoBehaviour
         transform.rotation = organT.rotation;
         transform.localScale = Vector3.one;
 
-        // 设置四角
+        // 四角
         SetLocalPos(cornerTopLeft, -worldExtents.x, worldExtents.y);
         SetLocalPos(cornerTopRight, worldExtents.x, worldExtents.y);
         SetLocalPos(cornerBottomLeft, -worldExtents.x, -worldExtents.y);
         SetLocalPos(cornerBottomRight, worldExtents.x, -worldExtents.y);
 
-        // 设置边中点
+        // 四边中点
         SetLocalPos(edgeTopHandle, 0, worldExtents.y);
         SetLocalPos(edgeBottomHandle, 0, -worldExtents.y);
         SetLocalPos(edgeLeftHandle, -worldExtents.x, 0);
         SetLocalPos(edgeRightHandle, worldExtents.x, 0);
 
-        // 更新线框顶点（本地坐标）
+        // 旋转手柄
+        if (rotateHandle != null)
+        {
+            rotateHandle.transform.localPosition = new Vector3(0, worldExtents.y + rotateHandleDistance, 0);
+        }
+
+        // 线框
         float hw = worldExtents.x;
         float hh = worldExtents.y;
-
         SetLinePositions(lineTop, new Vector3(-hw, hh, 0), new Vector3(hw, hh, 0));
         SetLinePositions(lineBottom, new Vector3(-hw, -hh, 0), new Vector3(hw, -hh, 0));
         SetLinePositions(lineLeft, new Vector3(-hw, hh, 0), new Vector3(-hw, -hh, 0));
