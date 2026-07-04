@@ -5375,7 +5375,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1040873326}
         m_TargetAssemblyTypeName: MainMenuController, Assembly-CSharp
-        m_MethodName: OnJoinedRoom
+        m_MethodName: OnClickJoinRoomB
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
