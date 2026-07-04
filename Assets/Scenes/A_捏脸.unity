@@ -14744,6 +14744,7 @@ MonoBehaviour:
   randomRotationRange: 15
   randomScaleMin: 0.8
   randomScaleMax: 1.2
+  registerAsNetworkActiveFace: 1
 --- !u!114 &1570621693
 MonoBehaviour:
   m_ObjectHideFlags: 0

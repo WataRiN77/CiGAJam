@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class CharacterCustomizer2D : MonoBehaviour
@@ -25,6 +25,10 @@ public class CharacterCustomizer2D : MonoBehaviour
 
     public event System.Action OnFaceChanged;
     public void NotifyFaceChanged() => OnFaceChanged?.Invoke();
+
+    [Header("网络同步配置 (新增)")]
+    [Tooltip("只有主捏脸大脸(A)和B端左下角的小脸(B)需要勾选此项！路人NPC预制体千万不要勾选！")]
+    [SerializeField] private bool registerAsNetworkActiveFace = false; // 是否是参与网络同步的主脸
 
     private void Awake()
     {
@@ -60,16 +64,13 @@ public class CharacterCustomizer2D : MonoBehaviour
 
     private void Start()
     {
-        Debug.Log($"[Customizer-Start] 物体 '{gameObject.name}' 的 CharacterCustomizer2D 脚本启动了。");
+        Debug.Log($"[Customizer-Start] 物体 '{gameObject.name}' 的 CharacterCustomizer2D 启动。是否为网络同步主脸: {registerAsNetworkActiveFace}");
 
-        if (AsymmetricSyncManager.Instance != null)
+        // 🌟 核心：只有在 Inspector 中勾选了此项的物体，才有资格向网络管理器注册自己！
+        if (registerAsNetworkActiveFace && AsymmetricSyncManager.Instance != null)
         {
-            Debug.Log($"[Customizer-Start] 成功找到 AsymmetricSyncManager 单例，开始调用注册...");
+            Debug.Log($"[Customizer-Start] 成功将 '{gameObject.name}' 注册到联机管理器！");
             AsymmetricSyncManager.Instance.RegisterLocalCustomizer(this);
-        }
-        else
-        {
-            Debug.LogWarning($"[Customizer-Start] 未能找到 AsymmetricSyncManager 单例（单机测试不报红，属正常）");
         }
     }
 
