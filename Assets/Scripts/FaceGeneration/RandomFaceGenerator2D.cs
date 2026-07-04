@@ -43,6 +43,7 @@ public class RandomFaceGenerator2D : MonoBehaviour
     [SerializeField] private float anchorSphereRadius = 0.025f;
 
     private System.Random random;
+    private bool hasGeneratedExternally;
 
     private void Awake()
     {
@@ -52,7 +53,7 @@ public class RandomFaceGenerator2D : MonoBehaviour
 
     private void Start()
     {
-        if (generateOnStart)
+        if (generateOnStart && !hasGeneratedExternally)
         {
             GenerateRandomFace();
         }
@@ -66,6 +67,7 @@ public class RandomFaceGenerator2D : MonoBehaviour
 
     public void GenerateRandomFace(int seed)
     {
+        hasGeneratedExternally = Application.isPlaying;
         random = new System.Random(seed);
 
         ResolveAllTargets();

@@ -70,6 +70,17 @@ public class RandomWanderFloat : MonoBehaviour
     public bool IsAlive => lifeState == LifeState.Alive;
     public bool IsDead => lifeState == LifeState.Dead;
 
+    public void SetFixedSeed(int seed, bool reinitializeIfPlaying = false)
+    {
+        useFixedSeed = true;
+        fixedSeed = seed;
+
+        if (Application.isPlaying && reinitializeIfPlaying && random != null)
+        {
+            InitializeRandom();
+        }
+    }
+
     private void Start()
     {
         startPosition = transform.position;
