@@ -1,4 +1,5 @@
 Event	ID	Name			Wwise Object Path	Notes
+	329552409	Stop_SFX_Typing			\Default Work Unit\SFX\Stop_SFX_Typing	
 	861084261	Play_SFX_Achieved			\Default Work Unit\SFX\Play_SFX_Achieved	
 	1376640657	Play_SFX_Hit			\Default Work Unit\SFX\Play_SFX_Hit	
 	1542905893	MainGame_FootStep			\Default Work Unit\SFX\MainGame_FootStep	

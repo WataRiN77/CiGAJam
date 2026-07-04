@@ -10,7 +10,7 @@
     "Type": "User",
     "GUID": "{45564D5C-69C2-4A44-B71D-472313392E83}",
     "Language": "SFX",
-    "Hash": "{FBFA5EFE-82F2-B583-CB11-06E55C15E88C}",
+    "Hash": "{48331B54-0D31-54F3-69F8-9A22171F87DE}",
     "ObjectPath": "\\SoundBanks\\Default Work Unit\\Soundbank_MainGame",
     "ShortName": "Soundbank_MainGame",
     "Path": "Soundbank_MainGame.bnk",
@@ -256,10 +256,20 @@
         "Id": "744552997"
        }
       ]
+     },
+     {
+      "Id": "329552409",
+      "Name": "Stop_SFX_Typing",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\Stop_SFX_Typing",
+      "GUID": "{645D5EB4-06F4-4A70-82B6-879FD9FAA206}",
+      "MaxAttenuation": "0",
+      "DurationType": "OneShot",
+      "DurationMin": "0",
+      "DurationMax": "0"
      }
     ]
    }
   ],
-  "FileHash": "{5A57D9E8-EA86-290F-DFEC-92495D1D1225}"
+  "FileHash": "{4F9B99E4-B76C-80D3-F2AC-A2395F6DF4C7}"
  }
 }

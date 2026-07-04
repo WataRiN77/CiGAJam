@@ -104,6 +104,22 @@
 								</Action>
 							</ChildrenList>
 						</Event>
+						<Event Name="Stop_SFX_Typing" ID="{645D5EB4-06F4-4A70-82B6-879FD9FAA206}">
+							<ChildrenList>
+								<Action Name="" ID="{BB6C35E5-0848-44D6-A316-AA9092408305}" ShortID="465793588">
+									<PropertyList>
+										<Property Name="ActionType" Type="int16" Value="2"/>
+										<Property Name="FadeOutCurve" Type="int16" Value="2"/>
+										<Property Name="FadeTime" Type="Real64" Value="0.5"/>
+									</PropertyList>
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="SFX_Typing" ID="{B8E8D73B-22F2-4BDF-8437-78F94390BD56}" WorkUnitID="{FB10B8D3-2F7A-4513-AF1F-C667E1EF0765}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
 					</ChildrenList>
 				</Folder>
 			</ChildrenList>
