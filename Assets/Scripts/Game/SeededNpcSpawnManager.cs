@@ -21,6 +21,8 @@ public class SeededNpcSpawnManager : MonoBehaviour
 
     [Header("Cross Scene Seeds")]
     [SerializeField] private bool preferPendingKeys = true;
+    [SerializeField] private bool waitForNetworkSeedsOnStart = true;
+    [SerializeField] private float networkSeedWaitTimeout = 5f;
     [SerializeField] private bool clearPendingSeedsAfterSpawn;
 
     [Header("SceneB Json Seeds")]
@@ -88,9 +90,13 @@ public class SeededNpcSpawnManager : MonoBehaviour
 
         if (spawnOnStart)
         {
-            if (HasPendingSeeds())
+            if (HasNetworkSeeds())
             {
                 SpawnFromConfiguredKeys();
+            }
+            else if (waitForNetworkSeedsOnStart && preferPendingKeys)
+            {
+                StartCoroutine(SpawnFromNetworkSeedsWhenReady());
             }
             else if (useSceneBJsonSeedsOnStart)
             {
@@ -135,9 +141,46 @@ public class SeededNpcSpawnManager : MonoBehaviour
         }
     }
 
+    private IEnumerator SpawnFromNetworkSeedsWhenReady()
+    {
+        float elapsed = 0f;
+
+        while (elapsed < networkSeedWaitTimeout)
+        {
+            if (HasNetworkSeeds())
+            {
+                SpawnFromConfiguredKeys();
+                yield break;
+            }
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (useSceneBJsonSeedsOnStart)
+        {
+            StartCoroutine(SpawnFromSceneBJsonWhenReady());
+            yield break;
+        }
+
+        SpawnFromConfiguredKeys();
+    }
+
     private static bool HasPendingSeeds()
     {
         return PendingNpcSeeds != null && PendingNpcSeeds.Length > 0;
+    }
+
+    private static bool HasSyncedSeeds()
+    {
+        return AsymmetricSyncManager.Instance != null &&
+               AsymmetricSyncManager.Instance.SyncedNpcSeeds != null &&
+               AsymmetricSyncManager.Instance.SyncedNpcSeeds.Length > 0;
+    }
+
+    private static bool HasNetworkSeeds()
+    {
+        return HasPendingSeeds() || HasSyncedSeeds();
     }
 
     private bool TrySpawnFromSceneBJson()
@@ -495,6 +538,14 @@ public class SeededNpcSpawnManager : MonoBehaviour
             return PendingNpcSeeds;
         }
 
+        if (preferPendingKeys &&
+            AsymmetricSyncManager.Instance != null &&
+            AsymmetricSyncManager.Instance.SyncedNpcSeeds != null &&
+            AsymmetricSyncManager.Instance.SyncedNpcSeeds.Length > 0)
+        {
+            return AsymmetricSyncManager.Instance.SyncedNpcSeeds;
+        }
+
         return useManualKeys ? manualNpcSeeds : PendingNpcSeeds;
     }
 
@@ -503,6 +554,15 @@ public class SeededNpcSpawnManager : MonoBehaviour
         if (preferPendingKeys && PendingNpcSeeds != null && PendingNpcSeeds.Length > 0)
         {
             return PendingMurdererSeed;
+        }
+
+        if (preferPendingKeys &&
+            AsymmetricSyncManager.Instance != null &&
+            AsymmetricSyncManager.Instance.SyncedNpcSeeds != null &&
+            AsymmetricSyncManager.Instance.SyncedNpcSeeds.Length > 0 &&
+            AsymmetricSyncManager.Instance.SyncedMurdererSeed >= 0)
+        {
+            return AsymmetricSyncManager.Instance.SyncedMurdererSeed;
         }
 
         return useManualKeys && useManualMurdererSeed ? manualMurdererSeed : PendingMurdererSeed;
@@ -563,6 +623,7 @@ public class SeededNpcSpawnManager : MonoBehaviour
     {
         minDistanceBetweenNpcs = Mathf.Max(0f, minDistanceBetweenNpcs);
         generatedNpcCount = Mathf.Max(1, generatedNpcCount);
+        networkSeedWaitTimeout = Mathf.Max(0f, networkSeedWaitTimeout);
         sceneBJsonSeedWaitTimeout = Mathf.Max(0f, sceneBJsonSeedWaitTimeout);
     }
 }
