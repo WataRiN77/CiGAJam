@@ -6,9 +6,15 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Onlinetesting1.unity
-    guid: ae5e0a841bc087c4da052ba617de2f2e
-  - enabled: 0
-    path: Assets/Scenes/SampleScene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
+    path: Assets/Scenes/Menu.unity
+    guid: 0704ac7818b4a9d4f9fa7df1dffae5db
+  - enabled: 1
+    path: "Assets/Scenes/A_\u634F\u8138.unity"
+    guid: 8f1857f2582a07048b4aa5beb1f6d1f9
+  - enabled: 1
+    path: Assets/Scenes/SceneB.unity
+    guid: 09fe3d9787c5e4a48a45cbd1b884067c
+  - enabled: 1
+    path: Assets/Scenes/ResultScene.unity
+    guid: 4935a3cf93ba30042a0a01191148d07b
   m_configObjects: {}
