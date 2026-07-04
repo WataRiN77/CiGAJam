@@ -61,6 +61,19 @@ MonoBehaviour:
     patternScale: 2.7
     posterizeSteps: 4
     vignetteStrength: 0.392
+    enableScanlines: 1
+    scanlineStrength: 0.274
+    scanlineFrequency: 791
+    scanlineScrollSpeed: 4.9
+    enableWideAngleLens: 0
+    barrelDistortion: 0.098
+    chromaticAberration: 0.01
+    edgeFade: 0.218
+    redrawUnprocessedLayer: 1
+    unprocessedLayerName: Gizmo
+    unprocessedLayerMask:
+      serializedVersion: 2
+      m_Bits: 256
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0

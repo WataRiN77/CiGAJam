@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -7,7 +8,7 @@ public class ObraLilaDitherFeature : ScriptableRendererFeature
     [System.Serializable]
     public class Settings
     {
-        public RenderPassEvent renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
+        public RenderPassEvent renderPassEvent = RenderPassEvent.AfterRendering;
         public Shader shader;
         public bool applyInSceneView;
 
@@ -23,12 +24,30 @@ public class ObraLilaDitherFeature : ScriptableRendererFeature
         [Range(0.25f, 8f)] public float patternScale = 1f;
         [Range(2f, 32f)] public float posterizeSteps = 8f;
         [Range(0f, 1f)] public float vignetteStrength = 0.25f;
+
+        [Header("CRT Scanlines")]
+        public bool enableScanlines = true;
+        [Range(0f, 1f)] public float scanlineStrength = 0.18f;
+        [Range(60f, 1080f)] public float scanlineFrequency = 360f;
+        [Range(-8f, 8f)] public float scanlineScrollSpeed = 0.35f;
+
+        [Header("Surveillance Lens")]
+        public bool enableWideAngleLens = true;
+        [Range(0f, 0.7f)] public float barrelDistortion = 0.18f;
+        [Range(0f, 0.2f)] public float chromaticAberration = 0.015f;
+        [Range(0f, 1f)] public float edgeFade = 0.2f;
+
+        [Header("Unprocessed Layer")]
+        public bool redrawUnprocessedLayer = true;
+        public string unprocessedLayerName = "Gizmo";
+        public LayerMask unprocessedLayerMask;
     }
 
     [SerializeField] private Settings settings = new Settings();
 
     private Material material;
     private ObraLilaDitherPass pass;
+    private UnprocessedLayerPass unprocessedLayerPass;
 
     public override void Create()
     {
@@ -37,6 +56,11 @@ public class ObraLilaDitherFeature : ScriptableRendererFeature
         pass = new ObraLilaDitherPass(settings)
         {
             renderPassEvent = settings.renderPassEvent
+        };
+
+        unprocessedLayerPass = new UnprocessedLayerPass(settings)
+        {
+            renderPassEvent = GetAfterPostProcessEvent()
         };
     }
 
@@ -49,6 +73,7 @@ public class ObraLilaDitherFeature : ScriptableRendererFeature
 
         pass.SetMaterial(material);
         pass.SetTarget(renderer.cameraColorTargetHandle);
+        unprocessedLayerPass.SetTarget(renderer.cameraColorTargetHandle);
     }
 
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
@@ -60,6 +85,11 @@ public class ObraLilaDitherFeature : ScriptableRendererFeature
 
         pass.SetMaterial(material);
         renderer.EnqueuePass(pass);
+
+        if (settings.redrawUnprocessedLayer && GetUnprocessedLayerMask() != 0)
+        {
+            renderer.EnqueuePass(unprocessedLayerPass);
+        }
     }
 
     protected override void Dispose(bool disposing)
@@ -70,7 +100,7 @@ public class ObraLilaDitherFeature : ScriptableRendererFeature
 
     private bool CanRender(RenderingData renderingData)
     {
-        if (pass == null)
+        if (pass == null || unprocessedLayerPass == null)
         {
             Create();
         }
@@ -87,6 +117,22 @@ public class ObraLilaDitherFeature : ScriptableRendererFeature
 
         CameraType cameraType = renderingData.cameraData.camera.cameraType;
         return cameraType == CameraType.Game || cameraType == CameraType.SceneView;
+    }
+
+    private int GetUnprocessedLayerMask()
+    {
+        if (settings.unprocessedLayerMask.value != 0)
+        {
+            return settings.unprocessedLayerMask.value;
+        }
+
+        int layer = LayerMask.NameToLayer(settings.unprocessedLayerName);
+        return layer >= 0 ? 1 << layer : 0;
+    }
+
+    private RenderPassEvent GetAfterPostProcessEvent()
+    {
+        return (RenderPassEvent)((int)settings.renderPassEvent + 1);
     }
 
     private bool EnsureMaterial()
@@ -121,6 +167,14 @@ public class ObraLilaDitherFeature : ScriptableRendererFeature
         private static readonly int PatternScaleId = Shader.PropertyToID("_PatternScale");
         private static readonly int PosterizeStepsId = Shader.PropertyToID("_PosterizeSteps");
         private static readonly int VignetteStrengthId = Shader.PropertyToID("_VignetteStrength");
+        private static readonly int EnableScanlinesId = Shader.PropertyToID("_EnableScanlines");
+        private static readonly int ScanlineStrengthId = Shader.PropertyToID("_ScanlineStrength");
+        private static readonly int ScanlineFrequencyId = Shader.PropertyToID("_ScanlineFrequency");
+        private static readonly int ScanlineScrollSpeedId = Shader.PropertyToID("_ScanlineScrollSpeed");
+        private static readonly int EnableWideAngleLensId = Shader.PropertyToID("_EnableWideAngleLens");
+        private static readonly int BarrelDistortionId = Shader.PropertyToID("_BarrelDistortion");
+        private static readonly int ChromaticAberrationId = Shader.PropertyToID("_ChromaticAberration");
+        private static readonly int EdgeFadeId = Shader.PropertyToID("_EdgeFade");
 
         private readonly Settings settings;
         private readonly ProfilingSampler profilingSampler = new ProfilingSampler("Obra Lila Dither");
@@ -202,6 +256,83 @@ public class ObraLilaDitherFeature : ScriptableRendererFeature
             material.SetFloat(PatternScaleId, settings.patternScale);
             material.SetFloat(PosterizeStepsId, settings.posterizeSteps);
             material.SetFloat(VignetteStrengthId, settings.vignetteStrength);
+            material.SetFloat(EnableScanlinesId, settings.enableScanlines ? 1f : 0f);
+            material.SetFloat(ScanlineStrengthId, settings.scanlineStrength);
+            material.SetFloat(ScanlineFrequencyId, settings.scanlineFrequency);
+            material.SetFloat(ScanlineScrollSpeedId, settings.scanlineScrollSpeed);
+            material.SetFloat(EnableWideAngleLensId, settings.enableWideAngleLens ? 1f : 0f);
+            material.SetFloat(BarrelDistortionId, settings.barrelDistortion);
+            material.SetFloat(ChromaticAberrationId, settings.chromaticAberration);
+            material.SetFloat(EdgeFadeId, settings.edgeFade);
+        }
+    }
+
+    private class UnprocessedLayerPass : ScriptableRenderPass
+    {
+        private static readonly List<ShaderTagId> ShaderTagIds = new List<ShaderTagId>
+        {
+            new ShaderTagId("UniversalForward"),
+            new ShaderTagId("UniversalForwardOnly"),
+            new ShaderTagId("SRPDefaultUnlit")
+        };
+
+        private readonly Settings settings;
+        private readonly ProfilingSampler profilingSampler = new ProfilingSampler("Redraw Unprocessed Layer");
+        private RTHandle target;
+
+        public UnprocessedLayerPass(Settings settings)
+        {
+            this.settings = settings;
+        }
+
+        public void SetTarget(RTHandle target)
+        {
+            this.target = target;
+            renderPassEvent = (RenderPassEvent)((int)settings.renderPassEvent + 1);
+        }
+
+        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
+        {
+            if (target != null)
+            {
+                ConfigureTarget(target);
+            }
+        }
+
+        public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+        {
+            int layerMask = GetLayerMask();
+
+            if (layerMask == 0)
+            {
+                return;
+            }
+
+            SortingCriteria sortingCriteria = SortingCriteria.CommonTransparent;
+            DrawingSettings drawingSettings = CreateDrawingSettings(ShaderTagIds, ref renderingData, sortingCriteria);
+            FilteringSettings filteringSettings = new FilteringSettings(RenderQueueRange.all, layerMask);
+            CommandBuffer cmd = CommandBufferPool.Get();
+
+            using (new ProfilingScope(cmd, profilingSampler))
+            {
+                context.ExecuteCommandBuffer(cmd);
+                cmd.Clear();
+                context.DrawRenderers(renderingData.cullResults, ref drawingSettings, ref filteringSettings);
+            }
+
+            context.ExecuteCommandBuffer(cmd);
+            CommandBufferPool.Release(cmd);
+        }
+
+        private int GetLayerMask()
+        {
+            if (settings.unprocessedLayerMask.value != 0)
+            {
+                return settings.unprocessedLayerMask.value;
+            }
+
+            int layer = LayerMask.NameToLayer(settings.unprocessedLayerName);
+            return layer >= 0 ? 1 << layer : 0;
         }
     }
 }
