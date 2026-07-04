@@ -15,6 +15,7 @@ public class MenuButtonHoverEffect : MonoBehaviour, IPointerEnterHandler, IPoint
     private Vector3 targetScale;
     private Color targetColor;
 
+
     private void Start()
     {
         originalScale = transform.localScale;

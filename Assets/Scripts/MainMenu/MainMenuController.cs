@@ -43,6 +43,13 @@ public class MainMenuController : MonoBehaviourPunCallbacks
     private bool hasGameStarted = false; // 是否已经按了任意键启动了游戏
     private Coroutine breatheCoroutine;
 
+    public static MainMenuController Instance { get; private set; } // 🌟 新增单例，方便跨物体调用
+
+    private void Awake()
+    {
+        Instance = this; // 初始化单例
+    }
+
     private void Start()
     {
         // 确保 Photon 自动同步场景关闭（因为两边去不同的场景，不使用同步加载）
@@ -78,6 +85,12 @@ public class MainMenuController : MonoBehaviourPunCallbacks
         if (bgAnimator != null)
         {
             bgAnimator.enabled = false;
+        }
+
+        if (mainButtonsGroup != null)
+        {
+            mainButtonsGroup.alpha = 0f;
+            mainButtonsGroup.gameObject.SetActive(false); // 彻底禁用物体
         }
     }
 
@@ -131,7 +144,12 @@ public class MainMenuController : MonoBehaviourPunCallbacks
     {
         if (mainButtonsGroup != null)
         {
-            StartCoroutine(FadeButtonsGroup(1f, 0.5f));
+            mainButtonsGroup.gameObject.SetActive(true);  // 1. 先激活物体
+            mainButtonsGroup.alpha = 0f;                  // 2. 确保初始是完全透明的
+            mainButtonsGroup.interactable = false;
+            mainButtonsGroup.blocksRaycasts = false;
+
+            StartCoroutine(FadeButtonsGroup(1f, 0.5f));   // 3. 再启动 0.5s 渐显协程
         }
     }
 
@@ -212,6 +230,7 @@ public class MainMenuController : MonoBehaviourPunCallbacks
         mainButtonsGroup.alpha = 0f;
         mainButtonsGroup.interactable = false;
         mainButtonsGroup.blocksRaycasts = false;
+        mainButtonsGroup.gameObject.SetActive(false); // 隐退时也顺手彻底关闭物体
 
         lobbyCanvas.SetActive(true);
         StartCoroutine(TransitionToLobby());
