@@ -1610,6 +1610,11 @@ MonoBehaviour:
   mainCanvas: {fileID: 1040873321}
   lobbyCanvas: {fileID: 1903305497}
   settingsCanvas: {fileID: 728273002}
+  pressAnyKeyText: {fileID: 1106127782}
+  bgAnimator: {fileID: 1768906823}
+  titleImage: {fileID: 928681102}
+  mainButtonsGroup: {fileID: 0}
+  breatheSpeed: 2
   bgMask: {fileID: 928836212}
   rectButtonA: {fileID: 2068374626}
   rectButtonB: {fileID: 1937645124}
