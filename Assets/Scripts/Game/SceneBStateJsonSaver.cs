@@ -43,6 +43,19 @@ public class SceneBStateJsonSaver : MonoBehaviour
                 : FindObjectOfType<GameSessionManager>();
         }
 
+        if (Photon.Pun.PhotonNetwork.InRoom && AsymmetricSyncManager.Instance != null)
+        {
+            int[] networkNpcSeeds = AsymmetricSyncManager.Instance.SyncedNpcSeeds;
+            int networkMurdererSeed = AsymmetricSyncManager.Instance.SyncedMurdererSeed;
+            int mapNum = gameSessionManager != null ? gameSessionManager.SelectedTerrainNumber : 1;
+
+            if (networkNpcSeeds != null && networkNpcSeeds.Length > 0)
+            {
+                Debug.Log($"[Saver-网络初始化] 检测到网络种子，正在自动写入初始配置以启动生成...");
+                WriteInitialConfigFromFaceManager(networkNpcSeeds, networkMurdererSeed, mapNum, npcSpawnManager);
+            }
+        }
+
         RefreshNpcListFromScene();
 
         if (saveOnStart)

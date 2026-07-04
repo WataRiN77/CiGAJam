@@ -14,6 +14,9 @@ public class AsymmetricSyncManager : MonoBehaviourPunCallbacks
     [Header("动态绑定的本地脸部渲染器")]
     private CharacterCustomizer2D activeCustomizer; // 动态指向当前活动场景中的捏脸系统
 
+    public int[] SyncedNpcSeeds { get; private set; }
+    public int SyncedMurdererSeed { get; private set; } = -1;
+
     private void Awake()
     {
         Debug.Log($"[Sync-Awake] AsymmetricSyncManager 在物体 '{gameObject.name}' 上启动。");
@@ -84,6 +87,11 @@ public class AsymmetricSyncManager : MonoBehaviourPunCallbacks
     private void RPC_SyncGameplaySeeds(int[] npcSeeds, int murdererSeed)
     {
         Debug.Log($"[Sync] 收到游戏种子。路人数: {npcSeeds.Length}，嫌疑人: {murdererSeed}");
+
+        // 缓存到本地单例中
+        SyncedNpcSeeds = npcSeeds;
+        SyncedMurdererSeed = murdererSeed;
+
         SeededNpcSpawnManager.SetPendingSeeds(npcSeeds, murdererSeed);
     }
 
