@@ -45,6 +45,9 @@ public class MagnifierArrowSelector : MonoBehaviour
     [Header("Kill UI")]
     [SerializeField] private KillUiBlinkController killUiBlinkController;
 
+    [Header("Game Session")]
+    [SerializeField] private GameSessionManager gameSessionManager;
+
     [Header("Hit FX")]
     [SerializeField] private string bloodFxChildName = "blood";
     [SerializeField] private bool detachBloodFxOnPlay;
@@ -115,6 +118,11 @@ public class MagnifierArrowSelector : MonoBehaviour
         if (killUiBlinkController == null)
         {
             killUiBlinkController = FindObjectOfType<KillUiBlinkController>();
+        }
+
+        if (gameSessionManager == null)
+        {
+            gameSessionManager = FindObjectOfType<GameSessionManager>();
         }
 
         SetMagnifierShotVisible(false);
@@ -205,6 +213,7 @@ public class MagnifierArrowSelector : MonoBehaviour
             PlayBloodFx(target, hitPoint, hitNormal);
             wander.Die(GetFocusedShootBackwardDirection(target));
             NotifyKillUi();
+            NotifyShot(target);
         }
 
         float originalTimeScale = Time.timeScale;
@@ -277,6 +286,7 @@ public class MagnifierArrowSelector : MonoBehaviour
         PlayBloodFx(wander.transform, hit.point, hit.normal);
         wander.Die(GetBackwardDirectionFromRay(ray));
         NotifyKillUi();
+        NotifyShot(wander.transform);
     }
 
     private void TryFocusThroughMagnifier()
@@ -562,6 +572,14 @@ public class MagnifierArrowSelector : MonoBehaviour
         if (killUiBlinkController != null)
         {
             killUiBlinkController.ConsumeOne();
+        }
+    }
+
+    private void NotifyShot(Transform target)
+    {
+        if (gameSessionManager != null)
+        {
+            gameSessionManager.RegisterShot(target);
         }
     }
 
