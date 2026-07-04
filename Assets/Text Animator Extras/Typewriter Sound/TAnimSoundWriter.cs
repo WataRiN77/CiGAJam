@@ -1,82 +1,48 @@
 ﻿using UnityEngine;
 using UnityEngine.Assertions;
+using Febucci.UI.Core;
 
 namespace Febucci.UI.Examples
 {
-    /// <summary>
-    /// Extra example class for the TextAnimator plugin, used to add sounds to the TextAnimatorPlayer.
-    /// </summary>
-    [AddComponentMenu("Febucci/TextAnimator/SoundWriter")]
-    [RequireComponent(typeof(Core.TypewriterCore))]
+    [AddComponentMenu("Febucci/TextAnimator/WwiseSoundWriter")]
+    [RequireComponent(typeof(TypewriterCore))]
     public class TAnimSoundWriter : MonoBehaviour
     {
+        [Header("Wwise Events")]
+        public AK.Wwise.Event startEvent;   // 打字开始时触发
+        public AK.Wwise.Event endEvent;     // 打字结束时（全部显示完）触发
 
-        [Header("References")]
-        public AudioSource source;
-
-        [Header("Management")]
-        [Tooltip("How much time has to pass before playing the next sound"), SerializeField, Attributes.MinValue(0)]
-        float minSoundDelay = .07f;
-
-        [Tooltip("True if you want the new sound to cut the previous one\nFalse if each sound will continue until its end"), SerializeField]
-        bool interruptPreviousSound = true;
-
-        [Header("Audio Clips")]
-        [Tooltip("True if sounds will be picked random from the array\nFalse if they'll be chosen in order"), SerializeField]
-        bool randomSequence = false;
-        [SerializeField] AudioClip[] sounds = new AudioClip[0];
-
-        float latestTimePlayed = -1;
-        int clipIndex;
+        private TypewriterCore typewriter;
 
         private void Awake()
         {
-            Assert.IsNotNull(source, "TAnimSoundWriter: Typewriter Audio Source reference is null");
-            Assert.IsNotNull(sounds, "TAnimSoundWriter: Sounds clips array is null in the");
-            Assert.IsTrue(sounds.Length > 0, "TAnimSoundWriter: Sounds clips array is empty");
-            Assert.IsNotNull(GetComponent<Core.TypewriterCore>(), "TAnimSoundWriter: Component TAnimPlayerBase is not present");
+            typewriter = GetComponent<TypewriterCore>();
+            Assert.IsNotNull(typewriter, "TypewriterCore component missing.");
+            Assert.IsTrue(startEvent.IsValid(), "Start Wwise Event is invalid.");
+            Assert.IsTrue(endEvent.IsValid(), "End Wwise Event is invalid.");
 
-
-            //Prevents subscribing the event if the component has not been set correctly
-            if (source == null || sounds.Length <= 0)
-                return;
-
-            //Prevents common setup errors
-            source.playOnAwake = false;
-            source.loop = false;
-
-            GetComponent<Core.TypewriterCore>()?.onCharacterVisible.AddListener(OnCharacter);
-
-            clipIndex = randomSequence ? Random.Range(0, sounds.Length) : 0;
+            // 订阅开始和结束事件
+            typewriter.onTypewriterStart.AddListener(OnTypewriterStart);
+            typewriter.onTextShowed.AddListener(OnTextShowed);
         }
 
-        void OnCharacter(char character)
+        private void OnTypewriterStart()
         {
-            if (Time.time - latestTimePlayed <= minSoundDelay)
-                return; //Early return if not enough time passed yet
+            startEvent.Post(gameObject);
+        }
 
-            source.clip = sounds[clipIndex];
+        private void OnTextShowed()
+        {
+            endEvent.Post(gameObject);
+        }
 
-            //Plays audio
-            if (interruptPreviousSound)
-                source.Play();
-            else
-                source.PlayOneShot(source.clip);
-
-            //Chooses next clip to play
-            if (randomSequence)
+        private void OnDestroy()
+        {
+            if (typewriter != null)
             {
-                clipIndex = Random.Range(0, sounds.Length);
+                typewriter.onTypewriterStart.RemoveListener(OnTypewriterStart);
+                typewriter.onTextShowed.RemoveListener(OnTextShowed);
             }
-            else
-            {
-                clipIndex++;
-                if (clipIndex >= sounds.Length)
-                    clipIndex = 0;
-            }
-
-            latestTimePlayed = Time.time;
-
         }
     }
 }
