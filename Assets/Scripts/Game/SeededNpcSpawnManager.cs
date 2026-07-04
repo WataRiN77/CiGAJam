@@ -4,21 +4,23 @@ using UnityEngine;
 
 public class SeededNpcSpawnManager : MonoBehaviour
 {
-    public static string[] PendingNpcKeys { get; private set; }
-    public static string PendingMurdererKey { get; private set; }
+    public static int[] PendingNpcSeeds { get; private set; }
+    public static int? PendingMurdererSeed { get; private set; }
 
     [Header("Prefab")]
     [SerializeField] private GameObject npcPrefab;
     [SerializeField] private Transform spawnParent;
 
-    [Header("Manual Keys")]
+    [Header("Manual Seeds")]
     [SerializeField] private bool useManualKeys = true;
-    [SerializeField] private string[] manualNpcKeys;
-    [SerializeField] private string manualMurdererKey;
+    [SerializeField] private int[] manualNpcSeeds;
+    [SerializeField] private int manualMurdererSeed;
+    [SerializeField] private bool useManualMurdererSeed = true;
+    [SerializeField] private bool spawnMissingMurdererSeed = true;
 
-    [Header("Cross Scene Keys")]
+    [Header("Cross Scene Seeds")]
     [SerializeField] private bool preferPendingKeys = true;
-    [SerializeField] private bool clearPendingKeysAfterSpawn;
+    [SerializeField] private bool clearPendingSeedsAfterSpawn;
 
     [Header("Spawn")]
     [SerializeField] private bool spawnOnStart = true;
@@ -29,7 +31,8 @@ public class SeededNpcSpawnManager : MonoBehaviour
     [SerializeField] private Vector3 spawnRotationEuler;
 
     [Header("Seed Salts")]
-    [SerializeField] private int faceSeedSalt = 1103;
+    [SerializeField] private bool useRawKeySeedForFace = true;
+    [SerializeField] private int faceSeedSalt;
     [SerializeField] private int movementSeedSalt = 2207;
     [SerializeField] private int positionSeedSalt = 3301;
 
@@ -44,16 +47,27 @@ public class SeededNpcSpawnManager : MonoBehaviour
 
     public IReadOnlyList<GameObject> SpawnedNpcs => spawnedNpcs;
 
-    public static void SetPendingKeys(IEnumerable<string> npcKeys, string murdererKey)
+    public static void SetPendingSeeds(IEnumerable<int> npcSeeds, int murdererSeed)
     {
-        PendingNpcKeys = npcKeys == null ? null : new List<string>(npcKeys).ToArray();
-        PendingMurdererKey = murdererKey;
+        PendingNpcSeeds = npcSeeds == null ? null : new List<int>(npcSeeds).ToArray();
+        PendingMurdererSeed = murdererSeed;
+    }
+
+    public static void SetPendingSeeds(IEnumerable<int> npcSeeds, int? murdererSeed)
+    {
+        PendingNpcSeeds = npcSeeds == null ? null : new List<int>(npcSeeds).ToArray();
+        PendingMurdererSeed = murdererSeed;
+    }
+
+    public static void ClearPendingSeeds()
+    {
+        PendingNpcSeeds = null;
+        PendingMurdererSeed = null;
     }
 
     public static void ClearPendingKeys()
     {
-        PendingNpcKeys = null;
-        PendingMurdererKey = null;
+        ClearPendingSeeds();
     }
 
     private void Start()
@@ -67,17 +81,17 @@ public class SeededNpcSpawnManager : MonoBehaviour
     [ContextMenu("Spawn From Configured Keys")]
     public void SpawnFromConfiguredKeys()
     {
-        string[] keys = GetActiveKeys();
-        string murdererKey = GetActiveMurdererKey();
-        SpawnFromKeys(keys, murdererKey);
+        int[] seeds = GetActiveSeeds();
+        int? murdererSeed = GetActiveMurdererSeed();
+        SpawnFromSeeds(seeds, murdererSeed);
 
-        if (clearPendingKeysAfterSpawn)
+        if (clearPendingSeedsAfterSpawn)
         {
-            ClearPendingKeys();
+            ClearPendingSeeds();
         }
     }
 
-    public void SpawnFromKeys(string[] npcKeys, string murdererKey)
+    public void SpawnFromSeeds(int[] npcSeeds, int? murdererSeed)
     {
         if (npcPrefab == null)
         {
@@ -90,25 +104,39 @@ public class SeededNpcSpawnManager : MonoBehaviour
             ClearSpawnedNpcs();
         }
 
-        if (npcKeys == null || npcKeys.Length == 0)
+        if ((npcSeeds == null || npcSeeds.Length == 0) && !murdererSeed.HasValue)
         {
-            Debug.LogWarning($"{nameof(SeededNpcSpawnManager)} has no NPC keys to spawn.", this);
+            Debug.LogWarning($"{nameof(SeededNpcSpawnManager)} has no NPC seeds to spawn.", this);
             return;
         }
 
         List<Vector3> usedPositions = new List<Vector3>();
+        bool foundMurdererSeed = !murdererSeed.HasValue;
+        int spawnedCount = 0;
 
-        for (int i = 0; i < npcKeys.Length; i++)
+        if (npcSeeds != null)
         {
-            string key = NormalizeKey(npcKeys[i]);
-
-            if (string.IsNullOrEmpty(key))
+            for (int i = 0; i < npcSeeds.Length; i++)
             {
-                continue;
+                int seed = npcSeeds[i];
+                bool isMurderer = murdererSeed.HasValue && seed == murdererSeed.Value;
+                foundMurdererSeed |= isMurderer;
+                SpawnSingleNpc(seed, spawnedCount, isMurderer, usedPositions);
+                spawnedCount++;
             }
+        }
 
-            bool isMurderer = AreKeysEqual(key, murdererKey);
-            SpawnSingleNpc(key, i, isMurderer, usedPositions);
+        if (!foundMurdererSeed && spawnMissingMurdererSeed && murdererSeed.HasValue)
+        {
+            SpawnSingleNpc(murdererSeed.Value, spawnedCount, true, usedPositions);
+            foundMurdererSeed = true;
+        }
+        else if (!foundMurdererSeed && murdererSeed.HasValue)
+        {
+            Debug.LogWarning(
+                $"{nameof(SeededNpcSpawnManager)} did not find Murderer Seed '{murdererSeed.Value}' in NPC seeds.",
+                this
+            );
         }
     }
 
@@ -116,46 +144,80 @@ public class SeededNpcSpawnManager : MonoBehaviour
     {
         for (int i = spawnedNpcs.Count - 1; i >= 0; i--)
         {
-            if (spawnedNpcs[i] != null)
+            GameObject spawnedNpc = spawnedNpcs[i];
+
+            if (spawnedNpc == null)
             {
-                Destroy(spawnedNpcs[i]);
+                continue;
+            }
+
+            if (Application.isPlaying)
+            {
+                Destroy(spawnedNpc);
+            }
+            else
+            {
+                DestroyImmediate(spawnedNpc);
             }
         }
 
         spawnedNpcs.Clear();
     }
 
-    private void SpawnSingleNpc(string key, int index, bool isMurderer, List<Vector3> usedPositions)
+    private void SpawnSingleNpc(int seed, int index, bool isMurderer, List<Vector3> usedPositions)
     {
-        int baseSeed = GetStableSeed(key);
+        int baseSeed = seed;
         Vector3 position = GetSpawnPosition(baseSeed, index, usedPositions);
         Quaternion rotation = Quaternion.Euler(spawnRotationEuler);
         Transform parent = spawnParent != null ? spawnParent : transform;
 
         GameObject npc = Instantiate(npcPrefab, position, rotation, parent);
-        npc.name = $"{npcPrefab.name}_{index}_{key}";
+        npc.name = $"{npcPrefab.name}_{index}_{seed}";
         spawnedNpcs.Add(npc);
+        SeededNpcIdentity identity = npc.GetComponent<SeededNpcIdentity>();
 
-        ApplyFaceSeed(npc, CombineSeed(baseSeed, faceSeedSalt));
-        ApplyMovementSeed(npc, CombineSeed(baseSeed, movementSeedSalt));
+        if (identity == null)
+        {
+            identity = npc.AddComponent<SeededNpcIdentity>();
+        }
+
+        int faceSeed = useRawKeySeedForFace ? baseSeed : CombineSeed(baseSeed, faceSeedSalt);
+        ApplyFaceSeed(npc, faceSeed);
+        RandomWanderFloat wander = ApplyMovementSeed(npc, CombineSeed(baseSeed, movementSeedSalt));
+        identity.Initialize(seed, baseSeed, faceSeed, isMurderer);
 
         if (isMurderer)
         {
             TrySetTag(npc, murdererTag);
+            if (wander != null && wander.gameObject != npc)
+            {
+                TrySetTag(wander.gameObject, murdererTag);
+            }
+
+            Debug.Log($"Spawned Murderer NPC from seed '{seed}'.", wander != null ? wander.gameObject : npc);
         }
     }
 
     private void ApplyFaceSeed(GameObject npc, int seed)
     {
-        RandomFaceGenerator2D faceGenerator = npc.GetComponentInChildren<RandomFaceGenerator2D>(true);
+        FaceGenerator faceGenerator = npc.GetComponentInChildren<FaceGenerator>(true);
 
         if (faceGenerator != null)
         {
-            faceGenerator.GenerateRandomFace(seed);
+            Debug.Log("1234321");
+            faceGenerator.GenerateAndApplyFace(seed);
+            return;
+        }
+
+        RandomFaceGenerator2D fallbackGenerator = npc.GetComponentInChildren<RandomFaceGenerator2D>(true);
+
+        if (fallbackGenerator != null)
+        {
+            fallbackGenerator.GenerateRandomFace(seed);
         }
     }
 
-    private void ApplyMovementSeed(GameObject npc, int seed)
+    private RandomWanderFloat ApplyMovementSeed(GameObject npc, int seed)
     {
         RandomWanderFloat wander = npc.GetComponent<RandomWanderFloat>();
 
@@ -168,6 +230,8 @@ public class SeededNpcSpawnManager : MonoBehaviour
         {
             wander.SetFixedSeed(seed);
         }
+
+        return wander;
     }
 
     private Vector3 GetSpawnPosition(int baseSeed, int index, List<Vector3> usedPositions)
@@ -223,56 +287,24 @@ public class SeededNpcSpawnManager : MonoBehaviour
         return true;
     }
 
-    private string[] GetActiveKeys()
+    private int[] GetActiveSeeds()
     {
-        if (preferPendingKeys && PendingNpcKeys != null && PendingNpcKeys.Length > 0)
+        if (preferPendingKeys && PendingNpcSeeds != null && PendingNpcSeeds.Length > 0)
         {
-            return PendingNpcKeys;
+            return PendingNpcSeeds;
         }
 
-        return useManualKeys ? manualNpcKeys : PendingNpcKeys;
+        return useManualKeys ? manualNpcSeeds : PendingNpcSeeds;
     }
 
-    private string GetActiveMurdererKey()
+    private int? GetActiveMurdererSeed()
     {
-        if (preferPendingKeys && PendingNpcKeys != null && PendingNpcKeys.Length > 0)
+        if (preferPendingKeys && PendingNpcSeeds != null && PendingNpcSeeds.Length > 0)
         {
-            return PendingMurdererKey;
+            return PendingMurdererSeed;
         }
 
-        return useManualKeys ? manualMurdererKey : PendingMurdererKey;
-    }
-
-    private static bool AreKeysEqual(string a, string b)
-    {
-        return string.Equals(NormalizeKey(a), NormalizeKey(b), StringComparison.Ordinal);
-    }
-
-    private static string NormalizeKey(string key)
-    {
-        return string.IsNullOrWhiteSpace(key) ? string.Empty : key.Trim();
-    }
-
-    private static int GetStableSeed(string key)
-    {
-        key = NormalizeKey(key);
-
-        if (int.TryParse(key, out int intSeed))
-        {
-            return intSeed;
-        }
-
-        unchecked
-        {
-            int hash = 23;
-
-            for (int i = 0; i < key.Length; i++)
-            {
-                hash = hash * 31 + key[i];
-            }
-
-            return hash;
-        }
+        return useManualKeys && useManualMurdererSeed ? manualMurdererSeed : PendingMurdererSeed;
     }
 
     private static int CombineSeed(int seed, int salt)
