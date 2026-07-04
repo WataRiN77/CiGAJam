@@ -14,9 +14,20 @@ public class ResultSceneManager : MonoBehaviour
     [SerializeField] private GameObject btnReturnToMenu;         // “返回主菜单”按钮（抓捕失败时显示）
     [SerializeField] private CanvasGroup buttonsCanvasGroup;     // 按钮组的 CanvasGroup（用于柔和渐显）
 
+    [Header("印章动效配置")]
+    [SerializeField] private Image stampImage;                   // 印章的 Image 组件
+    [SerializeField] private Sprite stampSpriteSuccess;          // 成功时的“APPROVED”印章贴图
+    [SerializeField] private Sprite stampSpriteFailed;           // 失败时的“REJECTED”印章贴图
+    [SerializeField] private float stampStartScale = 3.5f;       // 盖章刚出现时的缩放大小
+    [SerializeField] private float stampSlamDuration = 0.2f;     // 印章狠狠砸下的时间
+
+    [Header("🌟 Wwise BGM 状态配置 (新增)")]
+    [SerializeField] private AK.Wwise.State bgmStateSuccess;     // 🌟 胜利状态 (对应 Wwise 里的 Finish_Success)
+    [SerializeField] private AK.Wwise.State bgmStateFailed;      // 🌟 失败状态 (对应 Wwise 里的 Finish_Failed)
+
     private void Start()
     {
-        // 1. 初始隐藏底部按钮
+        // 1. 初始隐藏底部按钮和印章
         btnContinue.SetActive(false);
         btnReturnToMenu.SetActive(false);
         if (buttonsCanvasGroup != null)
@@ -24,10 +35,33 @@ public class ResultSceneManager : MonoBehaviour
             buttonsCanvasGroup.alpha = 0f;
         }
 
-        // 2. 核心：提取数据并进行结算和打字机装填
+        if (stampImage != null)
+        {
+            stampImage.gameObject.SetActive(false);
+        }
+
+        // 🌟 2. 核心联动：调用 AkState 的内置方法 SetValue() 切换至对应 Wwise 状态！
+        if (GameSessionData.IsCaptureSuccess)
+        {
+            if (bgmStateSuccess != null && bgmStateSuccess.IsValid())
+            {
+                bgmStateSuccess.SetValue(); // 切换至胜利 BGM 状态
+                Debug.Log("[Wwise-BGM] 已调用 AkState 切换至: Finish_Success");
+            }
+        }
+        else
+        {
+            if (bgmStateFailed != null && bgmStateFailed.IsValid())
+            {
+                bgmStateFailed.SetValue();  // 切换至失败 BGM 状态
+                Debug.Log("[Wwise-BGM] 已调用 AkState 切换至: Finish_Failed");
+            }
+        }
+
+        // 3. 提取数据并进行结算和打字机装填
         ConfigureSettlementData();
 
-        // 3. 延时 2 秒（给电视雪花屏和转场留出时间），然后启动打字机序列
+        // 4. 延时 2 秒，启动打字机和盖章表现序列
         StartCoroutine(StartSettlementPresentation());
     }
 
@@ -48,11 +82,10 @@ public class ResultSceneManager : MonoBehaviour
         // C. 嫌疑人代号
         string suspectText = $"嫌疑人：{GameSessionData.SuspectCodename}";
 
-        // D. 格式化抓捕时间（将秒数如 130 转化为 02:10 格式）
+        // D. 格式化抓捕时间
         string timeText = $"抓捕时间 {FormatTime(GameSessionData.CaptureDurationValue)}";
 
-        // 🌟 巧妙融合：直接把你本地配置好的 4 个打字机序列的 Content 填入！
-        // 这样你就完全不需要在 Inspector 里重新拖拽，直接复用了你精美的界面配置
+        // 注入打字机序列
         if (typewriterManager.defaultSequence.Count >= 4)
         {
             typewriterManager.defaultSequence[0].content = successText;
@@ -73,8 +106,12 @@ public class ResultSceneManager : MonoBehaviour
             typewriterManager.PlayDefaultSequence();
         }
 
-        // 3. 延时 4 秒后（等待打字机差不多打完），柔和淡出显现对应按钮
-        yield return new WaitForSeconds(4.0f);
+        // 3. 在打字机打字中途盖下大印！
+        yield return new WaitForSeconds(2.5f);
+        yield return StartCoroutine(PlayStampEffectCoroutine());
+
+        // 4. 等待打字机完全播放完毕后，柔和显现对应按钮
+        yield return new WaitForSeconds(1.5f);
 
         // 根据抓捕成败，激活对应按钮
         if (GameSessionData.IsCaptureSuccess)
@@ -99,12 +136,57 @@ public class ResultSceneManager : MonoBehaviour
         }
     }
 
-    // ==========================================
-    // 🌟 画像与嫌疑人相似度对比算法 (高保真游戏设计)
-    // ==========================================
+    // 盖章动画协程
+    private IEnumerator PlayStampEffectCoroutine()
+    {
+        if (stampImage == null) yield break;
+
+        stampImage.sprite = GameSessionData.IsCaptureSuccess ? stampSpriteSuccess : stampSpriteFailed;
+        stampImage.gameObject.SetActive(true);
+        stampImage.transform.localScale = Vector3.one * stampStartScale;
+
+        Color startColor = stampImage.color;
+        stampImage.color = new Color(startColor.r, startColor.g, startColor.b, 0f);
+
+        float elapsed = 0f;
+        while (elapsed < stampSlamDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / stampSlamDuration;
+
+            float tScale = Mathf.Lerp(stampStartScale, 1.0f, t * t);
+            float tAlpha = Mathf.Min(1f, t * 2f);
+
+            stampImage.transform.localScale = Vector3.one * tScale;
+            stampImage.color = new Color(startColor.r, startColor.g, startColor.b, tAlpha);
+            yield return null;
+        }
+
+        stampImage.transform.localScale = Vector3.one;
+        stampImage.color = new Color(startColor.r, startColor.g, startColor.b, 1f);
+
+        // 触发 Wwise 的盖章音效！
+        AkUnitySoundEngine.PostEvent("Play_SFX_Stamp", gameObject);
+        Debug.Log("[Wwise-Stamp] 盖章成功！触发 Play_SFX_Stamp 音效");
+
+        // 物理微小回弹效果
+        float bounceElapsed = 0f;
+        float bounceDuration = 0.15f;
+        while (bounceElapsed < bounceDuration)
+        {
+            bounceElapsed += Time.deltaTime;
+            float t = bounceElapsed / bounceDuration;
+            float bounceScale = 1.0f + Mathf.Sin(t * Mathf.PI) * 0.08f;
+            stampImage.transform.localScale = Vector3.one * bounceScale;
+            yield return null;
+        }
+
+        stampImage.transform.localScale = Vector3.one;
+    }
+
+    // 相似度算法
     private int CalculateFaceSimilarity(string suspectJson, string artistJson)
     {
-        // 如果数据为空，提供一个好玩的基础保底分
         if (string.IsNullOrEmpty(suspectJson) || string.IsNullOrEmpty(artistJson))
         {
             return Random.Range(30, 45);
@@ -121,51 +203,41 @@ public class ResultSceneManager : MonoBehaviour
         float totalScore = 0f;
         int matchedOrgansCount = 0;
 
-        // 遍历嫌犯的每一个五官
         foreach (var sOrgan in suspect.organs)
         {
             if (string.IsNullOrEmpty(sOrgan.partId)) continue;
 
-            // 寻找玩家 A 拼出来的相同部位
             var aOrgan = artist.organs.Find(o => o.objectPath == sOrgan.objectPath && o.partId == sOrgan.partId);
             if (aOrgan == null) continue;
 
             matchedOrgansCount++;
             float organScore = 0f;
 
-            // 1. 贴图款式是否一致 (占 40%)
             if (sOrgan.spriteIndex == aOrgan.spriteIndex)
             {
                 organScore += 40f;
             }
 
-            // 2. 位置贴合度 (占 30%)
             float posDist = Vector3.Distance(sOrgan.localPosition, aOrgan.localPosition);
-            float posFactor = Mathf.Clamp01(1f - posDist / 0.15f); // 0.15 范围内计算误差
+            float posFactor = Mathf.Clamp01(1f - posDist / 0.15f);
             organScore += 30f * posFactor;
 
-            // 3. 缩放贴合度 (占 20%)
             float scaleDiff = Vector3.Distance(sOrgan.localScale, aOrgan.localScale);
-            float scaleFactor = Mathf.Clamp01(1f - scaleDiff / 0.6f); // 0.6 范围内计算误差
+            float scaleFactor = Mathf.Clamp01(1f - scaleDiff / 0.6f);
             organScore += 20f * scaleFactor;
 
-            // 4. 旋转角度贴合度 (占 10%)
             float angleDiff = Mathf.Abs(sOrgan.localRotation.eulerAngles.z - aOrgan.localRotation.eulerAngles.z);
             angleDiff = Mathf.Min(angleDiff, 360f - angleDiff);
-            float rotFactor = Mathf.Clamp01(1f - angleDiff / 45f); // 45度以内计算误差
+            float rotFactor = Mathf.Clamp01(1f - angleDiff / 45f);
             organScore += 10f * rotFactor;
 
             totalScore += organScore;
         }
 
-        // 计算平均值
         float finalScore = matchedOrgansCount > 0 ? totalScore / matchedOrgansCount : 0f;
-
-        // 最终返回 0% - 100% 的整数
         return Mathf.Clamp((int)finalScore, 0, 100);
     }
 
-    // 格式化时间辅助函数 (将 130 秒转换为 "02:10")
     private string FormatTime(float seconds)
     {
         int min = Mathf.FloorToInt(seconds / 60f);
@@ -173,56 +245,46 @@ public class ResultSceneManager : MonoBehaviour
         return string.Format("{0:00} : {1:00}", min, sec);
     }
 
-    // “继续游戏”按钮绑定：生成新一轮种子并“各回各家”
     public void OnClickContinueNextRound()
     {
         if (ScreenTransitionManager.Instance != null)
         {
-            // 🌟 1. 核心网络同步：如果是房主（A），开启新一轮前，生成并分发全新的一组随机种子！
             if (PhotonNetwork.IsMasterClient)
             {
-                int murdererSeed = Random.Range(100000, 999999); // 产生新的嫌犯
-
-                // 💡 提示：你们策划案里提到了“难度递增”，你可以在这里根据通关轮次逐渐增加路人数
-                int npcCount = 15; // 第二轮可以设计成 20 甚至 25 人
+                int murdererSeed = Random.Range(100000, 999999);
+                int npcCount = 15;
 
                 int[] npcSeeds = new int[npcCount];
                 for (int i = 0; i < npcCount; i++)
                 {
-                    npcSeeds[i] = Random.Range(100000, 999999); // 产生新的路人
+                    npcSeeds[i] = Random.Range(100000, 999999);
                 }
-                npcSeeds[0] = murdererSeed; // 确保塞入正确答案
+                npcSeeds[0] = murdererSeed;
 
-                // 呼叫同步管理器分发新种子
                 if (AsymmetricSyncManager.Instance != null)
                 {
                     AsymmetricSyncManager.Instance.BroadcastSeeds(npcSeeds, murdererSeed);
                 }
             }
 
-            // 🌟 2. 核心分流跳转：根据身份状态，让两名玩家退回各自的关卡场景
             if (AsymmetricSyncManager.Instance != null)
             {
                 if (AsymmetricSyncManager.Instance.isPlayerA_Artist)
                 {
-                    // A 玩家（画家）进入捏脸场景开始新一轮拼图
                     ScreenTransitionManager.Instance.TransitionToScene("A_捏脸");
                 }
                 else
                 {
-                    // B 玩家（侦察员）进入对战场景开始新一轮搜寻
                     ScreenTransitionManager.Instance.TransitionToScene("SceneB");
                 }
             }
             else
             {
-                // 兜底单机测试方案
                 ScreenTransitionManager.Instance.TransitionToScene("A_捏脸");
             }
         }
     }
 
-    // “返回主菜单”按钮绑定：电视雪花屏退出
     public void OnClickReturnToMenu()
     {
         if (ScreenTransitionManager.Instance != null)
