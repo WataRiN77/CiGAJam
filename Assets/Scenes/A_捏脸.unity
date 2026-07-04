@@ -1313,7 +1313,7 @@ MonoBehaviour:
   lookAtTrackedNpc: 1
   followSmoothTime: 0.12
   animateOrthographicSize: 1
-  trackedOrthographicSize: 2
+  trackedOrthographicSize: 1
   orthographicSizeTransitionTime: 0.3
   playShotFeedback: 1
   shotFeedbackDuration: 1

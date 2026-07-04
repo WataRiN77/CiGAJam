@@ -49,7 +49,7 @@ public class BinASceneJsonDriver : MonoBehaviour
     [SerializeField] private bool lookAtTrackedNpc = true;
     [SerializeField] private float followSmoothTime = 0.12f;
     [SerializeField] private bool animateOrthographicSize = true;
-    [SerializeField] private float trackedOrthographicSize = 2f;
+    [SerializeField] private float trackedOrthographicSize = 1f;
     [SerializeField] private float orthographicSizeTransitionTime = 0.3f;
 
     [Header("Shot Feedback")]
@@ -465,9 +465,15 @@ public class BinASceneJsonDriver : MonoBehaviour
 
             if (npcState.isTracked && !npcState.isShot)
             {
-                trackedTarget = identity.transform;
+                trackedTarget = GetFollowTarget(identity.transform);
             }
         }
+    }
+
+    private Transform GetFollowTarget(Transform npcRoot)
+    {
+        Transform shotPoint = FindChildRecursive(npcRoot, shotPointChildName);
+        return shotPoint != null ? shotPoint : npcRoot;
     }
 
     private void ApplyMarkedState(Transform npcRoot, bool isMarked)
