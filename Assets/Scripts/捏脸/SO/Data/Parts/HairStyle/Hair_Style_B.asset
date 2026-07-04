@@ -25,7 +25,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 25a1920e188c66f42835dd83a0b16fbe, type: 3}
   - {fileID: 21300000, guid: a7c6e643058a9484cb860e545c7882db, type: 3}
   targetBoneNames:
-  - Hair_Style
+  - Base_Face
   overrideRandomRange: 1
   randomPosRange: 0
   randomRotationRange: 0
