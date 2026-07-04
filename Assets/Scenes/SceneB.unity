@@ -5286,7 +5286,6 @@ MonoBehaviour:
   killUiBlinkController: {fileID: 0}
   gameSessionManager: {fileID: 0}
   bloodFxChildName: blood
-  detachBloodFxOnPlay: 0
   arrowChildName: arrows
   fallbackArrowChildName: Arrow
   floatHeight: 0.18
@@ -10465,7 +10464,7 @@ MonoBehaviour:
     type: 3}
   spawnParent: {fileID: 0}
   useManualKeys: 1
-  manualNpcSeeds: d2040000
+  manualNpcSeeds: 29090000
   manualMurdererSeed: 1234
   useManualMurdererSeed: 1
   spawnMissingMurdererSeed: 1
@@ -10473,14 +10472,10 @@ MonoBehaviour:
   clearPendingSeedsAfterSpawn: 0
   spawnOnStart: 1
   clearPreviouslySpawned: 1
-  spawnCenter: {x: 0, y: -7.67, z: -2.65}
+  spawnCenter: {x: 0, y: -5.19, z: -2.65}
   spawnRange: {x: 12.65, y: 0, z: 8.45}
   minDistanceBetweenNpcs: 1.2
   spawnRotationEuler: {x: 0, y: 0, z: 0}
-  useRawKeySeedForFace: 1
-  faceSeedSalt: 1103
-  movementSeedSalt: 2207
-  positionSeedSalt: 3301
   murdererTag: Murderer
   alwaysShowSpawnRange: 1
   rangeColor: {r: 1, g: 0.85, b: 0.1, a: 0.25}
@@ -19410,7 +19405,7 @@ PrefabInstance:
     - target: {fileID: 8530952512822312460, guid: 6b8845b3fb864964e865b4794a3e20d1,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -6.2
+      value: -5.23
       objectReference: {fileID: 0}
     - target: {fileID: 8530952512822312460, guid: 6b8845b3fb864964e865b4794a3e20d1,
         type: 3}

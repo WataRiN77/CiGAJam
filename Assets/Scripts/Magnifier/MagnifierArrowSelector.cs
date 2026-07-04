@@ -52,7 +52,6 @@ public class MagnifierArrowSelector : MonoBehaviour
 
     [Header("Hit FX")]
     [SerializeField] private string bloodFxChildName = "blood";
-    [SerializeField] private bool detachBloodFxOnPlay;
 
     [Header("Arrow Target")]
     [SerializeField] private string arrowChildName = "arrows";
@@ -214,6 +213,7 @@ public class MagnifierArrowSelector : MonoBehaviour
         {
             GetFocusedShootPoint(target, out Vector3 hitPoint, out Vector3 hitNormal);
             CloseArrow(arrow);
+            ActivateShotPointChildren(target);
             PlayBloodFx(target, hitPoint, hitNormal);
             wander.Die(GetFocusedShootBackwardDirection(target));
             NotifyKillUi();
@@ -287,6 +287,7 @@ public class MagnifierArrowSelector : MonoBehaviour
         }
 
         CloseArrow(arrow);
+        ActivateShotPointChildren(wander.transform);
         PlayBloodFx(wander.transform, hit.point, hit.normal);
         wander.Die(GetBackwardDirectionFromRay(ray));
         NotifyKillUi();
@@ -868,6 +869,21 @@ public class MagnifierArrowSelector : MonoBehaviour
         return FindChildRecursive(root, bloodFxChildName);
     }
 
+    private void ActivateShotPointChildren(Transform root)
+    {
+        Transform shotPoint = FindChildRecursive(root, shotPointChildName);
+
+        if (shotPoint == null)
+        {
+            return;
+        }
+
+        foreach (Transform child in shotPoint)
+        {
+            child.gameObject.SetActive(true);
+        }
+    }
+
     private Transform FindChildRecursive(Transform parent, string childName)
     {
         if (parent == null || string.IsNullOrWhiteSpace(childName))
@@ -1058,18 +1074,6 @@ public class MagnifierArrowSelector : MonoBehaviour
         if (bloodFx == null)
         {
             return;
-        }
-
-        if (detachBloodFxOnPlay)
-        {
-            bloodFx.SetParent(null, true);
-        }
-
-        bloodFx.position = hitPoint;
-
-        if (hitNormal.sqrMagnitude > 0.0001f)
-        {
-            bloodFx.rotation = Quaternion.LookRotation(hitNormal.normalized, Vector3.up);
         }
 
         bloodFx.gameObject.SetActive(true);

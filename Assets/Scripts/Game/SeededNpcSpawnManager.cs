@@ -30,12 +30,6 @@ public class SeededNpcSpawnManager : MonoBehaviour
     [SerializeField] private float minDistanceBetweenNpcs = 1.2f;
     [SerializeField] private Vector3 spawnRotationEuler;
 
-    [Header("Seed Salts")]
-    [SerializeField] private bool useRawKeySeedForFace = true;
-    [SerializeField] private int faceSeedSalt;
-    [SerializeField] private int movementSeedSalt = 2207;
-    [SerializeField] private int positionSeedSalt = 3301;
-
     [Header("Tags")]
     [SerializeField] private string murdererTag = "Murderer";
 
@@ -181,9 +175,10 @@ public class SeededNpcSpawnManager : MonoBehaviour
             identity = npc.AddComponent<SeededNpcIdentity>();
         }
 
-        int faceSeed = useRawKeySeedForFace ? baseSeed : CombineSeed(baseSeed, faceSeedSalt);
+        int faceSeed = baseSeed;
         ApplyFaceSeed(npc, faceSeed);
-        RandomWanderFloat wander = ApplyMovementSeed(npc, CombineSeed(baseSeed, movementSeedSalt));
+        ApplyClothingSeed(npc, baseSeed);
+        RandomWanderFloat wander = ApplyMovementSeed(npc, baseSeed);
         identity.Initialize(seed, baseSeed, faceSeed, isMurderer);
 
         if (isMurderer)
@@ -204,7 +199,6 @@ public class SeededNpcSpawnManager : MonoBehaviour
 
         if (faceGenerator != null)
         {
-            Debug.Log("1234321");
             faceGenerator.GenerateAndApplyFace(seed);
             return;
         }
@@ -234,10 +228,21 @@ public class SeededNpcSpawnManager : MonoBehaviour
         return wander;
     }
 
+    private void ApplyClothingSeed(GameObject npc, int seed)
+    {
+        SeededClothingSelector clothingSelector = npc.GetComponentInChildren<SeededClothingSelector>(true);
+
+        if (clothingSelector == null)
+        {
+            clothingSelector = npc.AddComponent<SeededClothingSelector>();
+        }
+
+        clothingSelector.ApplySeed(seed);
+    }
+
     private Vector3 GetSpawnPosition(int baseSeed, int index, List<Vector3> usedPositions)
     {
-        int positionSeed = CombineSeed(baseSeed + index * 7919, positionSeedSalt);
-        System.Random random = new System.Random(positionSeed);
+        System.Random random = new System.Random(baseSeed);
         int attempts = Mathf.Max(12, usedPositions.Count * 6);
         Vector3 candidate = spawnCenter;
 
@@ -305,14 +310,6 @@ public class SeededNpcSpawnManager : MonoBehaviour
         }
 
         return useManualKeys && useManualMurdererSeed ? manualMurdererSeed : PendingMurdererSeed;
-    }
-
-    private static int CombineSeed(int seed, int salt)
-    {
-        unchecked
-        {
-            return seed * 397 ^ salt;
-        }
     }
 
     private static float RandomRange(System.Random random, float min, float max)
