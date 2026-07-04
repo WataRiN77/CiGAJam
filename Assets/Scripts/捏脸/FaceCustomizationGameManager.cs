@@ -248,7 +248,6 @@ public class FaceCustomizationGameManager : MonoBehaviour
         public List<FaceSaveData> items;
     }
 
-<<<<<<< Updated upstream
     /// <summary>
     /// 游戏结束时调用：保存当前捏脸、与答案比对、将相似值存入文件并返回。
     /// </summary>
@@ -280,11 +279,11 @@ public class FaceCustomizationGameManager : MonoBehaviour
     private class GameResultData
     {
         public float similarity;
-=======
+    }
+
     private void OnValidate()
     {
         defaultDistractorCount = Mathf.Max(0, defaultDistractorCount);
         sceneMapCount = Mathf.Max(1, sceneMapCount);
->>>>>>> Stashed changes
     }
 }
