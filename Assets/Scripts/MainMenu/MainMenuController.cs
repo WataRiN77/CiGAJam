@@ -63,7 +63,6 @@ public class MainMenuController : MonoBehaviourPunCallbacks
 
     public void OnClickStart()
     {
-        mainCanvas.SetActive(false);
         lobbyCanvas.SetActive(true);
         StartCoroutine(TransitionToLobby());
     }
