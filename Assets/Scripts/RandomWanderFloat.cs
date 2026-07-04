@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class RandomWanderFloat : MonoBehaviour
 {
+    private static event System.Action<RandomWanderFloat, Vector3> AnyNpcDied;
+
     public enum LifeState
     {
         Alive,
@@ -53,6 +55,13 @@ public class RandomWanderFloat : MonoBehaviour
     [SerializeField] private float deathUpwardForce = 1.5f;
     [SerializeField] private ForceMode deathForceMode = ForceMode.Impulse;
 
+    [Header("Flee From Death")]
+    [SerializeField] private bool fleeWhenNearbyDeath = true;
+    [SerializeField] private float deathAlertRadius = 7f;
+    [SerializeField] private float fleeDistance = 4f;
+    [SerializeField] private float fleeDuration = 1.5f;
+    [SerializeField] private float fleeSpeedMultiplier = 2.6f;
+
     private Vector3 startPosition;
     private Vector3 rangeCenter;
     private Vector3 targetPosition;
@@ -64,11 +73,22 @@ public class RandomWanderFloat : MonoBehaviour
     private float rotationPhaseY;
     private float rotationPhaseZ;
     private bool isMoving;
+    private bool isFleeing;
     private System.Random random;
 
     public LifeState CurrentLifeState => lifeState;
     public bool IsAlive => lifeState == LifeState.Alive;
     public bool IsDead => lifeState == LifeState.Dead;
+
+    private void OnEnable()
+    {
+        AnyNpcDied += HandleAnyNpcDied;
+    }
+
+    private void OnDisable()
+    {
+        AnyNpcDied -= HandleAnyNpcDied;
+    }
 
     public void SetFixedSeed(int seed, bool reinitializeIfPlaying = false)
     {
@@ -149,6 +169,7 @@ public class RandomWanderFloat : MonoBehaviour
             return;
         }
 
+        isFleeing = false;
         isMoving = true;
         stateTimer = GetRandomRange(moveTimeRange);
         targetPosition = GetRandomPointInRange();
@@ -156,6 +177,7 @@ public class RandomWanderFloat : MonoBehaviour
 
     private void BeginStop()
     {
+        isFleeing = false;
         isMoving = false;
         stateTimer = GetRandomRange(stopTimeRange);
     }
@@ -169,7 +191,9 @@ public class RandomWanderFloat : MonoBehaviour
 
         lifeState = LifeState.Dead;
         isMoving = false;
+        isFleeing = false;
         moveBlend = 0f;
+        AnyNpcDied?.Invoke(this, transform.position);
 
         if (targetRigidbody == null)
         {
@@ -206,8 +230,48 @@ public class RandomWanderFloat : MonoBehaviour
         current.y = baseY;
         target.y = baseY;
 
-        Vector3 next = Vector3.MoveTowards(current, target, moveSpeed * moveBlend * Time.deltaTime);
+        float currentMoveSpeed = moveSpeed * (isFleeing ? fleeSpeedMultiplier : 1f);
+        Vector3 next = Vector3.MoveTowards(current, target, currentMoveSpeed * moveBlend * Time.deltaTime);
         transform.position = new Vector3(next.x, transform.position.y, next.z);
+    }
+
+    private void HandleAnyNpcDied(RandomWanderFloat deadNpc, Vector3 deathPosition)
+    {
+        if (!fleeWhenNearbyDeath || deadNpc == this || lifeState == LifeState.Dead)
+        {
+            return;
+        }
+
+        Vector3 current = transform.position;
+        Vector3 planarDeathPosition = deathPosition;
+        current.y = 0f;
+        planarDeathPosition.y = 0f;
+
+        float distance = Vector3.Distance(current, planarDeathPosition);
+
+        if (distance > deathAlertRadius)
+        {
+            return;
+        }
+
+        Vector3 fleeDirection = current - planarDeathPosition;
+
+        if (fleeDirection.sqrMagnitude < 0.0001f)
+        {
+            float angle = random != null ? GetRandomRange(0f, Mathf.PI * 2f) : Random.Range(0f, Mathf.PI * 2f);
+            fleeDirection = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle));
+        }
+        else
+        {
+            fleeDirection.Normalize();
+        }
+
+        Vector3 fleeTarget = transform.position + fleeDirection * fleeDistance;
+        targetPosition = ClampPointToMoveRange(fleeTarget);
+        targetPosition.y = baseY;
+        isFleeing = true;
+        isMoving = true;
+        stateTimer = Mathf.Max(0.1f, fleeDuration);
     }
 
     private void UpdateMoveBlend()
@@ -269,6 +333,16 @@ public class RandomWanderFloat : MonoBehaviour
             0f,
             GetRandomRange(-halfZ, halfZ)
         );
+    }
+
+    private Vector3 ClampPointToMoveRange(Vector3 point)
+    {
+        float halfX = Mathf.Abs(moveRange.x) * 0.5f;
+        float halfZ = Mathf.Abs(moveRange.z) * 0.5f;
+        Vector3 clamped = point;
+        clamped.x = Mathf.Clamp(clamped.x, rangeCenter.x - halfX, rangeCenter.x + halfX);
+        clamped.z = Mathf.Clamp(clamped.z, rangeCenter.z - halfZ, rangeCenter.z + halfZ);
+        return clamped;
     }
 
     private void InitializeRandom()
@@ -338,5 +412,9 @@ public class RandomWanderFloat : MonoBehaviour
     {
         deathBackwardForce = Mathf.Max(0f, deathBackwardForce);
         deathUpwardForce = Mathf.Max(0f, deathUpwardForce);
+        deathAlertRadius = Mathf.Max(0f, deathAlertRadius);
+        fleeDistance = Mathf.Max(0f, fleeDistance);
+        fleeDuration = Mathf.Max(0.1f, fleeDuration);
+        fleeSpeedMultiplier = Mathf.Max(1f, fleeSpeedMultiplier);
     }
 }

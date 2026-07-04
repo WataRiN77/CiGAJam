@@ -2401,8 +2401,9 @@ MonoBehaviour:
       m_Calls: []
   m_text: 1
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 589861e4499ad5445afd6e36eaf7dd12, type: 2}
+  m_sharedMaterial: {fileID: -2862940390446568713, guid: 589861e4499ad5445afd6e36eaf7dd12,
+    type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3811,6 +3812,7 @@ GameObject:
   - component: {fileID: 330585547}
   - component: {fileID: 330585549}
   - component: {fileID: 330585548}
+  - component: {fileID: 330585550}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -3968,6 +3970,14 @@ MonoBehaviour:
   scalingFactor: 1
   m_posOffsetData: {fileID: 0}
   listenerMask: 1
+--- !u!81 &330585550
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330585543}
+  m_Enabled: 1
 --- !u!1 &344192211
 GameObject:
   m_ObjectHideFlags: 0
@@ -8480,8 +8490,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u5ACC\u7591\u4EBA\uFF1A\u4EE3\u53F7X"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b67b05ed6d49b7c4ea3db46593f07025, type: 2}
-  m_sharedMaterial: {fileID: 7620172841962170027, guid: b67b05ed6d49b7c4ea3db46593f07025,
+  m_fontAsset: {fileID: 11400000, guid: 589861e4499ad5445afd6e36eaf7dd12, type: 2}
+  m_sharedMaterial: {fileID: -2862940390446568713, guid: 589861e4499ad5445afd6e36eaf7dd12,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -8919,7 +8929,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 24
   m_Viewport: {fileID: 360445762}
   m_HorizontalScrollbar: {fileID: 234011878}
   m_VerticalScrollbar: {fileID: 421041768}
@@ -13123,7 +13133,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   customizer: {fileID: 1570621692}
+  answerGenerator: {fileID: 0}
   randomButton: {fileID: 1508384996}
+  seed: 1234
 --- !u!114 &1508384998
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13952,7 +13964,7 @@ MonoBehaviour:
   defaultDistractorCount: 4
   totalStatementCount: 5
   statementInterval: 10
-  initialStatements: 2
+  initialStatements: 1
 --- !u!114 &1627677852
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15428,7 +15440,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   customizer: {fileID: 1570621692}
+  answerGenerator: {fileID: 0}
   randomButton: {fileID: 1775956114}
+  seed: 1234
 --- !u!114 &1775956116
 MonoBehaviour:
   m_ObjectHideFlags: 0

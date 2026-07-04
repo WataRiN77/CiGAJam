@@ -6,9 +6,49 @@
 				<StateGroup Name="GameState" ID="{166FF774-E07B-4B91-9D53-57338A77A531}">
 					<ChildrenList>
 						<State Name="None" ID="{8A83D1D0-7ECB-4F93-9EC2-8EE6A6861723}"/>
-						<State Name="InGame" ID="{0D7EE3DA-FA85-40AC-B2D4-04200B0F3EDF}"/>
-						<State Name="LevelEnd" ID="{686051FD-601A-44B3-B931-6BAAEFFC65AE}"/>
+						<State Name="Menu" ID="{0D7EE3DA-FA85-40AC-B2D4-04200B0F3EDF}"/>
+						<State Name="Discovering" ID="{686051FD-601A-44B3-B931-6BAAEFFC65AE}"/>
+						<State Name="Finish_Failed" ID="{9AA30E66-ECD8-444E-8E48-31C5046687DC}"/>
+						<State Name="Finish_Success" ID="{22F72B1D-E3C4-4F91-AB51-D5784F50A1F2}"/>
 					</ChildrenList>
+					<TransitionList>
+						<Transition>
+							<StartState Name="None" ID="{8A83D1D0-7ECB-4F93-9EC2-8EE6A6861723}"/>
+							<EndState Name="Menu" ID="{0D7EE3DA-FA85-40AC-B2D4-04200B0F3EDF}"/>
+							<Time>1</Time>
+							<IsShared>true</IsShared>
+						</Transition>
+						<Transition>
+							<StartState Name="Discovering" ID="{686051FD-601A-44B3-B931-6BAAEFFC65AE}"/>
+							<EndState Name="Finish_Success" ID="{22F72B1D-E3C4-4F91-AB51-D5784F50A1F2}"/>
+							<Time>1</Time>
+							<IsShared>true</IsShared>
+						</Transition>
+						<Transition>
+							<StartState Name="Discovering" ID="{686051FD-601A-44B3-B931-6BAAEFFC65AE}"/>
+							<EndState Name="Finish_Failed" ID="{9AA30E66-ECD8-444E-8E48-31C5046687DC}"/>
+							<Time>1</Time>
+							<IsShared>true</IsShared>
+						</Transition>
+						<Transition>
+							<StartState Name="Menu" ID="{0D7EE3DA-FA85-40AC-B2D4-04200B0F3EDF}"/>
+							<EndState Name="Discovering" ID="{686051FD-601A-44B3-B931-6BAAEFFC65AE}"/>
+							<Time>1</Time>
+							<IsShared>true</IsShared>
+						</Transition>
+						<Transition>
+							<StartState Name="Finish_Success" ID="{22F72B1D-E3C4-4F91-AB51-D5784F50A1F2}"/>
+							<EndState Name="Menu" ID="{0D7EE3DA-FA85-40AC-B2D4-04200B0F3EDF}"/>
+							<Time>1</Time>
+							<IsShared>false</IsShared>
+						</Transition>
+						<Transition>
+							<StartState Name="Finish_Failed" ID="{9AA30E66-ECD8-444E-8E48-31C5046687DC}"/>
+							<EndState Name="Menu" ID="{0D7EE3DA-FA85-40AC-B2D4-04200B0F3EDF}"/>
+							<Time>1</Time>
+							<IsShared>false</IsShared>
+						</Transition>
+					</TransitionList>
 				</StateGroup>
 			</ChildrenList>
 		</WorkUnit>

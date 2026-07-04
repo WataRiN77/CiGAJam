@@ -7,6 +7,7 @@
 					<ObjectInclusionList>
 						<ObjectRef Name="Play_SFX_Typing" ID="{357BA808-ECBC-400E-BB9A-40C665743E7A}" WorkUnitID="{6E120714-C67E-4C19-88C6-E70EA05D7305}" Origin="Manual" Filter="7"/>
 						<ObjectRef Name="Play_SFX_Hit" ID="{A53D6053-93B6-4073-B969-18AB694D8717}" WorkUnitID="{6E120714-C67E-4C19-88C6-E70EA05D7305}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="Play_SFX_Bullet" ID="{D3F66385-EB21-411A-9F2D-E961A9C91B1C}" WorkUnitID="{6E120714-C67E-4C19-88C6-E70EA05D7305}" Origin="Manual" Filter="7"/>
 						<ObjectRef Name="Play_Transiton_TV_In" ID="{7683A7E2-A232-4161-B48A-BF2F759E0217}" WorkUnitID="{6E120714-C67E-4C19-88C6-E70EA05D7305}" Origin="Manual" Filter="7"/>
 						<ObjectRef Name="MainGame_FootStep" ID="{57C0076E-C741-433F-B79E-AC967722D21B}" WorkUnitID="{6E120714-C67E-4C19-88C6-E70EA05D7305}" Origin="Manual" Filter="7"/>
 						<ObjectRef Name="Play_SFX_Bad" ID="{60E092A3-D47B-44A8-ADA9-1CF0C05D8C4C}" WorkUnitID="{6E120714-C67E-4C19-88C6-E70EA05D7305}" Origin="Manual" Filter="7"/>
@@ -14,7 +15,9 @@
 						<ObjectRef Name="Play_SFX_Achieved" ID="{C3847C3D-58FA-49F5-BDD3-DCEBBBEE4FF5}" WorkUnitID="{6E120714-C67E-4C19-88C6-E70EA05D7305}" Origin="Manual" Filter="7"/>
 						<ObjectRef Name="Stop_SFX_Typing" ID="{645D5EB4-06F4-4A70-82B6-879FD9FAA206}" WorkUnitID="{6E120714-C67E-4C19-88C6-E70EA05D7305}" Origin="Manual" Filter="7"/>
 						<ObjectRef Name="Play_SFX_ElectricShock" ID="{709A1CCC-7929-4D58-AEB1-6A65040EA01C}" WorkUnitID="{6E120714-C67E-4C19-88C6-E70EA05D7305}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="Start_BGM_Controller" ID="{12ED22A2-3936-4D9D-B44F-3CA5B81AE4B6}" WorkUnitID="{6E120714-C67E-4C19-88C6-E70EA05D7305}" Origin="Manual" Filter="7"/>
 						<ObjectRef Name="Play_Transition_TV_Out" ID="{1F78ACDF-14D9-4EC3-9F9A-96538FADE8A5}" WorkUnitID="{6E120714-C67E-4C19-88C6-E70EA05D7305}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="Play_SFX_Stamp" ID="{3F230102-28E9-4F63-BCF3-674454EBA573}" WorkUnitID="{6E120714-C67E-4C19-88C6-E70EA05D7305}" Origin="Manual" Filter="7"/>
 					</ObjectInclusionList>
 					<ObjectExclusionList/>
 					<GameSyncExclusionList/>

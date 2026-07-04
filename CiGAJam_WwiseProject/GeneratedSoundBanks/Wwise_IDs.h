@@ -16,12 +16,15 @@ namespace AK
         static const AkUniqueID MAINGAME_FOOTSTEP = 1542905893U;
         static const AkUniqueID PLAY_SFX_ACHIEVED = 861084261U;
         static const AkUniqueID PLAY_SFX_BAD = 1576397959U;
+        static const AkUniqueID PLAY_SFX_BULLET = 4357050U;
         static const AkUniqueID PLAY_SFX_CLICK = 1602989894U;
         static const AkUniqueID PLAY_SFX_ELECTRICSHOCK = 2654846947U;
         static const AkUniqueID PLAY_SFX_HIT = 1376640657U;
+        static const AkUniqueID PLAY_SFX_STAMP = 3877492451U;
         static const AkUniqueID PLAY_SFX_TYPING = 4190357639U;
         static const AkUniqueID PLAY_TRANSITION_TV_OUT = 2592472717U;
         static const AkUniqueID PLAY_TRANSITON_TV_IN = 2394659421U;
+        static const AkUniqueID START_BGM_CONTROLLER = 181241455U;
         static const AkUniqueID STOP_SFX_TYPING = 329552409U;
     } // namespace EVENTS
 
@@ -33,8 +36,10 @@ namespace AK
 
             namespace STATE
             {
-                static const AkUniqueID INGAME = 984691642U;
-                static const AkUniqueID LEVELEND = 2037204996U;
+                static const AkUniqueID DISCOVERING = 854431620U;
+                static const AkUniqueID FINISH_FAILED = 3934623612U;
+                static const AkUniqueID FINISH_SUCCESS = 1343854384U;
+                static const AkUniqueID MENU = 2607556080U;
                 static const AkUniqueID NONE = 748895195U;
             } // namespace STATE
         } // namespace GAMESTATE

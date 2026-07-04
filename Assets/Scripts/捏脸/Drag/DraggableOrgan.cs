@@ -11,10 +11,12 @@ public class DraggableOrgan : MonoBehaviour
     [Tooltip("×î´óËõ·Å")] public float maxScale = 2f;
 
     private Camera mainCamera;
+    private CharacterCustomizer2D customizer;
 
     private void Start()
     {
         mainCamera = Camera.main;
+        customizer = GetComponentInParent<CharacterCustomizer2D>();
     }
 
     /// <summary>
@@ -45,6 +47,7 @@ public class DraggableOrgan : MonoBehaviour
     public void EndDrag()
     {
         isDragging = false;
+        customizer?.NotifyFaceChanged();
     }
 
     /// <summary>
