@@ -76,7 +76,7 @@
 								<Action Name="" ID="{5EF106F8-5FF9-4977-B612-D781C714DEC9}" ShortID="306872381">
 									<ReferenceList>
 										<Reference Name="Target">
-											<ObjectRef Name="Transiton_TV_In" ID="{BA4E21FE-7EF4-453F-A097-AED8FA2CA82D}" WorkUnitID="{FB10B8D3-2F7A-4513-AF1F-C667E1EF0765}"/>
+											<ObjectRef Name="Transition_TV_In" ID="{BA4E21FE-7EF4-453F-A097-AED8FA2CA82D}" WorkUnitID="{FB10B8D3-2F7A-4513-AF1F-C667E1EF0765}"/>
 										</Reference>
 									</ReferenceList>
 								</Action>
@@ -120,8 +120,41 @@
 								</Action>
 							</ChildrenList>
 						</Event>
+						<Event Name="Play_SFX_Stamp" ID="{3F230102-28E9-4F63-BCF3-674454EBA573}">
+							<ChildrenList>
+								<Action Name="" ID="{6E178707-993E-4820-899A-77B0372AE4D5}" ShortID="145572578">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="SFX_Stamp" ID="{F41E8F7C-8909-430E-BEA4-6F263D21A8D0}" WorkUnitID="{FB10B8D3-2F7A-4513-AF1F-C667E1EF0765}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+						<Event Name="Play_SFX_Bullet" ID="{D3F66385-EB21-411A-9F2D-E961A9C91B1C}">
+							<ChildrenList>
+								<Action Name="" ID="{3922A206-DC05-4196-8094-4ABBAC0591AF}" ShortID="827307785">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="SFX_Bullet" ID="{F53CE017-7D71-43D5-BD91-6F64B1904AFE}" WorkUnitID="{FB10B8D3-2F7A-4513-AF1F-C667E1EF0765}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
 					</ChildrenList>
 				</Folder>
+				<Event Name="Start_BGM_Controller" ID="{12ED22A2-3936-4D9D-B44F-3CA5B81AE4B6}">
+					<ChildrenList>
+						<Action Name="" ID="{C950952D-414E-4CC5-BCEC-CFBE0E9323BA}" ShortID="867019164">
+							<ReferenceList>
+								<Reference Name="Target">
+									<ObjectRef Name="BGM_Controller" ID="{AE5F6D7A-17AE-4501-A6B7-7C7348ABA093}" WorkUnitID="{FB10B8D3-2F7A-4513-AF1F-C667E1EF0765}"/>
+								</Reference>
+							</ReferenceList>
+						</Action>
+					</ChildrenList>
+				</Event>
 			</ChildrenList>
 		</WorkUnit>
 	</Events>

@@ -10,7 +10,7 @@
     "Type": "User",
     "GUID": "{45564D5C-69C2-4A44-B71D-472313392E83}",
     "Language": "SFX",
-    "Hash": "{48331B54-0D31-54F3-69F8-9A22171F87DE}",
+    "Hash": "{6D5001A5-0E9F-D866-BEE9-7AF8EB386E60}",
     "ObjectPath": "\\SoundBanks\\Default Work Unit\\Soundbank_MainGame",
     "ShortName": "Soundbank_MainGame",
     "Path": "Soundbank_MainGame.bnk",
@@ -24,12 +24,28 @@
       "CachePath": "AF/{AFC2FDF0-D9EC-4DE8-74A8-34EB4C9CF2F1}.wem"
      },
      {
+      "Id": "42611666",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "BGM_MainMenu.wav",
+      "CachePath": "6C/{6C0B14F8-CB6C-C706-FCB0-73CC10DE69F6}.wem"
+     },
+     {
       "Id": "101064397",
       "Language": "SFX",
       "Streaming": "false",
       "Location": "Memory",
       "ShortName": "SFX_AccidentalEvents.wav",
       "CachePath": "36/{362123FF-4EE5-B482-6C8D-127E385E5C9C}.wem"
+     },
+     {
+      "Id": "381129093",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "SFX_Bullet.wav",
+      "CachePath": "85/{85BE181F-25AF-D4C6-C582-B94615DB67AD}.wem"
      },
      {
       "Id": "445339486",
@@ -56,6 +72,14 @@
       "CachePath": "72/{727F6CF2-0514-C537-F26E-E9EF356B4525}.wem"
      },
      {
+      "Id": "661229522",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "BGM_Discovering.wav",
+      "CachePath": "3D/{3DA3CE75-4AFE-37B4-6133-ABBA7C0C8F90}.wem"
+     },
+     {
       "Id": "673553211",
       "Language": "SFX",
       "Streaming": "false",
@@ -78,6 +102,14 @@
       "Location": "Memory",
       "ShortName": "SFX_Riser_Noise.wav",
       "CachePath": "96/{96B50628-D87D-504E-1C06-79F2526BCE24}.wem"
+     },
+     {
+      "Id": "742241220",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "SFX_Stamp.wav",
+      "CachePath": "A6/{A697DBD7-2D2E-D60D-6084-CE410CD752CA}.wem"
      },
      {
       "Id": "744552997",
@@ -176,6 +208,20 @@
       ]
      },
      {
+      "Id": "4357050",
+      "Name": "Play_SFX_Bullet",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\Play_SFX_Bullet",
+      "GUID": "{D3F66385-EB21-411A-9F2D-E961A9C91B1C}",
+      "DurationType": "OneShot",
+      "DurationMin": "0.8628129",
+      "DurationMax": "0.9409042",
+      "MediaRefs": [
+       {
+        "Id": "381129093"
+       }
+      ]
+     },
+     {
       "Id": "1602989894",
       "Name": "Play_SFX_Click",
       "ObjectPath": "\\Events\\Default Work Unit\\SFX\\Play_SFX_Click",
@@ -214,6 +260,20 @@
       "MediaRefs": [
        {
         "Id": "101064397"
+       }
+      ]
+     },
+     {
+      "Id": "3877492451",
+      "Name": "Play_SFX_Stamp",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\Play_SFX_Stamp",
+      "GUID": "{3F230102-28E9-4F63-BCF3-674454EBA573}",
+      "DurationType": "OneShot",
+      "DurationMin": "0.5298959",
+      "DurationMax": "0.5298959",
+      "MediaRefs": [
+       {
+        "Id": "742241220"
        }
       ]
      },
@@ -258,6 +318,54 @@
       ]
      },
      {
+      "Id": "181241455",
+      "Name": "Start_BGM_Controller",
+      "ObjectPath": "\\Events\\Default Work Unit\\Start_BGM_Controller",
+      "GUID": "{12ED22A2-3936-4D9D-B44F-3CA5B81AE4B6}",
+      "DurationType": "Infinite",
+      "SwitchContainers": [
+       {
+        "SwitchValue": {
+         "GroupType": "State",
+         "GroupId": "4091656514",
+         "Id": "854431620",
+         "GUID": "{686051FD-601A-44B3-B931-6BAAEFFC65AE}"
+        },
+        "MediaRefs": [
+         {
+          "Id": "661229522"
+         }
+        ]
+       },
+       {
+        "SwitchValue": {
+         "GroupType": "State",
+         "GroupId": "4091656514",
+         "Id": "2607556080",
+         "GUID": "{0D7EE3DA-FA85-40AC-B2D4-04200B0F3EDF}"
+        },
+        "MediaRefs": [
+         {
+          "Id": "42611666"
+         }
+        ]
+       },
+       {
+        "SwitchValue": {
+         "GroupType": "State",
+         "GroupId": "4091656514",
+         "Id": "748895195",
+         "GUID": "{8A83D1D0-7ECB-4F93-9EC2-8EE6A6861723}"
+        },
+        "MediaRefs": [
+         {
+          "Id": "42611666"
+         }
+        ]
+       }
+      ]
+     },
+     {
       "Id": "329552409",
       "Name": "Stop_SFX_Typing",
       "ObjectPath": "\\Events\\Default Work Unit\\SFX\\Stop_SFX_Typing",
@@ -267,9 +375,49 @@
       "DurationMin": "0",
       "DurationMax": "0"
      }
+    ],
+    "StateGroups": [
+     {
+      "Id": "4091656514",
+      "Name": "GameState",
+      "ObjectPath": "\\States\\Default Work Unit\\GameState",
+      "GUID": "{166FF774-E07B-4B91-9D53-57338A77A531}",
+      "States": [
+       {
+        "Id": "748895195",
+        "Name": "None",
+        "ObjectPath": "\\States\\Default Work Unit\\GameState\\None",
+        "GUID": "{8A83D1D0-7ECB-4F93-9EC2-8EE6A6861723}"
+       },
+       {
+        "Id": "854431620",
+        "Name": "Discovering",
+        "ObjectPath": "\\States\\Default Work Unit\\GameState\\Discovering",
+        "GUID": "{686051FD-601A-44B3-B931-6BAAEFFC65AE}"
+       },
+       {
+        "Id": "1343854384",
+        "Name": "Finish_Success",
+        "ObjectPath": "\\States\\Default Work Unit\\GameState\\Finish_Success",
+        "GUID": "{22F72B1D-E3C4-4F91-AB51-D5784F50A1F2}"
+       },
+       {
+        "Id": "2607556080",
+        "Name": "Menu",
+        "ObjectPath": "\\States\\Default Work Unit\\GameState\\Menu",
+        "GUID": "{0D7EE3DA-FA85-40AC-B2D4-04200B0F3EDF}"
+       },
+       {
+        "Id": "3934623612",
+        "Name": "Finish_Failed",
+        "ObjectPath": "\\States\\Default Work Unit\\GameState\\Finish_Failed",
+        "GUID": "{9AA30E66-ECD8-444E-8E48-31C5046687DC}"
+       }
+      ]
+     }
     ]
    }
   ],
-  "FileHash": "{35B96830-5FE3-F8C9-8C11-B026AD91E280}"
+  "FileHash": "{711D52B8-C3FA-D647-63F5-12FF5536F6C9}"
  }
 }
