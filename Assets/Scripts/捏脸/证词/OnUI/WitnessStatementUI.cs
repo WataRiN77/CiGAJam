@@ -1,20 +1,19 @@
 // WitnessStatementUI.cs
+using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class WitnessStatementUI : MonoBehaviour
 {
     [SerializeField] private GameObject statementPrefab;
     [SerializeField] private Transform statementParent;
-    [SerializeField] private string nameTextName = "NameText";       // ÏÔÊ¾Ä¿»÷ÕßĞÕÃûµÄText
-    [SerializeField] private string contentTextName = "ContentText"; // ÏÔÊ¾Ö¤´ÊÄÚÈİµÄText
+    [SerializeField] private string nameTextName = "NameText";       // æ˜¾ç¤ºç›®å‡»è€…å§“åçš„ TMP æ–‡æœ¬
+    [SerializeField] private string contentTextName = "ContentText"; // æ˜¾ç¤ºè¯è¯å†…å®¹çš„ TMP æ–‡æœ¬
 
     private void Start()
     {
         if (FaceCustomizationGameManager.Instance == null) return;
         FaceCustomizationGameManager.Instance.OnNewStatement += AddStatement;
 
-        // ¼ÓÔØÒÑ´æÔÚµÄ³õÊ¼Ö¤´Ê
         var existing = FaceCustomizationGameManager.Instance.GetStatements();
         if (existing != null)
         {
@@ -37,10 +36,19 @@ public class WitnessStatementUI : MonoBehaviour
 
         Transform nameTr = entry.transform.Find(nameTextName);
         if (nameTr != null)
-            nameTr.GetComponent<Text>().text = statement.witnessName;
+            SetText(nameTr, statement.witnessName);
 
         Transform contentTr = entry.transform.Find(contentTextName);
         if (contentTr != null)
-            contentTr.GetComponent<Text>().text = statement.content;
+            SetText(contentTr, statement.content);
+    }
+
+    private void SetText(Transform textTransform, string value)
+    {
+        TMP_Text text = textTransform.GetComponent<TMP_Text>();
+        if (text != null)
+        {
+            text.text = value;
+        }
     }
 }

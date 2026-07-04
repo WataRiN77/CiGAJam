@@ -1,11 +1,12 @@
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class FaceAssetTabUI : MonoBehaviour
 {
     [SerializeField] private Button button;
-    [SerializeField] private Text labelText;
+    [SerializeField] private TMP_Text labelText;
     [SerializeField] private Graphic selectedIndicator;
 
     private int tabIndex;
