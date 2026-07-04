@@ -12755,6 +12755,11 @@ PrefabInstance:
       propertyPath: m_SortingOrder
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 5387291777692789096, guid: 9016dde8328c50f44bcc47eba6622fef,
+        type: 3}
+      propertyPath: targetCustomizer
+      value: 
+      objectReference: {fileID: 1702166805}
     - target: {fileID: 5935505922956432377, guid: 9016dde8328c50f44bcc47eba6622fef,
         type: 3}
       propertyPath: m_Name
@@ -16053,6 +16058,18 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a0f542ba0461f8c4cbb89acbe6331cf5, type: 3}
+--- !u!114 &1702166805 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3626393496399732799, guid: 9016dde8328c50f44bcc47eba6622fef,
+    type: 3}
+  m_PrefabInstance: {fileID: 1423282127}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4d6a254dd57cd749b9fb298f2e8f511, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1703668883
 PrefabInstance:
   m_ObjectHideFlags: 0
