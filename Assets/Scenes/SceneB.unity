@@ -7023,9 +7023,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u5ACC\u7591\u4EBA\uFF1A\u4EE3\u53F7X"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b67b05ed6d49b7c4ea3db46593f07025, type: 2}
-  m_sharedMaterial: {fileID: 7620172841962170027, guid: b67b05ed6d49b7c4ea3db46593f07025,
-    type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -9250,9 +9249,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u53EF\u7591"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b67b05ed6d49b7c4ea3db46593f07025, type: 2}
-  m_sharedMaterial: {fileID: 7620172841962170027, guid: b67b05ed6d49b7c4ea3db46593f07025,
-    type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -9841,9 +9839,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u51FB\u6740"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b67b05ed6d49b7c4ea3db46593f07025, type: 2}
-  m_sharedMaterial: {fileID: 7620172841962170027, guid: b67b05ed6d49b7c4ea3db46593f07025,
-    type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -10468,7 +10465,7 @@ MonoBehaviour:
     type: 3}
   spawnParent: {fileID: 0}
   useManualKeys: 1
-  manualNpcSeeds: 
+  manualNpcSeeds: d2040000
   manualMurdererSeed: 1234
   useManualMurdererSeed: 1
   spawnMissingMurdererSeed: 1
@@ -10480,7 +10477,7 @@ MonoBehaviour:
   spawnRange: {x: 12.65, y: 0, z: 8.45}
   minDistanceBetweenNpcs: 1.2
   spawnRotationEuler: {x: 0, y: 0, z: 0}
-  useRawKeySeedForFace: 0
+  useRawKeySeedForFace: 1
   faceSeedSalt: 1103
   movementSeedSalt: 2207
   positionSeedSalt: 3301
@@ -10803,9 +10800,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u5F85\u5B9A"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b67b05ed6d49b7c4ea3db46593f07025, type: 2}
-  m_sharedMaterial: {fileID: 7620172841962170027, guid: b67b05ed6d49b7c4ea3db46593f07025,
-    type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -13115,9 +13111,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u5269\u4F59\u65F6\u95F4\uFF1A"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b67b05ed6d49b7c4ea3db46593f07025, type: 2}
-  m_sharedMaterial: {fileID: 7620172841962170027, guid: b67b05ed6d49b7c4ea3db46593f07025,
-    type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -19116,9 +19111,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 240.00s
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b67b05ed6d49b7c4ea3db46593f07025, type: 2}
-  m_sharedMaterial: {fileID: 7620172841962170027, guid: b67b05ed6d49b7c4ea3db46593f07025,
-    type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -19396,6 +19390,16 @@ PrefabInstance:
     - target: {fileID: 1196586418330501975, guid: 6b8845b3fb864964e865b4794a3e20d1,
         type: 3}
       propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5634854841890705099, guid: 6b8845b3fb864964e865b4794a3e20d1,
+        type: 3}
+      propertyPath: fixedSeed
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5634854841890705099, guid: 6b8845b3fb864964e865b4794a3e20d1,
+        type: 3}
+      propertyPath: useFixedSeed
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8530952512822312460, guid: 6b8845b3fb864964e865b4794a3e20d1,
