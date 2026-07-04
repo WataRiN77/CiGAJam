@@ -13,6 +13,12 @@ public class MainMenuController : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject lobbyCanvas;         // 联机选择页面 Canvas
     [SerializeField] private GameObject settingsCanvas;      // 设置页面 Canvas
 
+    [Header("设置页面动画配置 (🌟 新增)")]
+    [SerializeField] private RectTransform rectSettingsPanel; // 设置面板主体的 RectTransform (Canvas 的子物体)
+    [SerializeField] private Image settingsMask;             // 🌟 新增：设置面板背后的黑色遮罩 Image
+    [SerializeField] private float settingsSlideDuration = 0.4f; // 滑动时间
+    [SerializeField] private float settingsOffScreenY = 1200f; // 初始在屏幕下方多远 (比如 1200 像素)
+
     [Header("按任意键开始界面")]
     [SerializeField] private TMP_Text pressAnyKeyText;       // “按任意键开始游戏”文本
     [SerializeField] private Animator bgAnimator;            // bg 背景上的 Animator 组件
@@ -40,8 +46,10 @@ public class MainMenuController : MonoBehaviourPunCallbacks
 
     private Vector2 activePosA; // 按钮 A 最终停留位置
     private Vector2 activePosB; // 按钮 B 最终停留位置
+    private Vector2 activePosSettings; // 记录设置面板正常的位置
     private bool hasGameStarted = false; // 是否已经按了任意键启动了游戏
     private Coroutine breatheCoroutine;
+    private Coroutine settingsSlideCoroutine; // 控制设置面板滑动的协程
 
     public static MainMenuController Instance { get; private set; } // 🌟 新增单例，方便跨物体调用
 
@@ -59,6 +67,12 @@ public class MainMenuController : MonoBehaviourPunCallbacks
         activePosA = rectButtonA.anchoredPosition;
         activePosB = rectButtonB.anchoredPosition;
 
+        // 记录设置面板在屏幕中心的初始位置
+        if (rectSettingsPanel != null)
+        {
+            activePosSettings = rectSettingsPanel.anchoredPosition;
+        }
+
         // 初始化 UI 状态
         lobbyCanvas.SetActive(false);
         settingsCanvas.SetActive(false);
@@ -66,7 +80,7 @@ public class MainMenuController : MonoBehaviourPunCallbacks
         panelLoadingClient.SetActive(false);
         panelMatchSuccess.SetActive(false);
 
-        // 🌟 初始化：隐藏 4 个主按钮并禁用交互
+        // 初始化：隐藏 4 个主按钮并禁用交互
         if (mainButtonsGroup != null)
         {
             mainButtonsGroup.alpha = 0f;
@@ -74,14 +88,14 @@ public class MainMenuController : MonoBehaviourPunCallbacks
             mainButtonsGroup.blocksRaycasts = false;
         }
 
-        // 🌟 初始化：显示“按任意键开始”文本并启动呼吸灯
+        // 初始化：显示“按任意键开始”文本并启动呼吸灯
         if (pressAnyKeyText != null)
         {
             pressAnyKeyText.gameObject.SetActive(true);
             breatheCoroutine = StartCoroutine(BreatheTextCoroutine());
         }
 
-        // 🌟 初始化：禁用背景的 Animator（等待按任意键时再开启播放）
+        // 初始化：禁用背景的 Animator（等待按任意键时再开启播放）
         if (bgAnimator != null)
         {
             bgAnimator.enabled = false;
@@ -135,11 +149,8 @@ public class MainMenuController : MonoBehaviourPunCallbacks
     }
 
     // ==========================================
-    // 🌟 新增：供背景动画最后一帧的 Event 调用的公开方法
+    // 🌟 供背景动画最后一帧的 Event 调用的公开方法
     // ==========================================
-    /// <summary>
-    /// 激活 4 个主菜单按钮，并在 0.5 秒内从透明渐显变成不透明
-    /// </summary>
     public void ActivateMenuButtons()
     {
         if (mainButtonsGroup != null)
@@ -212,7 +223,7 @@ public class MainMenuController : MonoBehaviourPunCallbacks
     }
 
     // ==========================================
-    // 1. 主菜单四大按钮入口（保持原有逻辑不变）
+    // 1. 主菜单四大按钮入口
     // ==========================================
 
     public void OnClickTeach()
@@ -236,9 +247,73 @@ public class MainMenuController : MonoBehaviourPunCallbacks
         StartCoroutine(TransitionToLobby());
     }
 
+    // 🌟 打开设置（向上滑入 + 遮罩0到215渐显）
     public void OnClickSettings()
     {
         settingsCanvas.SetActive(true);
+        if (settingsSlideCoroutine != null) StopCoroutine(settingsSlideCoroutine);
+        settingsSlideCoroutine = StartCoroutine(SlideSettingsPanel(true));
+    }
+
+    // 🌟 关闭设置（向下滑出 + 遮罩215到0渐隐）
+    public void OnClickCloseSettings()
+    {
+        if (settingsSlideCoroutine != null) StopCoroutine(settingsSlideCoroutine);
+        settingsSlideCoroutine = StartCoroutine(SlideSettingsPanel(false));
+    }
+
+    // 🌟 核心修改：设置面板滑动与黑色遮罩渐变联动协程
+    private IEnumerator SlideSettingsPanel(bool isOpening)
+    {
+        // 1. 位移起点与终点
+        Vector2 startPos = isOpening ? new Vector2(activePosSettings.x, activePosSettings.y - settingsOffScreenY) : activePosSettings;
+        Vector2 endPos = isOpening ? activePosSettings : new Vector2(activePosSettings.x, activePosSettings.y - settingsOffScreenY);
+
+        // 2. 遮罩透明度起点与终点（将 0-255 转化为 Unity 0.0 - 1.0 的范围）
+        float maxAlpha = 215f / 255f; // 对应 215 透明度，约为 0.843
+        float startAlpha = isOpening ? 0f : maxAlpha;
+        float endAlpha = isOpening ? maxAlpha : 0f;
+
+        rectSettingsPanel.anchoredPosition = startPos;
+
+        if (settingsMask != null)
+        {
+            settingsMask.color = new Color(settingsMask.color.r, settingsMask.color.g, settingsMask.color.b, startAlpha);
+        }
+
+        float elapsed = 0f;
+        while (elapsed < settingsSlideDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / settingsSlideDuration;
+
+            // 使用 SmoothStep 提供物理弹性减速质感
+            float smoothT = Mathf.SmoothStep(0f, 1f, t);
+
+            // A. 位移差值
+            rectSettingsPanel.anchoredPosition = Vector2.Lerp(startPos, endPos, smoothT);
+
+            // B. 遮罩透明度差值
+            if (settingsMask != null)
+            {
+                float curAlpha = Mathf.Lerp(startAlpha, endAlpha, smoothT);
+                settingsMask.color = new Color(settingsMask.color.r, settingsMask.color.g, settingsMask.color.b, curAlpha);
+            }
+
+            yield return null;
+        }
+
+        rectSettingsPanel.anchoredPosition = endPos;
+        if (settingsMask != null)
+        {
+            settingsMask.color = new Color(settingsMask.color.r, settingsMask.color.g, settingsMask.color.b, endAlpha);
+        }
+
+        // 如果是关闭动作，播放完滑出动画后，彻底禁用 Canvas 节省显卡渲染
+        if (!isOpening)
+        {
+            settingsCanvas.SetActive(false);
+        }
     }
 
     public void OnClickQuit()
@@ -248,10 +323,14 @@ public class MainMenuController : MonoBehaviourPunCallbacks
         {
             ScreenTransitionManager.Instance.TransitionToQuit();
         }
+        else
+        {
+            Application.Quit(); // 兜底退出
+        }
     }
 
     // ==========================================
-    // 2. 动效协程（遮罩渐变、按钮滑入）（保持原有逻辑不变）
+    // 2. 联机选择界面滑入动效协程
     // ==========================================
     private IEnumerator TransitionToLobby()
     {
@@ -283,7 +362,7 @@ public class MainMenuController : MonoBehaviourPunCallbacks
     }
 
     // ==========================================
-    // 3. 联机匹配逻辑（Photon 串联）（保持原有逻辑不变）
+    // 3. 联机匹配逻辑（Photon 串联）
     // ==========================================
 
     // 点击左侧 A 按钮：创建房间并作为画家A

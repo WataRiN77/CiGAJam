@@ -17,6 +17,8 @@ public class ScreenTransitionManager : MonoBehaviour
     [SerializeField] private Animator settlementAnimator;           // “结算转场”物体的 Animator 组件
     [SerializeField] private bool playFanOnStart = false;            // 是否在启动时播放“反”动画
 
+    private Coroutine disableSettlementCoroutine; // 🌟 新增：专门用来存储“延时关闭雪花屏”的协程引用
+
     private void Awake()
     {
         if (Instance == null)
@@ -24,11 +26,12 @@ public class ScreenTransitionManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject); // 跨场景不销毁
 
-            // 初始化黑屏状态
+            // 初始化黑屏状态为禁用
             if (transitionCanvasGroup != null)
             {
                 transitionCanvasGroup.alpha = 0f;
                 transitionCanvasGroup.blocksRaycasts = false;
+                transitionCanvasGroup.gameObject.SetActive(false); // 初始默认关闭
             }
         }
         else
@@ -39,7 +42,7 @@ public class ScreenTransitionManager : MonoBehaviour
 
     private void Start()
     {
-        // 🌟 重点需求：如果勾选了 playFanOnStart 为 true，启动时自动播放“反”动画并延时隐藏
+        // 如果勾选了 playFanOnStart 为 true，启动时自动播放“反”动画并延时隐藏
         if (playFanOnStart)
         {
             PlaySettlementFan();
@@ -54,6 +57,9 @@ public class ScreenTransitionManager : MonoBehaviour
         StartCoroutine(LoadSceneCoroutine(sceneName));
     }
 
+    /// <summary>
+    /// 🌟 修改后：点击退出游戏时，调用特殊结算雪花转场
+    /// </summary>
     public void TransitionToQuit()
     {
         StartCoroutine(QuitCoroutine());
@@ -72,15 +78,41 @@ public class ScreenTransitionManager : MonoBehaviour
         yield return StartCoroutine(Fade(0f, defaultDuration));
     }
 
+    /// <summary>
+    /// 🌟 修改后：播放电视雪花（zheng）动画，并在 1 秒后关闭游戏
+    /// </summary>
     private IEnumerator QuitCoroutine()
     {
-        yield return StartCoroutine(Fade(1f, defaultDuration));
-        Application.Quit();
+        // 1. 播放结算雪花屏（zheng）动画与 Wwise 开机声
+        PlaySettlementZheng();
+
+        // 2. 停顿 1 秒，让玩家完整感受雪花屏和音效
+        yield return new WaitForSeconds(1.5f);
+
+        // 3. 彻底退出游戏
+        Debug.Log("[Transition] 转场完成，退出游戏");
+#if UNITY_EDITOR
+        // 🌟 如果是在 Unity 编辑器里测试，点击退出会自动停止 Play 模式！
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        // 🌟 如果是打包出来的游戏（exe），执行真正的关闭游戏程序
+        Application.Quit(); 
+#endif
     }
 
+    /// <summary>
+    /// 🌟 修复：在渐变黑屏前，先一步激活 transitionCanvasGroup 物体
+    /// </summary>
     private IEnumerator Fade(float targetAlpha, float duration)
     {
         if (transitionCanvasGroup == null) yield break;
+
+        // 🌟 核心修复：如果要渐变黑屏（目标透明度 > 0），先激活该物体，防止协程无法启动
+        if (targetAlpha > 0f)
+        {
+            transitionCanvasGroup.gameObject.SetActive(true);
+        }
+
         transitionCanvasGroup.blocksRaycasts = true;
 
         float startAlpha = transitionCanvasGroup.alpha;
@@ -95,14 +127,16 @@ public class ScreenTransitionManager : MonoBehaviour
 
         transitionCanvasGroup.alpha = targetAlpha;
 
+        // 🌟 核心优化：如果已经淡出到完全透明，直接禁用物体，节省 GPU 渲染开销
         if (targetAlpha <= 0f)
         {
             transitionCanvasGroup.blocksRaycasts = false;
+            transitionCanvasGroup.gameObject.SetActive(false);
         }
     }
 
     // ==========================================
-    // 2. 新增：特殊结算转场方法 (正/反动画控制)
+    // 2. 特殊结算转场方法 (正/反动画控制)
     // ==========================================
 
     /// <summary>
@@ -116,10 +150,15 @@ public class ScreenTransitionManager : MonoBehaviour
             return;
         }
 
-        StopAllCoroutines(); // 停止可能正在运行的延迟禁用协程，防止冲突
+        // 🌟 修复：只停止“延迟关闭物体”的协程，绝对不使用 StopAllCoroutines 误伤退出协程！
+        if (disableSettlementCoroutine != null)
+        {
+            StopCoroutine(disableSettlementCoroutine);
+            disableSettlementCoroutine = null;
+        }
         settlementTransitionObject.SetActive(true);
         settlementAnimator.Play("zheng");
-        AkUnitySoundEngine.PostEvent("Play_Transition_TV_In", gameObject);
+        AkUnitySoundEngine.PostEvent("Play_Transition_TV_Out", gameObject);
         Debug.Log("[Transition] 播放结算转场：zheng (正) 动画");
     }
 
