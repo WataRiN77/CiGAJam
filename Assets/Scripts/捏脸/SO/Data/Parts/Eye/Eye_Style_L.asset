@@ -16,13 +16,17 @@ MonoBehaviour:
   displayName: "\u773C\u775B"
   type: 0
   sprites:
-  - {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 10915, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 21300000, guid: 0d500aba066ad9a4cb730635e754a5cb, type: 3}
+  - {fileID: 21300000, guid: b9496336d1dd0ea49ad504410b46d082, type: 3}
+  - {fileID: 21300000, guid: ccb5ff92615297b4bbc848f4b676b53b, type: 3}
+  - {fileID: 21300000, guid: 332364d7405b7ac4080c1bf3f39fbf37, type: 3}
+  - {fileID: 21300000, guid: e6275cbb528908c46a99ad5cfbdff88f, type: 3}
+  - {fileID: 21300000, guid: a921db15f91785842a1414b21aea7dd1, type: 3}
+  - {fileID: 21300000, guid: 7680e206741b2034285a1e683954a040, type: 3}
+  - {fileID: 21300000, guid: 4870b26bac7daca4d863414b6e889bf1, type: 3}
   targetBoneNames:
-  - Eye/Eye_L
-  overrideRandomRange: 0
+  - Eye/L/Eye_L
+  overrideRandomRange: 1
   randomPosRange: 0.05
   randomRotationRange: 15
   randomScaleMin: 0.8

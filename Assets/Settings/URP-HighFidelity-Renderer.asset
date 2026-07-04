@@ -55,7 +55,7 @@ MonoBehaviour:
     darkColor: {r: 0.22030374, g: 0.23214631, b: 0.4433962, a: 1}
     lightColor: {r: 0.92, g: 0.88, b: 0.72, a: 1}
     brightness: 0.17
-    contrast: 1.28
+    contrast: 1.33
     ditherStrength: 0.703
     pixelSize: 1.96
     patternScale: 2.7

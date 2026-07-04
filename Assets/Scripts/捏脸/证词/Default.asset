@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f1afcf3424b01a4ebcc190ccb714753, type: 3}
+  m_Name: Default
+  m_EditorClassIdentifier: 
+  witnessNames:
+  - "\u591C\u73ED\u4FBF\u5229\u5E97\u5E97\u5458"
+  - "\u95E8\u536B\u5927\u7237"
+  - "\u5730\u94C1\u5B89\u68C0\u5458"
+  - "\u5496\u5561\u5E97\u6536\u94F6\u5458"
+  - "\u7406\u53D1\u5E97\u5B66\u5F92"
+  - "5\u5C81\u5C0F\u7537\u5B69"
+  - "\u503C\u73ED\u62A4\u58EB"
+  - "\u65E9\u9910\u644A\u8001\u677F"
+  - "\u516B\u5341\u5C81\u8001\u592A\u592A"
+  - "\u8FD1\u89C6\u5927\u5B66\u751F"
+  - "\u5C0F\u533A\u4FDD\u5B89"
+  - "\u5FEB\u9012\u7AD9\u8001\u677F"
+  - "\u8DEF\u8FC7\u7684\u793E\u755C"
+  - "\u9B54\u6014\u4E8C\u6B21\u5143"
+  - "\u5C0F\u533A\u9664\u8349\u5DE5\u4EBA"
+  - "\u5976\u8336\u5E97\u5E97\u5458"
+  - "6\u5C81\u5C0F\u5973\u5B69"
+  - "\u5730\u94C1\u4FDD\u6D01\u963F\u59E8"
+  - "\u670D\u88C5\u5E97\u5BFC\u8D2D"
+  - "\u9AD8\u4E2D\u8BED\u6587\u8001\u5E08"
+  - "\u591C\u5E02\u644A\u4E3B"
+  - "\u793E\u533A\u8BCA\u6240\u533B\u751F"
+  - "\u8D85\u5E02\u8001\u677F\u5A18"
+  - "\u7F8E\u5986\u67DC\u59D0"
+  - "\u8DEF\u4EBA"
+  - "\u5C0F\u5356\u90E8\u8001\u677F"
+  - "\u836F\u5E97\u5E97\u5458"
+  - "\u5199\u5B57\u697C\u524D\u53F0"
+  - "\u4FBF\u5229\u5E97\u8001\u677F"
+  - "\u9A7E\u6821\u6559\u7EC3"
+  - "\u793E\u533A\u8BCA\u6240\u62A4\u58EB"
+  - "\u5976\u8336\u5E97\u5E97\u5458"
+  - "\u8DEF\u4EBA\u7532"
+  - "\u8DEF\u4EBA\u4E01"
+  - "\u5973\u9AD8\u4E2D\u751F"
+  - "\u73A9\u5BB6\u5E97\u8001\u677F"
+  - "\u6742\u8D27\u5E97\u8001\u677F\u5A18"
+  - "\u8DEF\u4EBA\u4E59"
+  - "\u8DEF\u4EBA\u4E19"
+  - "\u6E38\u4E50\u573A\u5DE5\u4F5C\u4EBA\u5458"
+  - "\u793E\u533A\u5FD7\u613F\u8005"
+  - "\u9000\u4F11\u6559\u5E08"
+  - "\u70D8\u7119\u5E97\u8001\u677F"
+  - "\u644A\u714E\u997C\u5927\u53D4"
+  - "\u9152\u5427\u8C03\u9152\u5E08"
+  - "\u897F\u88C5\u5E97\u5E97\u5458"
+  - "\u521D\u4E2D\u751F"
+  organStatementGroups:
+  - partId: hairstyle
+    spriteStatements:
+    - statements:
+      - fafasfasfasfafas
