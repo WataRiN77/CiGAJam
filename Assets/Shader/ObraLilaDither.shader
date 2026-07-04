@@ -7,8 +7,9 @@ Shader "Hidden/CiGAJam/ObraLilaDither"
         _Brightness ("Brightness", Range(-1, 1)) = 0
         _Contrast ("Contrast", Range(0, 4)) = 1.35
         _DitherStrength ("Dither Strength", Range(0, 1)) = 0.75
+        _PixelSize ("Pixel Size", Range(1, 8)) = 1
         _PatternScale ("Pattern Scale", Range(0.25, 8)) = 1
-        _PosterizeSteps ("Posterize Steps", Range(2, 16)) = 4
+        _PosterizeSteps ("Posterize Steps", Range(2, 32)) = 8
         _VignetteStrength ("Vignette Strength", Range(0, 1)) = 0.25
     }
 
@@ -40,6 +41,7 @@ Shader "Hidden/CiGAJam/ObraLilaDither"
             float _Brightness;
             float _Contrast;
             float _DitherStrength;
+            float _PixelSize;
             float _PatternScale;
             float _PosterizeSteps;
             float _VignetteStrength;
@@ -64,20 +66,22 @@ Shader "Hidden/CiGAJam/ObraLilaDither"
             float4 Frag(Varyings input) : SV_Target
             {
                 float2 uv = input.texcoord;
-                float4 source = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, uv);
+                float pixelSize = max(1.0, _PixelSize);
+                float2 virtualPixel = floor(uv * _ScreenParams.xy / pixelSize);
+                float2 snappedUv = (virtualPixel + 0.5) * pixelSize / _ScreenParams.xy;
+                float4 source = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_PointClamp, snappedUv);
 
                 float luminance = dot(source.rgb, float3(0.299, 0.587, 0.114));
                 luminance = saturate((luminance - 0.5) * _Contrast + 0.5 + _Brightness);
 
+                float2 patternPixel = floor(virtualPixel / max(0.0001, _PatternScale));
+                float threshold = Bayer4x4((int2)patternPixel);
                 float steps = max(2.0, _PosterizeSteps);
-                luminance = floor(luminance * (steps - 1.0) + 0.5) / (steps - 1.0);
+                float ditherOffset = (threshold - 0.5) / (steps - 1.0);
+                float ditheredLuminance = saturate(luminance + ditherOffset * _DitherStrength);
+                float tone = floor(ditheredLuminance * (steps - 1.0) + 0.5) / (steps - 1.0);
 
-                float2 pixelPosition = uv * _ScreenParams.xy / max(0.0001, _PatternScale);
-                float threshold = Bayer4x4((int2)floor(pixelPosition));
-                float dithered = step(threshold, luminance);
-                float tone = lerp(luminance, dithered, _DitherStrength);
-
-                float2 centeredUv = uv * 2.0 - 1.0;
+                float2 centeredUv = snappedUv * 2.0 - 1.0;
                 float vignette = saturate(1.0 - dot(centeredUv, centeredUv) * _VignetteStrength);
                 tone *= vignette;
 

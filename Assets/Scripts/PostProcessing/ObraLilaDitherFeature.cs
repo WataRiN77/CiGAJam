@@ -19,8 +19,9 @@ public class ObraLilaDitherFeature : ScriptableRendererFeature
         [Range(-1f, 1f)] public float brightness = 0f;
         [Range(0f, 4f)] public float contrast = 1.35f;
         [Range(0f, 1f)] public float ditherStrength = 0.75f;
+        [Range(1f, 8f)] public float pixelSize = 1f;
         [Range(0.25f, 8f)] public float patternScale = 1f;
-        [Range(2f, 16f)] public float posterizeSteps = 4f;
+        [Range(2f, 32f)] public float posterizeSteps = 8f;
         [Range(0f, 1f)] public float vignetteStrength = 0.25f;
     }
 
@@ -116,6 +117,7 @@ public class ObraLilaDitherFeature : ScriptableRendererFeature
         private static readonly int BrightnessId = Shader.PropertyToID("_Brightness");
         private static readonly int ContrastId = Shader.PropertyToID("_Contrast");
         private static readonly int DitherStrengthId = Shader.PropertyToID("_DitherStrength");
+        private static readonly int PixelSizeId = Shader.PropertyToID("_PixelSize");
         private static readonly int PatternScaleId = Shader.PropertyToID("_PatternScale");
         private static readonly int PosterizeStepsId = Shader.PropertyToID("_PosterizeSteps");
         private static readonly int VignetteStrengthId = Shader.PropertyToID("_VignetteStrength");
@@ -196,6 +198,7 @@ public class ObraLilaDitherFeature : ScriptableRendererFeature
             material.SetFloat(BrightnessId, settings.brightness);
             material.SetFloat(ContrastId, settings.contrast);
             material.SetFloat(DitherStrengthId, settings.ditherStrength);
+            material.SetFloat(PixelSizeId, settings.pixelSize);
             material.SetFloat(PatternScaleId, settings.patternScale);
             material.SetFloat(PosterizeStepsId, settings.posterizeSteps);
             material.SetFloat(VignetteStrengthId, settings.vignetteStrength);

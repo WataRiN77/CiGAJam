@@ -57,6 +57,7 @@ MonoBehaviour:
     brightness: 0.17
     contrast: 1.28
     ditherStrength: 0.703
+    pixelSize: 1.96
     patternScale: 2.7
     posterizeSteps: 4
     vignetteStrength: 0.392
