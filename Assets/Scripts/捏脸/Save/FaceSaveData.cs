@@ -1,4 +1,3 @@
-// FaceSaveData.cs
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,7 +10,6 @@ public class FaceSaveData
     public List<OrganState> organs = new List<OrganState>();
 }
 
-// OrganState 保持原样
 [Serializable]
 public class OrganState
 {
@@ -21,4 +19,5 @@ public class OrganState
     public Quaternion localRotation;
     public string partId;
     public int spriteIndex;
+    public bool isVisible = true;
 }
