@@ -69,6 +69,10 @@ public class MagnifierRenderTextureController : MonoBehaviour
     private Vector2 lockedMousePosition;
     private bool isLockedToWorldPoint;
     private Vector3 lockedWorldPoint;
+    private bool isReturningToMouse;
+    private Vector2 returnToMouseStartPosition;
+    private float returnToMouseTimer;
+    private float returnToMouseDuration = 0.3f;
 
     private void Awake()
     {
@@ -87,7 +91,7 @@ public class MagnifierRenderTextureController : MonoBehaviour
             return;
         }
 
-        Vector2 mousePosition = isFollowLocked ? lockedMousePosition : (Vector2)Input.mousePosition;
+        Vector2 mousePosition = GetCurrentMousePositionForLens();
         Vector3 focusPoint;
         Vector3 focusNormal;
         float focusDistance;
@@ -112,6 +116,7 @@ public class MagnifierRenderTextureController : MonoBehaviour
         lockedMousePosition = Input.mousePosition;
         isFollowLocked = true;
         isLockedToWorldPoint = false;
+        isReturningToMouse = false;
         followVelocity = Vector3.zero;
     }
 
@@ -120,6 +125,7 @@ public class MagnifierRenderTextureController : MonoBehaviour
         SetLockedWorldPoint(worldPoint);
         isFollowLocked = true;
         isLockedToWorldPoint = true;
+        isReturningToMouse = false;
         followVelocity = Vector3.zero;
     }
 
@@ -133,6 +139,18 @@ public class MagnifierRenderTextureController : MonoBehaviour
     {
         isFollowLocked = false;
         isLockedToWorldPoint = false;
+        isReturningToMouse = false;
+        followVelocity = Vector3.zero;
+    }
+
+    public void UnlockFollowTowardMouse(float duration)
+    {
+        returnToMouseStartPosition = lockedMousePosition;
+        returnToMouseTimer = 0f;
+        returnToMouseDuration = Mathf.Max(0.01f, duration);
+        isFollowLocked = false;
+        isLockedToWorldPoint = false;
+        isReturningToMouse = true;
         followVelocity = Vector3.zero;
     }
 
@@ -140,6 +158,7 @@ public class MagnifierRenderTextureController : MonoBehaviour
     {
         isFollowLocked = false;
         isLockedToWorldPoint = false;
+        isReturningToMouse = false;
         followVelocity = Vector3.zero;
 
         if (!CanUpdate())
@@ -154,6 +173,33 @@ public class MagnifierRenderTextureController : MonoBehaviour
         SnapUiLens(mousePosition);
         UpdateMagnifierCamera(focusPoint, focusDistance);
         RenderMagnifierCamera();
+    }
+
+    private Vector2 GetCurrentMousePositionForLens()
+    {
+        if (isFollowLocked)
+        {
+            return lockedMousePosition;
+        }
+
+        Vector2 mousePosition = Input.mousePosition;
+
+        if (!isReturningToMouse)
+        {
+            return mousePosition;
+        }
+
+        returnToMouseTimer += Time.deltaTime;
+        float t = Mathf.Clamp01(returnToMouseTimer / returnToMouseDuration);
+        float easedT = t * t * (3f - 2f * t);
+        Vector2 interpolatedPosition = Vector2.Lerp(returnToMouseStartPosition, mousePosition, easedT);
+
+        if (t >= 1f)
+        {
+            isReturningToMouse = false;
+        }
+
+        return interpolatedPosition;
     }
 
     private void OnDisable()

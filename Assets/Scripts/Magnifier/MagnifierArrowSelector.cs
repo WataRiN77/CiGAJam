@@ -29,7 +29,9 @@ public class MagnifierArrowSelector : MonoBehaviour
     [SerializeField] private float focusZoomDuration = 0.2f;
     [SerializeField] private float focusedOrthographicSize = 5f;
     [SerializeField] private Vector2 focusedTargetViewportPoint = new Vector2(0.63f, 0.5f);
+    [SerializeField] private Vector3 focusedCameraWorldOffset = new Vector3(0f, 0.35f, 0f);
     [SerializeField] private Vector3 focusedCharacterRootLocalPosition = new Vector3(-5.5f, 0f, 16f);
+    [SerializeField] private float magnifierReturnToMouseDuration = 0.3f;
 
     [Header("Focus Buttons")]
     [SerializeField] private GameObject[] focusModeButtons;
@@ -180,6 +182,8 @@ public class MagnifierArrowSelector : MonoBehaviour
         {
             ToggleArrow(arrow);
         }
+
+        BeginReturnFromFocus();
     }
 
     public void ExitFocusButton()
@@ -419,8 +423,14 @@ public class MagnifierArrowSelector : MonoBehaviour
             return;
         }
 
+        if (focusState == FocusState.MovingOut)
+        {
+            return;
+        }
+
         SetFocusButtonsVisible(false);
         SetMagnifierShotVisible(false);
+        UnlockMagnifierFollowTowardMouse();
         transitionCameraStartPosition = focusCamera.transform.position;
         transitionCameraStartRotation = focusCamera.transform.rotation;
         transitionCameraStartSize = focusCamera.orthographicSize;
@@ -508,7 +518,6 @@ public class MagnifierArrowSelector : MonoBehaviour
                 focusCameraShakeOffset = Vector3.zero;
                 isShootingFocusedPerson = false;
                 SetFocusButtonsVisible(false);
-                UnlockMagnifierFollowAndSnapToMouse();
                 focusState = FocusState.Idle;
             }
         }
@@ -523,6 +532,7 @@ public class MagnifierArrowSelector : MonoBehaviour
         );
 
         return focusTargetPosition
+            + focusedCameraWorldOffset
             - focusCamera.transform.right * viewportOffset.x
             - focusCamera.transform.up * viewportOffset.y
             - focusCamera.transform.forward * focusForwardDistance;
@@ -639,6 +649,14 @@ public class MagnifierArrowSelector : MonoBehaviour
         if (magnifierController != null)
         {
             magnifierController.UnlockFollowAndSnapToMouse();
+        }
+    }
+
+    private void UnlockMagnifierFollowTowardMouse()
+    {
+        if (magnifierController != null)
+        {
+            magnifierController.UnlockFollowTowardMouse(magnifierReturnToMouseDuration);
         }
     }
 
@@ -998,6 +1016,7 @@ public class MagnifierArrowSelector : MonoBehaviour
         focusMoveDuration = Mathf.Max(0.01f, focusMoveDuration);
         focusZoomDelay = Mathf.Max(0f, focusZoomDelay);
         focusZoomDuration = Mathf.Max(0.01f, focusZoomDuration);
+        magnifierReturnToMouseDuration = Mathf.Max(0.01f, magnifierReturnToMouseDuration);
         focusedOrthographicSize = Mathf.Max(0.01f, focusedOrthographicSize);
         shootSequenceDuration = Mathf.Max(0.01f, shootSequenceDuration);
         shootSlowMotionScale = Mathf.Clamp(shootSlowMotionScale, 0.01f, 1f);
