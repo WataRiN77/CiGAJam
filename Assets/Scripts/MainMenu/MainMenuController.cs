@@ -50,19 +50,27 @@ public class MainMenuController : MonoBehaviourPunCallbacks
     private bool hasGameStarted = false; // 是否已经按了任意键启动了游戏
     private Coroutine breatheCoroutine;
     private Coroutine settingsSlideCoroutine; // 控制设置面板滑动的协程
+    
+    // 🌟 终极防空手段：本地缓存生成的房间码
+    private string localRoomCodeCache = ""; 
 
     public static MainMenuController Instance { get; private set; } // 新增单例，方便跨物体调用
 
     private void Awake()
     {
         Instance = this; // 初始化单例
+
+        // 🌟【最高优先级直连】：在 Awake 启动的一瞬间，立刻连接服务器，一刻也不等！
+        // 加上 !PhotonNetwork.IsConnected 保护，防止从其他场景返回主界面时重复连接
+        if (!PhotonNetwork.IsConnected)
+        {
+            PhotonNetwork.ConnectUsingSettings();
+            Debug.Log("[Photon] 正在以最高优先级在 Awake 中启动服务器连接...");
+        }
     }
 
     private void Start()
     {
-        // 🌟 核心融合（来自 PhotonLobby）：游戏一启动，就在后台悄悄连接 Photon 亚洲 Master 服务器！
-        PhotonNetwork.ConnectUsingSettings();
-
         // 确保 Photon 自动同步场景关闭（因为两边去不同的场景，不使用同步加载）
         PhotonNetwork.AutomaticallySyncScene = false;
 
@@ -111,7 +119,7 @@ public class MainMenuController : MonoBehaviourPunCallbacks
         }
     }
 
-    // 🌟 监听连接到 Photon 服务器的回调
+    // 监听连接到 Photon 服务器的回调
     public override void OnConnectedToMaster()
     {
         Debug.Log("[Photon] 成功连接至中国/亚洲 Master 服务器！现在可以正常联机了。");
@@ -364,29 +372,49 @@ public class MainMenuController : MonoBehaviourPunCallbacks
     // 3. 联机匹配逻辑（Photon 串联）
     // ==========================================
 
-    // 点击左侧 A 按钮：创建房间并作为画家A
+    // 点击左侧 A 按钮：创建房间并作为外勤画像师
+    // 点击左侧 A 按钮：创建房间并作为外勤画像师
     public void OnClickCreateRoomA()
     {
+        // 🌟 核心安全拦截：如果网络还没准备好，显示提示并直接返回，防止崩溃
+        if (!PhotonNetwork.IsConnectedAndReady)
+        {
+            panelWaitingHost.SetActive(true);
+            if (txtWaitingRoomCode != null)
+            {
+                txtWaitingRoomCode.text = "网络连接中，请稍候...";
+            }
+            Debug.LogWarning("[Photon] 还在连接服务器中，请稍等 1-2 秒再试。");
+            return;
+        }
+
         panelWaitingHost.SetActive(true);
-        txtWaitingRoomCode.text = "正在申请房间...";
 
-        // 随机生成 6 位房间码
+        // 1. 房主本地直接生成 6 位随机数作为房间码
         string roomCode = Random.Range(100000, 999999).ToString();
+        localRoomCodeCache = roomCode;
+
+        // 2. 本地秒显
+        if (txtWaitingRoomCode != null)
+        {
+            txtWaitingRoomCode.text = localRoomCodeCache;
+            Debug.Log($"[本地UI] 成功本地填入房间码: {localRoomCodeCache}");
+        }
+
         RoomOptions roomOptions = new RoomOptions { MaxPlayers = 2 };
-
         PhotonNetwork.CreateRoom(roomCode, roomOptions);
-    }
-
-    public override void OnCreatedRoom()
-    {
-        // 房主显示房间码
-        txtWaitingRoomCode.text = PhotonNetwork.CurrentRoom.Name;
-        Debug.Log($"[Photon] 成功创建房间: {PhotonNetwork.CurrentRoom.Name}");
     }
 
     // 点击右侧 B 按钮：加入房间
     public void OnClickJoinRoomB()
     {
+        // 🌟 核心安全拦截：如果网络还没准备好，直接拦截
+        if (!PhotonNetwork.IsConnectedAndReady)
+        {
+            Debug.LogWarning("[Photon] 还在连接服务器中，无法加入。");
+            return;
+        }
+
         string roomCode = inputFieldCode.text.Trim();
         if (string.IsNullOrEmpty(roomCode)) return;
 
@@ -394,6 +422,13 @@ public class MainMenuController : MonoBehaviourPunCallbacks
         PhotonNetwork.JoinRoom(roomCode);
     }
 
+    public override void OnCreatedRoom()
+    {
+        // 🌟 因为在 OnClickCreateRoomA 里已经秒显了，这里只需要打印一条日志确认即可
+        Debug.Log($"[Photon] 服务器成功创建房间! 本地房间码: {localRoomCodeCache}");
+    }
+
+    // 成功进入房间（双端都会触发此回调）
     public override void OnJoinedRoom()
     {
         Debug.Log($"[Photon] 已进入房间。当前人数: {PhotonNetwork.CurrentRoom.PlayerCount}");
@@ -414,14 +449,13 @@ public class MainMenuController : MonoBehaviourPunCallbacks
         panelLoadingClient.SetActive(false);
         panelMatchSuccess.SetActive(true);
 
-        // 🌟 重点修复：用注释包起来！
         // 等以后创建了 AsymmetricSyncManager 同步脚本并导入后，再把注释解开，彻底解决红字编译报错！
-        /*
+        
         if (AsymmetricSyncManager.Instance != null)
         {
             AsymmetricSyncManager.Instance.isPlayerA_Artist = PhotonNetwork.IsMasterClient;
         }
-        */
+        
 
         StartCoroutine(CountdownCoroutine());
     }
@@ -439,7 +473,7 @@ public class MainMenuController : MonoBehaviourPunCallbacks
         txtCountdown.text = "GO!";
         yield return new WaitForSeconds(0.5f);
 
-        // 🌟 重点新增：在跳转前，由房主 A 生成种子并广播给 B
+        // 🌟 跳转前，由房主 A 生成一整套种子，并通过 AsymmetricSyncManager 广播给 B 的 SeededNpcSpawnManager
         if (PhotonNetwork.IsMasterClient)
         {
             int murdererSeed = Random.Range(100000, 999999); // 随机生成嫌疑人种子
@@ -451,7 +485,6 @@ public class MainMenuController : MonoBehaviourPunCallbacks
             }
             npcSeeds[0] = murdererSeed; // 确保其中一个是正确答案
 
-            // 呼叫总督导，分发种子给客机！
             if (AsymmetricSyncManager.Instance != null)
             {
                 AsymmetricSyncManager.Instance.BroadcastSeeds(npcSeeds, murdererSeed);
