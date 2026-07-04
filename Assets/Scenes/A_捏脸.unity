@@ -8711,7 +8711,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1511395221}
   m_HandleRect: {fileID: 1511395220}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -26621,7 +26621,7 @@ GameObject:
   - component: {fileID: 1496673535}
   - component: {fileID: 1496673534}
   m_Layer: 5
-  m_Name: B (1)
+  m_Name: "\u76D1\u63A7\u80CC\u666F"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -26659,7 +26659,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -28065,8 +28065,8 @@ RectTransform:
   - {fileID: 2119097964}
   - {fileID: 295510472}
   - {fileID: 120566788}
-  - {fileID: 1669593036}
   - {fileID: 1496673533}
+  - {fileID: 1669593036}
   - {fileID: 142639092}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -29014,12 +29014,12 @@ GameObject:
   - component: {fileID: 1669593038}
   - component: {fileID: 1669593037}
   m_Layer: 5
-  m_Name: B
+  m_Name: "\u76D1\u63A7\u753B\u9762"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1669593036
 RectTransform:
   m_ObjectHideFlags: 0
@@ -29036,8 +29036,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 660, y: 240}
-  m_SizeDelta: {x: 540, y: 540}
+  m_AnchoredPosition: {x: 651, y: 227}
+  m_SizeDelta: {x: 497.99, y: 486.87}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1669593037
 MonoBehaviour:
