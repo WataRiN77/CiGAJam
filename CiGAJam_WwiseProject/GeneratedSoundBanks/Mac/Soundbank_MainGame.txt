@@ -26,11 +26,12 @@ State	ID	Name	State Group			Notes
 In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
 	20112970	SFX_Achieved	.cache\AF\{AFC2FDF0-D9EC-4DE8-74A8-34EB4C9CF2F1}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Achieved		210196
 	42611666	main	.cache\6C\{6C0B14F8-CB6C-C706-FCB0-73CC10DE69F6}.wem		\Containers\Default Work Unit\LongTerm\BGM_Controller\BGM_MainMenu\BGM_MainMenu_Start\main		31700668
+	59785890	BGM_Finish_Failed	.cache\F7\{F7B039CE-67D9-AEEE-4466-64DD400984C5}.wem		\Containers\Default Work Unit\LongTerm\BGM_Controller\BGM_Finish_Failed\BGM_Finish_Failed_Start\BGM_Finish_Failed		13087364
 	101064397	SFX_Hit	.cache\36\{362123FF-4EE5-B482-6C8D-127E385E5C9C}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Hit		59060
 	381129093	SFX_Bullet	.cache\85\{85BE181F-25AF-D4C6-C582-B94615DB67AD}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Bullet		78426
 	445339486	SFX_Click	.cache\E5\{E5DE8963-877A-F3AE-8714-56233B734E64}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Click		11080
 	513118028	SFX_Footstep_04	.cache\D5\{D5795B9C-C6E6-6BD7-BC9F-9919CC5CEADD}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Footstep\SFX_Footstep_04		54824
-	586666542	SFX_Typing	.cache\72\{727F6CF2-0514-C537-F26E-E9EF356B4525}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Typing		2581060
+	586666542	SFX_Typing	.cache\CF\{CF72213E-3A88-44CE-D23F-31FBB64AFF24}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Typing		2581060
 	661229522	main	.cache\3D\{3DA3CE75-4AFE-37B4-6133-ABBA7C0C8F90}.wem		\Containers\Default Work Unit\LongTerm\BGM_Controller\BGM_Discovering\BGM_Discovering_Main\main		22461176
 	673553211	SFX_Footstep_03	.cache\C9\{C99286CF-B066-BECC-BD29-7171FD49895E}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Footstep\SFX_Footstep_03		52428
 	729456618	Transition_TV_Out	.cache\16\{165672D5-A0CF-F4C8-143E-658F4EDE90DC}.wem		\Containers\Default Work Unit\MainGame_SFX\Transition_TV_Out		294496

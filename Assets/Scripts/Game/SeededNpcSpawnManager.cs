@@ -30,6 +30,10 @@ public class SeededNpcSpawnManager : MonoBehaviour
     [SerializeField] private float minDistanceBetweenNpcs = 1.2f;
     [SerializeField] private Vector3 spawnRotationEuler;
 
+    [Header("Position Seed Preview")]
+    [SerializeField] private int previewPositionSeed;
+    [SerializeField] private Vector3 previewInitialPoint;
+
     [Header("Tags")]
     [SerializeField] private string murdererTag = "Murderer";
 
@@ -132,6 +136,9 @@ public class SeededNpcSpawnManager : MonoBehaviour
                 this
             );
         }
+
+        SceneBStateJsonSaver.Instance?.RefreshNpcListFromScene();
+        SceneBStateJsonSaver.Instance?.SaveNow();
     }
 
     public void ClearSpawnedNpcs()
@@ -161,7 +168,8 @@ public class SeededNpcSpawnManager : MonoBehaviour
     private void SpawnSingleNpc(int seed, int index, bool isMurderer, List<Vector3> usedPositions)
     {
         int baseSeed = seed;
-        Vector3 position = GetSpawnPosition(baseSeed, index, usedPositions);
+        int positionSeed = baseSeed;
+        Vector3 position = GetSpawnPosition(positionSeed, index, usedPositions);
         Quaternion rotation = Quaternion.Euler(spawnRotationEuler);
         Transform parent = spawnParent != null ? spawnParent : transform;
 
@@ -179,7 +187,7 @@ public class SeededNpcSpawnManager : MonoBehaviour
         ApplyFaceSeed(npc, faceSeed);
         ApplyClothingSeed(npc, baseSeed);
         RandomWanderFloat wander = ApplyMovementSeed(npc, baseSeed);
-        identity.Initialize(seed, baseSeed, faceSeed, isMurderer);
+        identity.Initialize(seed, baseSeed, faceSeed, positionSeed, position, isMurderer);
 
         if (isMurderer)
         {
@@ -191,6 +199,19 @@ public class SeededNpcSpawnManager : MonoBehaviour
 
             Debug.Log($"Spawned Murderer NPC from seed '{seed}'.", wander != null ? wander.gameObject : npc);
         }
+    }
+
+    public Vector3 GetInitialPointFromSeed(int seed)
+    {
+        List<Vector3> usedPositions = new List<Vector3>();
+        return GetSpawnPosition(seed, 0, usedPositions);
+    }
+
+    [ContextMenu("Preview Initial Point From Seed")]
+    public void PreviewInitialPointFromSeed()
+    {
+        previewInitialPoint = GetInitialPointFromSeed(previewPositionSeed);
+        Debug.Log($"Position Seed {previewPositionSeed} -> Initial Point {previewInitialPoint}", this);
     }
 
     private void ApplyFaceSeed(GameObject npc, int seed)
