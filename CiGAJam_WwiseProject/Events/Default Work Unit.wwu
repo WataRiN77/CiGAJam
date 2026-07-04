@@ -71,6 +71,39 @@
 								</Action>
 							</ChildrenList>
 						</Event>
+						<Event Name="Play_Transiton_TV_In" ID="{7683A7E2-A232-4161-B48A-BF2F759E0217}">
+							<ChildrenList>
+								<Action Name="" ID="{5EF106F8-5FF9-4977-B612-D781C714DEC9}" ShortID="306872381">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="Transiton_TV_In" ID="{BA4E21FE-7EF4-453F-A097-AED8FA2CA82D}" WorkUnitID="{FB10B8D3-2F7A-4513-AF1F-C667E1EF0765}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+						<Event Name="Play_Transition_TV_Out" ID="{1F78ACDF-14D9-4EC3-9F9A-96538FADE8A5}">
+							<ChildrenList>
+								<Action Name="" ID="{72C425CF-46D6-496E-ABA4-EAF94E9BFA5E}" ShortID="194551799">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="Transition_TV_Out" ID="{4F1CE31C-6C16-4E0D-8682-A849A68E9EFD}" WorkUnitID="{FB10B8D3-2F7A-4513-AF1F-C667E1EF0765}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+						<Event Name="Play_SFX_Typing" ID="{357BA808-ECBC-400E-BB9A-40C665743E7A}">
+							<ChildrenList>
+								<Action Name="" ID="{1E114A1A-01C6-4501-BE41-7022D1734E00}" ShortID="494381765">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="SFX_Typing" ID="{B8E8D73B-22F2-4BDF-8437-78F94390BD56}" WorkUnitID="{FB10B8D3-2F7A-4513-AF1F-C667E1EF0765}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
 					</ChildrenList>
 				</Folder>
 			</ChildrenList>
