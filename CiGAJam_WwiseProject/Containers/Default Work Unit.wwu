@@ -374,6 +374,106 @@
 								<ActiveSource Name="SFX_AccidentalEvents" ID="{1D934843-1573-4DE2-AEC1-50F1B91996E4}" Platform="Linked"/>
 							</ActiveSourceList>
 						</Sound>
+						<Sound Name="Transiton_TV_In" ID="{BA4E21FE-7EF4-453F-A097-AED8FA2CA82D}" ShortID="845460322">
+							<PropertyList>
+								<Property Name="Lowpass" Type="int16">
+									<ValueList>
+										<Value>28</Value>
+									</ValueList>
+								</Property>
+							</PropertyList>
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{4D8CBA00-03DC-4F30-8501-F9303C74B5E4}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="SFX Bus" ID="{9A5B5C0E-06D2-45BC-B408-301F9B1EF9D0}" WorkUnitID="{82894404-023D-40B9-B5CD-0EB97F65AF14}"/>
+								</Reference>
+							</ReferenceList>
+							<ChildrenList>
+								<AudioFileSource Name="Transition_TV_In" ID="{4DD84327-D5E7-459D-89CB-DA89FDB8C53E}">
+									<Language>SFX</Language>
+									<AudioFile>Transition_TV_In.wav</AudioFile>
+									<MediaIDList>
+										<MediaID ID="744552997"/>
+									</MediaIDList>
+								</AudioFileSource>
+							</ChildrenList>
+							<ActiveSourceList>
+								<ActiveSource Name="Transition_TV_In" ID="{4DD84327-D5E7-459D-89CB-DA89FDB8C53E}" Platform="Linked"/>
+							</ActiveSourceList>
+						</Sound>
+						<Sound Name="Transition_TV_Out" ID="{4F1CE31C-6C16-4E0D-8682-A849A68E9EFD}" ShortID="158249137">
+							<PropertyList>
+								<Property Name="Lowpass" Type="int16">
+									<ValueList>
+										<Value>27</Value>
+									</ValueList>
+								</Property>
+							</PropertyList>
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{4D8CBA00-03DC-4F30-8501-F9303C74B5E4}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="SFX Bus" ID="{9A5B5C0E-06D2-45BC-B408-301F9B1EF9D0}" WorkUnitID="{82894404-023D-40B9-B5CD-0EB97F65AF14}"/>
+								</Reference>
+							</ReferenceList>
+							<ChildrenList>
+								<AudioFileSource Name="Transition_TV_Out" ID="{C9A2BC24-0BF2-4922-BDA8-5E67F378527A}">
+									<Language>SFX</Language>
+									<AudioFile>Transition_TV_Out.wav</AudioFile>
+									<MediaIDList>
+										<MediaID ID="729456618"/>
+									</MediaIDList>
+								</AudioFileSource>
+							</ChildrenList>
+							<ActiveSourceList>
+								<ActiveSource Name="Transition_TV_Out" ID="{C9A2BC24-0BF2-4922-BDA8-5E67F378527A}" Platform="Linked"/>
+							</ActiveSourceList>
+						</Sound>
+						<Sound Name="SFX_Typing" ID="{B8E8D73B-22F2-4BDF-8437-78F94390BD56}" ShortID="340362491">
+							<PropertyList>
+								<Property Name="IsLoopingEnabled" Type="bool" Value="True"/>
+								<Property Name="Lowpass" Type="int16">
+									<ValueList>
+										<Value>18</Value>
+									</ValueList>
+								</Property>
+								<Property Name="Volume" Type="Real64">
+									<ValueList>
+										<Value>3</Value>
+									</ValueList>
+								</Property>
+							</PropertyList>
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{4D8CBA00-03DC-4F30-8501-F9303C74B5E4}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="SFX Bus" ID="{9A5B5C0E-06D2-45BC-B408-301F9B1EF9D0}" WorkUnitID="{82894404-023D-40B9-B5CD-0EB97F65AF14}"/>
+								</Reference>
+							</ReferenceList>
+							<ChildrenList>
+								<AudioFileSource Name="SFX_Typing" ID="{03013F62-A568-4114-8426-545887CC01A6}">
+									<PropertyList>
+										<Property Name="CrossfadeDuration" Type="Real64" Value="2"/>
+										<Property Name="LoopBegin" Type="Real64" Value="1.34554634241809"/>
+										<Property Name="LoopEnd" Type="Real64" Value="13.2971634323248"/>
+										<Property Name="OverrideWavLoop" Type="bool" Value="True"/>
+										<Property Name="TrimEnd" Type="Real64" Value="13.442271371213"/>
+									</PropertyList>
+									<Language>SFX</Language>
+									<AudioFile>SFX_Typing.wav</AudioFile>
+									<MediaIDList>
+										<MediaID ID="586666542"/>
+									</MediaIDList>
+								</AudioFileSource>
+							</ChildrenList>
+							<ActiveSourceList>
+								<ActiveSource Name="SFX_Typing" ID="{03013F62-A568-4114-8426-545887CC01A6}" Platform="Linked"/>
+							</ActiveSourceList>
+						</Sound>
 					</ChildrenList>
 				</Folder>
 			</ChildrenList>
