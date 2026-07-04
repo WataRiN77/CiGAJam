@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class MagnifierArrowSelector : MonoBehaviour
 {
@@ -35,6 +37,11 @@ public class MagnifierArrowSelector : MonoBehaviour
 
     [Header("Focus Buttons")]
     [SerializeField] private GameObject[] focusModeButtons;
+    [SerializeField] private GameObject suspiciousButton;
+    [SerializeField] private GameObject exitFocusButton;
+    [SerializeField] private string suspiciousText = "可疑";
+    [SerializeField] private string pendingText = "待定";
+    [SerializeField] private string exitText = "离开";
     [SerializeField] private Transform magnifierShotObject;
     [SerializeField] private string magnifierShotChildName = "shot";
 
@@ -182,7 +189,7 @@ public class MagnifierArrowSelector : MonoBehaviour
             ToggleArrow(arrow);
         }
 
-        BeginReturnFromFocus();
+        UpdateFocusButtonLabels();
     }
 
     public void ExitFocusButton()
@@ -568,6 +575,11 @@ public class MagnifierArrowSelector : MonoBehaviour
                 focusModeButtons[i].SetActive(visible);
             }
         }
+
+        if (visible)
+        {
+            UpdateFocusButtonLabels();
+        }
     }
 
     private void SetMagnifierShotVisible(bool visible)
@@ -575,6 +587,63 @@ public class MagnifierArrowSelector : MonoBehaviour
         if (magnifierShotObject != null)
         {
             magnifierShotObject.gameObject.SetActive(visible);
+        }
+    }
+
+    private void UpdateFocusButtonLabels()
+    {
+        EnsureFocusButtonReferences();
+        SetButtonText(exitFocusButton, exitText);
+
+        if (focusedPerson == null)
+        {
+            SetButtonText(suspiciousButton, suspiciousText);
+            return;
+        }
+
+        Transform arrow = FindArrow(focusedPerson);
+        bool isArrowOpen = IsArrowOpen(arrow);
+        SetButtonText(suspiciousButton, isArrowOpen ? pendingText : suspiciousText);
+    }
+
+    private void EnsureFocusButtonReferences()
+    {
+        if (focusModeButtons == null)
+        {
+            return;
+        }
+
+        if (suspiciousButton == null && focusModeButtons.Length > 0)
+        {
+            suspiciousButton = focusModeButtons[0];
+        }
+
+        if (exitFocusButton == null && focusModeButtons.Length > 1)
+        {
+            exitFocusButton = focusModeButtons[1];
+        }
+    }
+
+    private void SetButtonText(GameObject buttonObject, string text)
+    {
+        if (buttonObject == null)
+        {
+            return;
+        }
+
+        TMP_Text tmpText = buttonObject.GetComponentInChildren<TMP_Text>(true);
+
+        if (tmpText != null)
+        {
+            tmpText.text = text;
+            return;
+        }
+
+        Text uiText = buttonObject.GetComponentInChildren<Text>(true);
+
+        if (uiText != null)
+        {
+            uiText.text = text;
         }
     }
 
@@ -862,6 +931,16 @@ public class MagnifierArrowSelector : MonoBehaviour
         }
 
         return arrow;
+    }
+
+    private bool IsArrowOpen(Transform arrow)
+    {
+        if (arrow == null)
+        {
+            return false;
+        }
+
+        return activeArrows.ContainsKey(arrow) || arrow.gameObject.activeSelf;
     }
 
     private Transform FindBloodFx(Transform root)
