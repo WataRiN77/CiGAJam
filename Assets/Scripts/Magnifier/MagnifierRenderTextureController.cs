@@ -59,6 +59,7 @@ public class MagnifierRenderTextureController : MonoBehaviour
     [SerializeField] private bool forceCanvasOverrideSorting = true;
     [SerializeField] private int forcedCanvasSortingOrder = 500;
     [SerializeField] private bool includeCanvasLayerInCameraMasks = true;
+    [SerializeField] private bool excludeCanvasLayerFromMagnifierWhenUiHidden = true;
     [SerializeField] private bool excludeLensCanvasFromMagnifierUi = true;
 
     private MaterialPropertyBlock propertyBlock;
@@ -233,12 +234,12 @@ public class MagnifierRenderTextureController : MonoBehaviour
 
         if (magnifierCamera != null)
         {
-            magnifierCamera.enabled = !renderScreenSpaceCameraUiInMagnifier;
+            magnifierCamera.enabled = false;
             magnifierCamera.targetTexture = GetActiveRenderTexture();
         }
 
         CacheScreenSpaceCameraCanvases();
-        ApplyStableCanvasSettings(mainCamera);
+        ApplyStableCanvasSettings(mainCamera, false);
     }
 
     private bool CanUpdate()
@@ -578,15 +579,15 @@ public class MagnifierRenderTextureController : MonoBehaviour
 
     private void RenderMagnifierCamera()
     {
-        if (!renderScreenSpaceCameraUiInMagnifier || magnifierCamera == null)
+        if (magnifierCamera == null)
         {
             return;
         }
 
         magnifierCamera.enabled = false;
-        ApplyStableCanvasSettings(magnifierCamera);
+        ApplyStableCanvasSettings(renderScreenSpaceCameraUiInMagnifier ? magnifierCamera : mainCamera, renderScreenSpaceCameraUiInMagnifier);
         magnifierCamera.Render();
-        ApplyStableCanvasSettings(mainCamera);
+        ApplyStableCanvasSettings(mainCamera, false);
     }
 
     private void CacheScreenSpaceCameraCanvases()
@@ -620,7 +621,7 @@ public class MagnifierRenderTextureController : MonoBehaviour
         }
     }
 
-    private void ApplyStableCanvasSettings(Camera targetCamera)
+    private void ApplyStableCanvasSettings(Camera targetCamera, bool forMagnifierRender)
     {
         if (screenSpaceCameraCanvases == null || targetCamera == null)
         {
@@ -651,7 +652,15 @@ public class MagnifierRenderTextureController : MonoBehaviour
             if (includeCanvasLayerInCameraMasks)
             {
                 mainCamera.cullingMask |= 1 << canvas.gameObject.layer;
-                magnifierCamera.cullingMask |= 1 << canvas.gameObject.layer;
+
+                if (forMagnifierRender)
+                {
+                    magnifierCamera.cullingMask |= 1 << canvas.gameObject.layer;
+                }
+                else if (excludeCanvasLayerFromMagnifierWhenUiHidden && !renderScreenSpaceCameraUiInMagnifier)
+                {
+                    magnifierCamera.cullingMask &= ~(1 << canvas.gameObject.layer);
+                }
             }
         }
     }
