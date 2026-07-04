@@ -2,6 +2,12 @@ using UnityEngine;
 
 public class RandomWanderFloat : MonoBehaviour
 {
+    public enum LifeState
+    {
+        Alive,
+        Dead
+    }
+
     [Header("Move Range")]
     [SerializeField] private Vector3 rangeCenterOffset = Vector3.zero;
     [SerializeField] private Vector3 moveRange = new Vector3(5f, 0f, 5f);
@@ -40,6 +46,13 @@ public class RandomWanderFloat : MonoBehaviour
     [SerializeField] private float stopRotationZAmount = 1.2f;
     [SerializeField] private float stopRotationSpeed = 2f;
 
+    [Header("Life State")]
+    [SerializeField] private LifeState lifeState = LifeState.Alive;
+    [SerializeField] private Rigidbody targetRigidbody;
+    [SerializeField] private float deathBackwardForce = 6f;
+    [SerializeField] private float deathUpwardForce = 1.5f;
+    [SerializeField] private ForceMode deathForceMode = ForceMode.Impulse;
+
     private Vector3 startPosition;
     private Vector3 rangeCenter;
     private Vector3 targetPosition;
@@ -53,12 +66,30 @@ public class RandomWanderFloat : MonoBehaviour
     private bool isMoving;
     private System.Random random;
 
+    public LifeState CurrentLifeState => lifeState;
+    public bool IsAlive => lifeState == LifeState.Alive;
+    public bool IsDead => lifeState == LifeState.Dead;
+
     private void Start()
     {
         startPosition = transform.position;
         rangeCenter = startPosition + rangeCenterOffset;
         baseY = startPosition.y;
         startRotation = transform.rotation;
+
+        if (targetRigidbody == null)
+        {
+            targetRigidbody = GetComponent<Rigidbody>();
+        }
+
+        if (targetRigidbody != null && lifeState == LifeState.Alive)
+        {
+            targetRigidbody.velocity = Vector3.zero;
+            targetRigidbody.angularVelocity = Vector3.zero;
+            targetRigidbody.isKinematic = true;
+            targetRigidbody.useGravity = false;
+        }
+
         InitializeRandom();
 
         BeginMove();
@@ -66,6 +97,11 @@ public class RandomWanderFloat : MonoBehaviour
 
     private void Update()
     {
+        if (lifeState == LifeState.Dead)
+        {
+            return;
+        }
+
         stateTimer -= Time.deltaTime;
         UpdateMoveBlend();
 
@@ -97,6 +133,11 @@ public class RandomWanderFloat : MonoBehaviour
 
     private void BeginMove()
     {
+        if (lifeState == LifeState.Dead)
+        {
+            return;
+        }
+
         isMoving = true;
         stateTimer = GetRandomRange(moveTimeRange);
         targetPosition = GetRandomPointInRange();
@@ -106,6 +147,45 @@ public class RandomWanderFloat : MonoBehaviour
     {
         isMoving = false;
         stateTimer = GetRandomRange(stopTimeRange);
+    }
+
+    public void Die(Vector3 backwardDirection)
+    {
+        if (lifeState == LifeState.Dead)
+        {
+            return;
+        }
+
+        lifeState = LifeState.Dead;
+        isMoving = false;
+        moveBlend = 0f;
+
+        if (targetRigidbody == null)
+        {
+            targetRigidbody = GetComponent<Rigidbody>();
+        }
+
+        if (targetRigidbody == null)
+        {
+            enabled = false;
+            return;
+        }
+
+        Vector3 forceDirection = backwardDirection;
+        forceDirection.y = 0f;
+
+        if (forceDirection.sqrMagnitude < 0.0001f)
+        {
+            forceDirection = -transform.forward;
+        }
+
+        forceDirection.Normalize();
+
+        targetRigidbody.isKinematic = false;
+        targetRigidbody.useGravity = true;
+        targetRigidbody.velocity = Vector3.zero;
+        targetRigidbody.angularVelocity = Vector3.zero;
+        targetRigidbody.AddForce(forceDirection * deathBackwardForce + Vector3.up * deathUpwardForce, deathForceMode);
     }
 
     private void MoveToTarget()
@@ -241,5 +321,11 @@ public class RandomWanderFloat : MonoBehaviour
             Gizmos.DrawSphere(targetPosition, isSelected ? 0.16f : 0.1f);
             Gizmos.DrawLine(transform.position, targetPosition);
         }
+    }
+
+    private void OnValidate()
+    {
+        deathBackwardForce = Mathf.Max(0f, deathBackwardForce);
+        deathUpwardForce = Mathf.Max(0f, deathUpwardForce);
     }
 }
