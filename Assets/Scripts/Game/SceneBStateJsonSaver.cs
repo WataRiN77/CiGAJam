@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
+[DefaultExecutionOrder(-9000)]
 public class SceneBStateJsonSaver : MonoBehaviour
 {
     public static SceneBStateJsonSaver Instance { get; private set; }
@@ -12,6 +13,7 @@ public class SceneBStateJsonSaver : MonoBehaviour
     [SerializeField] private string saveFileName = "SceneBState.json";
     [SerializeField] private bool saveOnStart = true;
     [SerializeField] private bool saveOnChange = true;
+    [SerializeField] private bool resetRuntimeStateOnInitialJsonLoad = true;
     [SerializeField] private bool logSavePath;
 
     [Header("References")]
@@ -19,6 +21,7 @@ public class SceneBStateJsonSaver : MonoBehaviour
     [SerializeField] private GameSessionManager gameSessionManager;
 
     private readonly Dictionary<int, NpcRuntimeState> npcStates = new Dictionary<int, NpcRuntimeState>();
+    private SceneBStateSaveData cachedState;
     private string SavePath => Path.Combine(saveDirectory, saveFileName);
 
     private void Awake()
@@ -44,7 +47,83 @@ public class SceneBStateJsonSaver : MonoBehaviour
 
         if (saveOnStart)
         {
-            SaveNow();
+            if (npcStates.Count > 0 || !TryReadState(out SceneBStateSaveData state) || !HasValidSeedConfig(state))
+            {
+                SaveNow();
+            }
+            else
+            {
+                cachedState = state;
+                LoadNpcStatesIntoCache(state);
+            }
+        }
+    }
+
+    public bool TryGetInitialJsonForSpawn(out SceneBStateSaveData state)
+    {
+        EnsureReferences(null);
+
+        if (TryReadState(out state) && HasValidSeedConfig(state))
+        {
+            if (resetRuntimeStateOnInitialJsonLoad)
+            {
+                ResetRuntimeState(state);
+                WriteState(state);
+            }
+
+            cachedState = state;
+            LoadNpcStatesIntoCache(state);
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool WriteInitialConfigFromFaceManager(int[] npcSeeds, int murdererSeed, int mapNumber, SeededNpcSpawnManager spawner = null)
+    {
+        EnsureReferences(spawner);
+
+        if (spawner == null)
+        {
+            spawner = npcSpawnManager;
+        }
+
+        if (spawner == null)
+        {
+            return false;
+        }
+
+        if ((npcSeeds == null || npcSeeds.Length == 0) && murdererSeed < 0)
+        {
+            return false;
+        }
+
+        SceneBStateSaveData state = CreateInitialState(spawner, npcSeeds, murdererSeed >= 0 ? murdererSeed : (int?)null, mapNumber);
+        cachedState = state;
+        LoadNpcStatesIntoCache(state);
+        WriteState(state);
+        return true;
+    }
+
+    public bool TryReadState(out SceneBStateSaveData state)
+    {
+        state = null;
+
+        if (!File.Exists(SavePath))
+        {
+            return false;
+        }
+
+        try
+        {
+            string json = File.ReadAllText(SavePath);
+            state = JsonUtility.FromJson<SceneBStateSaveData>(json);
+            return state != null;
+        }
+        catch (Exception exception)
+        {
+            Debug.LogError($"Failed to read SceneB state from '{SavePath}'. {exception.Message}", this);
+            return false;
         }
     }
 
@@ -109,6 +188,12 @@ public class SceneBStateJsonSaver : MonoBehaviour
         RefreshNpcListFromScene();
 
         SceneBStateSaveData saveData = BuildSaveData();
+        cachedState = saveData;
+        WriteState(saveData);
+    }
+
+    private void WriteState(SceneBStateSaveData saveData)
+    {
         string json = JsonUtility.ToJson(saveData, true);
 
         try
@@ -132,6 +217,8 @@ public class SceneBStateJsonSaver : MonoBehaviour
         SceneBStateSaveData saveData = new SceneBStateSaveData
         {
             mapNumber = gameSessionManager != null ? gameSessionManager.SelectedTerrainNumber : 0,
+            npcSeeds = GetKnownNpcSeeds(),
+            murdererSeed = GetKnownMurdererSeed(),
             shotsFired = gameSessionManager != null ? gameSessionManager.ShotsFired : 0,
             gameEnded = gameSessionManager != null && gameSessionManager.HasEnded,
             gameSucceeded = gameSessionManager != null && gameSessionManager.LastGameSucceeded
@@ -141,6 +228,39 @@ public class SceneBStateJsonSaver : MonoBehaviour
         states.Sort((a, b) => a.seed.CompareTo(b.seed));
         saveData.npcs = states.ToArray();
         return saveData;
+    }
+
+    private SceneBStateSaveData CreateInitialState(SeededNpcSpawnManager spawner, int[] npcSeeds, int? murdererSeed, int mapNumber)
+    {
+        int[] finalSeeds = spawner.BuildFinalSpawnSeedList(npcSeeds, murdererSeed);
+        Vector3[] positions = spawner.GetInitialPointsForSeeds(npcSeeds, murdererSeed);
+        NpcRuntimeState[] npcs = new NpcRuntimeState[finalSeeds.Length];
+
+        for (int i = 0; i < finalSeeds.Length; i++)
+        {
+            int seed = finalSeeds[i];
+            npcs[i] = new NpcRuntimeState
+            {
+                seed = seed,
+                positionSeed = seed,
+                initialPosition = SerializableVector3.FromVector3(i < positions.Length ? positions[i] : Vector3.zero),
+                isMurderer = murdererSeed.HasValue && seed == murdererSeed.Value,
+                isTracked = false,
+                isShot = false,
+                isMarked = false
+            };
+        }
+
+        return new SceneBStateSaveData
+        {
+            mapNumber = Mathf.Max(1, mapNumber),
+            npcSeeds = finalSeeds,
+            murdererSeed = murdererSeed ?? -1,
+            shotsFired = 0,
+            gameEnded = false,
+            gameSucceeded = false,
+            npcs = npcs
+        };
     }
 
     private void SetNpcState(Transform npcRoot, Action<NpcRuntimeState> apply)
@@ -181,6 +301,105 @@ public class SceneBStateJsonSaver : MonoBehaviour
         return identity != null ? identity : npcRoot.GetComponentInParent<SeededNpcIdentity>();
     }
 
+    private void EnsureReferences(SeededNpcSpawnManager spawner)
+    {
+        if (npcSpawnManager == null)
+        {
+            npcSpawnManager = spawner != null ? spawner : FindObjectOfType<SeededNpcSpawnManager>();
+        }
+
+        if (gameSessionManager == null)
+        {
+            gameSessionManager = GameSessionManager.Instance != null
+                ? GameSessionManager.Instance
+                : FindObjectOfType<GameSessionManager>();
+        }
+    }
+
+    private bool HasValidSeedConfig(SceneBStateSaveData state)
+    {
+        return state != null && state.npcSeeds != null && state.npcSeeds.Length > 0;
+    }
+
+    private void ResetRuntimeState(SceneBStateSaveData state)
+    {
+        if (state == null)
+        {
+            return;
+        }
+
+        state.shotsFired = 0;
+        state.gameEnded = false;
+        state.gameSucceeded = false;
+
+        if (state.npcs == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < state.npcs.Length; i++)
+        {
+            if (state.npcs[i] == null)
+            {
+                continue;
+            }
+
+            state.npcs[i].isTracked = false;
+            state.npcs[i].isShot = false;
+            state.npcs[i].isMarked = false;
+        }
+    }
+
+    private void LoadNpcStatesIntoCache(SceneBStateSaveData state)
+    {
+        npcStates.Clear();
+
+        if (state == null || state.npcs == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < state.npcs.Length; i++)
+        {
+            NpcRuntimeState npc = state.npcs[i];
+
+            if (npc != null && !npcStates.ContainsKey(npc.seed))
+            {
+                npcStates.Add(npc.seed, npc);
+            }
+        }
+    }
+
+    private int[] GetKnownNpcSeeds()
+    {
+        if (cachedState != null && cachedState.npcSeeds != null && cachedState.npcSeeds.Length > 0)
+        {
+            return cachedState.npcSeeds;
+        }
+
+        List<int> seeds = new List<int>(npcStates.Keys);
+        seeds.Sort();
+        return seeds.ToArray();
+    }
+
+    private int GetKnownMurdererSeed()
+    {
+        if (cachedState != null && cachedState.murdererSeed >= 0)
+        {
+            return cachedState.murdererSeed;
+        }
+
+        foreach (NpcRuntimeState state in npcStates.Values)
+        {
+            if (state != null && state.isMurderer)
+            {
+                return state.seed;
+            }
+        }
+
+        return -1;
+    }
+
     private void OnValidate()
     {
         if (string.IsNullOrWhiteSpace(saveDirectory))
@@ -199,6 +418,8 @@ public class SceneBStateJsonSaver : MonoBehaviour
 public class SceneBStateSaveData
 {
     public int mapNumber;
+    public int[] npcSeeds;
+    public int murdererSeed = -1;
     public int shotsFired;
     public bool gameEnded;
     public bool gameSucceeded;

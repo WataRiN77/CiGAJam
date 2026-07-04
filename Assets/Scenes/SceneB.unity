@@ -10826,6 +10826,11 @@ MonoBehaviour:
   spawnMissingMurdererSeed: 1
   preferPendingKeys: 1
   clearPendingSeedsAfterSpawn: 0
+  useSceneBJsonSeedsOnStart: 1
+  generateSeedsWhenNoneConfigured: 1
+  generatedNpcCount: 5
+  generatedSeedMin: 1000
+  generatedSeedMax: 999999
   spawnOnStart: 1
   clearPreviouslySpawned: 1
   spawnCenter: {x: 0, y: -5.19, z: -4.67}
@@ -14285,7 +14290,7 @@ MonoBehaviour:
   - {fileID: 925880180}
   - {fileID: 1591516581}
   - {fileID: 808855021}
-  randomizeTerrainOnSessionStart: 1
+  randomizeTerrainOnSessionStart: 0
   logSelectedTerrain: 0
   loadSceneOnEnd: 0
   endSceneName: 
@@ -14314,6 +14319,7 @@ MonoBehaviour:
   saveFileName: SceneBState.json
   saveOnStart: 1
   saveOnChange: 1
+  resetRuntimeStateOnInitialJsonLoad: 1
   logSavePath: 0
   npcSpawnManager: {fileID: 1173872826}
   gameSessionManager: {fileID: 1563597064}

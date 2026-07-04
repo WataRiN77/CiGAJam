@@ -14,8 +14,14 @@ public class FaceCustomizationGameManager : MonoBehaviour
     [SerializeField] private WitnessStatementGenerator statementGenerator;
 
     [Header("干扰项配置（可选）")]
-    [SerializeField] private bool useDistractors = false;
+    [SerializeField] private bool useDistractors = true;
     [SerializeField] private int defaultDistractorCount = 4;
+
+    [Header("SceneB Json Output")]
+    [SerializeField] private bool writeSceneBJsonOnNewRound = true;
+    [SerializeField] private int sceneMapCount = 4;
+    [SerializeField] private SceneBStateJsonSaver sceneBStateJsonSaver;
+    [SerializeField] private SeededNpcSpawnManager sceneBNpcSpawnManager;
 
     [Header("证词定时生成")]
     [SerializeField] private int totalStatementCount = 5;
@@ -52,6 +58,12 @@ public class FaceCustomizationGameManager : MonoBehaviour
             currentDistractors = answerGenerator.GenerateDistractors(defaultDistractorCount, currentAnswer);
             SaveDistractorsToFile(currentDistractors);
         }
+        else
+        {
+            currentDistractors.Clear();
+        }
+
+        WriteSceneBInitialJsonIfNeeded();
 
         UnityEngine.Random.State oldState = UnityEngine.Random.state;
         UnityEngine.Random.InitState(currentAnswer.seed);
@@ -134,6 +146,73 @@ public class FaceCustomizationGameManager : MonoBehaviour
         return seeds;
     }
 
+    private void WriteSceneBInitialJsonIfNeeded()
+    {
+        if (!writeSceneBJsonOnNewRound || currentAnswer == null)
+        {
+            return;
+        }
+
+        SceneBStateJsonSaver saver = GetSceneBStateJsonSaver();
+
+        if (saver == null)
+        {
+            Debug.LogWarning("FaceCustomizationGameManager could not find or create SceneBStateJsonSaver.");
+            return;
+        }
+
+        List<int> seeds = GetAllSeeds();
+
+        if (!seeds.Contains(currentAnswer.seed))
+        {
+            seeds.Insert(0, currentAnswer.seed);
+        }
+
+        int mapNumber = UnityEngine.Random.Range(1, Mathf.Max(1, sceneMapCount) + 1);
+        saver.WriteInitialConfigFromFaceManager(
+            seeds.ToArray(),
+            currentAnswer.seed,
+            mapNumber,
+            GetSceneBNpcSpawnManager()
+        );
+
+        if (GameSessionManager.Instance != null)
+        {
+            GameSessionManager.Instance.SetTerrainByNumber(mapNumber);
+        }
+    }
+
+    private SceneBStateJsonSaver GetSceneBStateJsonSaver()
+    {
+        if (sceneBStateJsonSaver != null)
+        {
+            return sceneBStateJsonSaver;
+        }
+
+        sceneBStateJsonSaver = SceneBStateJsonSaver.Instance != null
+            ? SceneBStateJsonSaver.Instance
+            : FindObjectOfType<SceneBStateJsonSaver>();
+
+        if (sceneBStateJsonSaver != null)
+        {
+            return sceneBStateJsonSaver;
+        }
+
+        GameObject saverObject = new GameObject("SceneB State Json Saver");
+        sceneBStateJsonSaver = saverObject.AddComponent<SceneBStateJsonSaver>();
+        return sceneBStateJsonSaver;
+    }
+
+    private SeededNpcSpawnManager GetSceneBNpcSpawnManager()
+    {
+        if (sceneBNpcSpawnManager == null)
+        {
+            sceneBNpcSpawnManager = FindObjectOfType<SeededNpcSpawnManager>();
+        }
+
+        return sceneBNpcSpawnManager;
+    }
+
     private void SaveAnswerToFile(FaceSaveData answer)
     {
         string path = Application.persistentDataPath + "/AnswerData/";
@@ -169,6 +248,7 @@ public class FaceCustomizationGameManager : MonoBehaviour
         public List<FaceSaveData> items;
     }
 
+<<<<<<< Updated upstream
     /// <summary>
     /// 游戏结束时调用：保存当前捏脸、与答案比对、将相似值存入文件并返回。
     /// </summary>
@@ -200,5 +280,11 @@ public class FaceCustomizationGameManager : MonoBehaviour
     private class GameResultData
     {
         public float similarity;
+=======
+    private void OnValidate()
+    {
+        defaultDistractorCount = Mathf.Max(0, defaultDistractorCount);
+        sceneMapCount = Mathf.Max(1, sceneMapCount);
+>>>>>>> Stashed changes
     }
 }
