@@ -19,6 +19,23 @@ public class MainMenuController : MonoBehaviourPunCallbacks
     [SerializeField] private float settingsSlideDuration = 0.4f; // 滑动时间
     [SerializeField] private float settingsOffScreenY = 1200f; // 初始在屏幕下方多远 (比如 1200 像素)
 
+    [Header("菜单内教程弹窗")]
+    [SerializeField] private bool autoBuildTutorialUI = true;
+    [SerializeField] private CanvasGroup tutorialGroup;
+    [SerializeField] private RectTransform tutorialPanel;
+    [SerializeField] private Image tutorialImage;
+    [SerializeField] private Button tutorialPrevButton;
+    [SerializeField] private Button tutorialNextButton;
+    [SerializeField] private Button tutorialExitButton;
+    [SerializeField] private Sprite[] tutorialSprites;
+    [SerializeField] private string tutorialResourcesPath = "Tutorial";
+    [SerializeField] private float tutorialSlideDuration = 0.35f;
+    [SerializeField] private Vector2 tutorialPrevButtonPosition = new Vector2(92f, 0f);
+    [SerializeField] private Vector2 tutorialNextButtonPosition = new Vector2(-92f, 0f);
+    [SerializeField] private Vector2 tutorialNavButtonSize = new Vector2(96f, 150f);
+    [SerializeField] private Color tutorialNavButtonColor = new Color(0f, 0f, 0f, 0.55f);
+    [SerializeField] private Color tutorialNavTextColor = Color.white;
+
     [Header("按任意键开始界面")]
     [SerializeField] private TMP_Text pressAnyKeyText;       // “按任意键开始游戏”文本
     [SerializeField] private Animator bgAnimator;            // bg 背景上的 Animator 组件
@@ -50,6 +67,8 @@ public class MainMenuController : MonoBehaviourPunCallbacks
     private bool hasGameStarted = false; // 是否已经按了任意键启动了游戏
     private Coroutine breatheCoroutine;
     private Coroutine settingsSlideCoroutine; // 控制设置面板滑动的协程
+    private Coroutine tutorialCoroutine;
+    private int tutorialIndex;
     
     // 🌟 终极防空手段：本地缓存生成的房间码
     private string localRoomCodeCache = ""; 
@@ -121,6 +140,8 @@ public class MainMenuController : MonoBehaviourPunCallbacks
             mainButtonsGroup.alpha = 0f;
             mainButtonsGroup.gameObject.SetActive(false); // 彻底禁用物体
         }
+
+        InitializeTutorialOverlay();
     }
 
     // 监听连接到 Photon 服务器的回调
@@ -136,6 +157,7 @@ public class MainMenuController : MonoBehaviourPunCallbacks
         {
             StartIntroSequence();
         }
+
     }
 
     /// <summary>
@@ -249,11 +271,380 @@ public class MainMenuController : MonoBehaviourPunCallbacks
 
     public void OnClickTeach()
     {
-        Debug.Log("[MainMenu] 点击进入教程（暂空，待后续跳转单机教程场景）");
-        if (ScreenTransitionManager.Instance != null)
+        OpenTutorial();
+    }
+
+    public void OnClickTutorialPrev()
+    {
+        ShowTutorialPage(tutorialIndex - 1, -1);
+    }
+
+    public void OnClickTutorialNext()
+    {
+        if (IsLastTutorialPage())
         {
-            ScreenTransitionManager.Instance.TransitionToScene("TutorialScene");
+            CloseTutorial();
+            return;
         }
+
+        ShowTutorialPage(tutorialIndex + 1, 1);
+    }
+
+    public void OnClickTutorialExit()
+    {
+        CloseTutorial();
+    }
+
+    private void InitializeTutorialOverlay()
+    {
+        LoadTutorialSpritesIfNeeded(false);
+
+        if (autoBuildTutorialUI && tutorialPanel == null)
+        {
+            BuildTutorialOverlay();
+        }
+
+        if (tutorialPrevButton != null)
+        {
+            tutorialPrevButton.onClick.RemoveListener(OnClickTutorialPrev);
+            tutorialPrevButton.onClick.AddListener(OnClickTutorialPrev);
+        }
+
+        if (tutorialNextButton != null)
+        {
+            tutorialNextButton.onClick.RemoveListener(OnClickTutorialNext);
+            tutorialNextButton.onClick.AddListener(OnClickTutorialNext);
+        }
+
+        if (tutorialExitButton != null)
+        {
+            tutorialExitButton.onClick.RemoveListener(OnClickTutorialExit);
+            tutorialExitButton.onClick.AddListener(OnClickTutorialExit);
+        }
+
+        SetTutorialVisible(false, false);
+    }
+
+    private void LoadTutorialSpritesIfNeeded(bool forceReload)
+    {
+        if (!forceReload && tutorialSprites != null && tutorialSprites.Length > 0)
+        {
+            return;
+        }
+
+        Sprite[] sprites = Resources.LoadAll<Sprite>(tutorialResourcesPath);
+        if (sprites != null && sprites.Length > 0)
+        {
+            System.Array.Sort(sprites, (a, b) => string.Compare(a.name, b.name, System.StringComparison.Ordinal));
+            tutorialSprites = sprites;
+            LogLoadedTutorialSprites();
+            return;
+        }
+
+        Texture2D[] textures = Resources.LoadAll<Texture2D>(tutorialResourcesPath);
+        if (textures == null || textures.Length == 0)
+        {
+            return;
+        }
+
+        System.Array.Sort(textures, (a, b) => string.Compare(a.name, b.name, System.StringComparison.Ordinal));
+        tutorialSprites = new Sprite[textures.Length];
+
+        for (int i = 0; i < textures.Length; i++)
+        {
+            Texture2D texture = textures[i];
+            tutorialSprites[i] = Sprite.Create(
+                texture,
+                new Rect(0f, 0f, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f),
+                100f);
+            tutorialSprites[i].name = texture.name;
+        }
+
+        LogLoadedTutorialSprites();
+    }
+
+    private void BuildTutorialOverlay()
+    {
+        Transform parent = mainCanvas != null ? mainCanvas.transform : transform;
+
+        GameObject root = new GameObject("TutorialOverlay", typeof(RectTransform), typeof(CanvasGroup), typeof(Image));
+        root.transform.SetParent(parent, false);
+        root.transform.SetAsLastSibling();
+
+        tutorialPanel = root.GetComponent<RectTransform>();
+        StretchToParent(tutorialPanel);
+
+        tutorialGroup = root.GetComponent<CanvasGroup>();
+        Image blocker = root.GetComponent<Image>();
+        blocker.color = Color.black;
+        blocker.raycastTarget = true;
+
+        GameObject imageObject = new GameObject("TutorialImage", typeof(RectTransform), typeof(Image));
+        imageObject.transform.SetParent(root.transform, false);
+        RectTransform imageRect = imageObject.GetComponent<RectTransform>();
+        StretchToParent(imageRect);
+        tutorialImage = imageObject.GetComponent<Image>();
+        tutorialImage.color = Color.white;
+        tutorialImage.preserveAspect = false;
+        tutorialImage.raycastTarget = false;
+
+        tutorialPrevButton = CreateTutorialButton("TutorialPrevButton", "<", root.transform, tutorialPrevButtonPosition, tutorialNavButtonSize, TextAlignmentOptions.Center);
+        tutorialNextButton = CreateTutorialButton("TutorialNextButton", ">", root.transform, tutorialNextButtonPosition, tutorialNavButtonSize, TextAlignmentOptions.Center);
+
+        AnchorButton(tutorialPrevButton.GetComponent<RectTransform>(), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f));
+        AnchorButton(tutorialNextButton.GetComponent<RectTransform>(), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f));
+    }
+
+    private void OpenTutorial()
+    {
+        InitializeTutorialOverlay();
+        LoadTutorialSpritesIfNeeded(true);
+
+        if (tutorialPanel == null || tutorialImage == null)
+        {
+            Debug.LogWarning("[MainMenu] Tutorial UI is not configured.");
+            return;
+        }
+
+        if (tutorialSprites == null || tutorialSprites.Length == 0)
+        {
+            Debug.LogWarning("[MainMenu] Tutorial images are missing. Assign tutorialSprites or put images under Assets/Resources/Tutorial.");
+            return;
+        }
+
+        if (tutorialCoroutine != null)
+        {
+            StopCoroutine(tutorialCoroutine);
+        }
+
+        tutorialIndex = 0;
+        ApplyTutorialPage();
+
+        if (mainButtonsGroup != null)
+        {
+            mainButtonsGroup.interactable = false;
+            mainButtonsGroup.blocksRaycasts = false;
+        }
+
+        tutorialCoroutine = StartCoroutine(ShowTutorialRoutine());
+    }
+
+    private void LogLoadedTutorialSprites()
+    {
+        if (tutorialSprites == null || tutorialSprites.Length == 0)
+        {
+            Debug.LogWarning($"[MainMenu] No tutorial images loaded from Resources/{tutorialResourcesPath}.");
+            return;
+        }
+
+        string names = string.Join(", ", System.Array.ConvertAll(tutorialSprites, sprite => sprite != null ? sprite.name : "<null>"));
+        Debug.Log($"[MainMenu] Loaded tutorial images from Resources/{tutorialResourcesPath}: {names}");
+    }
+
+    private void CloseTutorial()
+    {
+        if (tutorialPanel == null)
+        {
+            return;
+        }
+
+        if (tutorialCoroutine != null)
+        {
+            StopCoroutine(tutorialCoroutine);
+        }
+
+        tutorialCoroutine = StartCoroutine(HideTutorialRoutine());
+    }
+
+    private void ShowTutorialPage(int newIndex, int direction)
+    {
+        if (tutorialSprites == null || tutorialSprites.Length == 0)
+        {
+            return;
+        }
+
+        if (newIndex < 0 || newIndex >= tutorialSprites.Length || newIndex == tutorialIndex)
+        {
+            return;
+        }
+
+        if (tutorialCoroutine != null)
+        {
+            StopCoroutine(tutorialCoroutine);
+        }
+
+        tutorialCoroutine = StartCoroutine(SwitchTutorialPageRoutine(newIndex, direction));
+    }
+
+    private IEnumerator ShowTutorialRoutine()
+    {
+        yield return FadeScreenForTutorial(1f);
+
+        SetTutorialVisible(true, true);
+        tutorialPanel.anchoredPosition = Vector2.zero;
+        tutorialGroup.alpha = 1f;
+
+        yield return FadeScreenForTutorial(0f);
+        tutorialCoroutine = null;
+    }
+
+    private IEnumerator HideTutorialRoutine()
+    {
+        yield return FadeScreenForTutorial(1f);
+
+        SetTutorialVisible(false, false);
+
+        if (mainButtonsGroup != null)
+        {
+            mainButtonsGroup.gameObject.SetActive(true);
+            mainButtonsGroup.alpha = 1f;
+            mainButtonsGroup.interactable = true;
+            mainButtonsGroup.blocksRaycasts = true;
+        }
+
+        yield return FadeScreenForTutorial(0f);
+        tutorialCoroutine = null;
+    }
+
+    private IEnumerator SwitchTutorialPageRoutine(int newIndex, int direction)
+    {
+        yield return FadeScreenForTutorial(1f);
+
+        tutorialIndex = newIndex;
+        ApplyTutorialPage();
+        tutorialPanel.anchoredPosition = Vector2.zero;
+        tutorialImage.rectTransform.anchoredPosition = Vector2.zero;
+        tutorialImage.color = Color.white;
+
+        yield return FadeScreenForTutorial(0f);
+        tutorialCoroutine = null;
+    }
+
+    private IEnumerator FadeScreenForTutorial(float targetAlpha)
+    {
+        ScreenTransitionManager transition = ScreenTransitionManager.Instance;
+        if (transition != null)
+        {
+            yield return transition.FadeScreen(targetAlpha, tutorialSlideDuration);
+            yield break;
+        }
+
+        yield return FadeTutorialGroupFallback(targetAlpha);
+    }
+
+    private IEnumerator FadeTutorialGroupFallback(float targetAlpha)
+    {
+        if (tutorialGroup == null)
+        {
+            yield break;
+        }
+
+        float startAlpha = tutorialGroup.alpha;
+        float elapsed = 0f;
+        float duration = Mathf.Max(0.01f, tutorialSlideDuration);
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            tutorialGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, elapsed / duration);
+            yield return null;
+        }
+
+        tutorialGroup.alpha = targetAlpha;
+    }
+
+    private void ApplyTutorialPage()
+    {
+        if (tutorialImage != null && tutorialSprites != null && tutorialIndex >= 0 && tutorialIndex < tutorialSprites.Length)
+        {
+            tutorialImage.sprite = tutorialSprites[tutorialIndex];
+        }
+
+        int lastIndex = tutorialSprites != null ? tutorialSprites.Length - 1 : 0;
+
+        if (tutorialPrevButton != null)
+        {
+            tutorialPrevButton.gameObject.SetActive(tutorialIndex > 0);
+        }
+
+        if (tutorialNextButton != null)
+        {
+            tutorialNextButton.gameObject.SetActive(true);
+        }
+
+        if (tutorialExitButton != null)
+        {
+            tutorialExitButton.gameObject.SetActive(false);
+        }
+    }
+
+    private bool IsLastTutorialPage()
+    {
+        return tutorialSprites != null && tutorialSprites.Length > 0 && tutorialIndex >= tutorialSprites.Length - 1;
+    }
+
+    private void SetTutorialVisible(bool visible, bool interactive)
+    {
+        if (tutorialPanel != null)
+        {
+            tutorialPanel.gameObject.SetActive(visible);
+            tutorialPanel.anchoredPosition = Vector2.zero;
+        }
+
+        if (tutorialGroup != null)
+        {
+            tutorialGroup.alpha = visible ? 1f : 0f;
+            tutorialGroup.interactable = interactive || visible;
+            tutorialGroup.blocksRaycasts = interactive || visible;
+        }
+    }
+
+    private static void StretchToParent(RectTransform rect)
+    {
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+        rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = Vector2.zero;
+    }
+
+    private Button CreateTutorialButton(string objectName, string label, Transform parent, Vector2 anchoredPosition, Vector2 size, TextAlignmentOptions alignment)
+    {
+        GameObject buttonObject = new GameObject(objectName, typeof(RectTransform), typeof(Image), typeof(Button));
+        buttonObject.transform.SetParent(parent, false);
+
+        RectTransform rect = buttonObject.GetComponent<RectTransform>();
+        rect.sizeDelta = size;
+        rect.anchoredPosition = anchoredPosition;
+
+        Image image = buttonObject.GetComponent<Image>();
+        image.color = tutorialNavButtonColor;
+
+        Button button = buttonObject.GetComponent<Button>();
+
+        GameObject textObject = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
+        textObject.transform.SetParent(buttonObject.transform, false);
+        RectTransform textRect = textObject.GetComponent<RectTransform>();
+        StretchToParent(textRect);
+
+        TextMeshProUGUI text = textObject.GetComponent<TextMeshProUGUI>();
+        text.text = label;
+        text.fontSize = label.Length > 1 ? 30f : 58f;
+        text.alignment = alignment;
+        text.color = tutorialNavTextColor;
+        text.raycastTarget = false;
+
+        return button;
+    }
+
+    private static void AnchorButton(RectTransform rect, Vector2 anchorMin, Vector2 anchorMax)
+    {
+        Vector2 position = rect.anchoredPosition;
+        rect.anchorMin = anchorMin;
+        rect.anchorMax = anchorMax;
+        rect.anchoredPosition = position;
     }
 
     public void OnClickStart()
