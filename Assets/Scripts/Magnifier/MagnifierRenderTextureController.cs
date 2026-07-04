@@ -51,9 +51,24 @@ public class MagnifierRenderTextureController : MonoBehaviour
     [SerializeField] private LayerMask customMagnifierCullingMask = ~0;
     [SerializeField] private bool copyClearFlags = true;
 
+    [Header("Screen Space Camera UI")]
+    [SerializeField] private bool renderScreenSpaceCameraUiInMagnifier = true;
+    [SerializeField] private Canvas[] screenSpaceCameraCanvases;
+    [SerializeField] private bool findScreenSpaceCameraCanvasesOnStart = true;
+    [SerializeField] private float stableCanvasPlaneDistance = 1f;
+    [SerializeField] private bool forceCanvasOverrideSorting = true;
+    [SerializeField] private int forcedCanvasSortingOrder = 500;
+    [SerializeField] private bool includeCanvasLayerInCameraMasks = true;
+    [SerializeField] private bool excludeLensCanvasFromMagnifierUi = true;
+
     private MaterialPropertyBlock propertyBlock;
     private RenderTexture ownedRenderTexture;
     private Vector3 followVelocity;
+    private CanvasState[] canvasStates = new CanvasState[0];
+    private bool isFollowLocked;
+    private Vector2 lockedMousePosition;
+    private bool isLockedToWorldPoint;
+    private Vector3 lockedWorldPoint;
 
     private void Awake()
     {
@@ -72,12 +87,73 @@ public class MagnifierRenderTextureController : MonoBehaviour
             return;
         }
 
-        Vector2 mousePosition = Input.mousePosition;
-        Vector3 focusPoint = GetMouseFocusPoint(mousePosition, out Vector3 focusNormal, out float focusDistance);
+        Vector2 mousePosition = isFollowLocked ? lockedMousePosition : (Vector2)Input.mousePosition;
+        Vector3 focusPoint;
+        Vector3 focusNormal;
+        float focusDistance;
+
+        if (isLockedToWorldPoint)
+        {
+            focusPoint = GetLockedWorldFocusPoint(out focusNormal, out focusDistance);
+        }
+        else
+        {
+            focusPoint = GetMouseFocusPoint(mousePosition, out focusNormal, out focusDistance);
+        }
 
         UpdateWorldLens(mousePosition, focusPoint, focusNormal);
         UpdateUiLens(mousePosition);
         UpdateMagnifierCamera(focusPoint, focusDistance);
+        RenderMagnifierCamera();
+    }
+
+    public void LockAtCurrentMousePosition()
+    {
+        lockedMousePosition = Input.mousePosition;
+        isFollowLocked = true;
+        isLockedToWorldPoint = false;
+        followVelocity = Vector3.zero;
+    }
+
+    public void LockToWorldPoint(Vector3 worldPoint)
+    {
+        SetLockedWorldPoint(worldPoint);
+        isFollowLocked = true;
+        isLockedToWorldPoint = true;
+        followVelocity = Vector3.zero;
+    }
+
+    public void SetLockedWorldPoint(Vector3 worldPoint)
+    {
+        lockedWorldPoint = worldPoint;
+        lockedMousePosition = mainCamera != null ? (Vector2)mainCamera.WorldToScreenPoint(worldPoint) : (Vector2)Input.mousePosition;
+    }
+
+    public void UnlockFollow()
+    {
+        isFollowLocked = false;
+        isLockedToWorldPoint = false;
+        followVelocity = Vector3.zero;
+    }
+
+    public void UnlockFollowAndSnapToMouse()
+    {
+        isFollowLocked = false;
+        isLockedToWorldPoint = false;
+        followVelocity = Vector3.zero;
+
+        if (!CanUpdate())
+        {
+            return;
+        }
+
+        Vector2 mousePosition = Input.mousePosition;
+        Vector3 focusPoint = GetMouseFocusPoint(mousePosition, out Vector3 focusNormal, out float focusDistance);
+
+        SnapWorldLens(mousePosition, focusPoint, focusNormal);
+        SnapUiLens(mousePosition);
+        UpdateMagnifierCamera(focusPoint, focusDistance);
+        RenderMagnifierCamera();
     }
 
     private void OnDisable()
@@ -86,6 +162,8 @@ public class MagnifierRenderTextureController : MonoBehaviour
         {
             magnifierCamera.targetTexture = null;
         }
+
+        RestoreCanvasStates();
     }
 
     private void OnDestroy()
@@ -109,9 +187,12 @@ public class MagnifierRenderTextureController : MonoBehaviour
 
         if (magnifierCamera != null)
         {
-            magnifierCamera.enabled = true;
+            magnifierCamera.enabled = !renderScreenSpaceCameraUiInMagnifier;
             magnifierCamera.targetTexture = GetActiveRenderTexture();
         }
+
+        CacheScreenSpaceCameraCanvases();
+        ApplyStableCanvasSettings(mainCamera);
     }
 
     private bool CanUpdate()
@@ -272,6 +353,13 @@ public class MagnifierRenderTextureController : MonoBehaviour
         return false;
     }
 
+    private Vector3 GetLockedWorldFocusPoint(out Vector3 focusNormal, out float focusDistance)
+    {
+        focusNormal = GetSafeOrthographicPlaneNormal();
+        focusDistance = GetCameraForwardDistance(lockedWorldPoint);
+        return lockedWorldPoint;
+    }
+
     private void UpdateWorldLens(Vector2 mousePosition, Vector3 focusPoint, Vector3 focusNormal)
     {
         if (magnifierRoot == null)
@@ -310,6 +398,22 @@ public class MagnifierRenderTextureController : MonoBehaviour
         }
     }
 
+    private void SnapWorldLens(Vector2 mousePosition, Vector3 focusPoint, Vector3 focusNormal)
+    {
+        if (magnifierRoot == null)
+        {
+            return;
+        }
+
+        magnifierRoot.position = GetWorldLensTargetPosition(mousePosition, focusPoint, focusNormal);
+        followVelocity = Vector3.zero;
+
+        if (useFixedLensRotation)
+        {
+            magnifierRoot.rotation = Quaternion.Euler(fixedLensEulerAngles);
+        }
+    }
+
     private Vector3 GetWorldLensTargetPosition(Vector2 mousePosition, Vector3 focusPoint, Vector3 focusNormal)
     {
         if (!placeWorldLensAtFixedCameraDistance || mainCamera == null)
@@ -342,6 +446,11 @@ public class MagnifierRenderTextureController : MonoBehaviour
         {
             lensRectTransform.localPosition = localPoint;
         }
+    }
+
+    private void SnapUiLens(Vector2 mousePosition)
+    {
+        UpdateUiLens(mousePosition);
     }
 
     private void UpdateMagnifierCamera(Vector3 focusPoint, float focusDistance)
@@ -421,6 +530,142 @@ public class MagnifierRenderTextureController : MonoBehaviour
         }
     }
 
+    private void RenderMagnifierCamera()
+    {
+        if (!renderScreenSpaceCameraUiInMagnifier || magnifierCamera == null)
+        {
+            return;
+        }
+
+        magnifierCamera.enabled = false;
+        ApplyStableCanvasSettings(magnifierCamera);
+        magnifierCamera.Render();
+        ApplyStableCanvasSettings(mainCamera);
+    }
+
+    private void CacheScreenSpaceCameraCanvases()
+    {
+        if (!findScreenSpaceCameraCanvasesOnStart || (screenSpaceCameraCanvases != null && screenSpaceCameraCanvases.Length > 0))
+        {
+            return;
+        }
+
+        Canvas[] canvases = FindObjectsOfType<Canvas>(true);
+        int count = 0;
+
+        for (int i = 0; i < canvases.Length; i++)
+        {
+            if (ShouldUseCanvasForMagnifierUi(canvases[i]))
+            {
+                count++;
+            }
+        }
+
+        screenSpaceCameraCanvases = new Canvas[count];
+        int index = 0;
+
+        for (int i = 0; i < canvases.Length; i++)
+        {
+            if (ShouldUseCanvasForMagnifierUi(canvases[i]))
+            {
+                screenSpaceCameraCanvases[index] = canvases[i];
+                index++;
+            }
+        }
+    }
+
+    private void ApplyStableCanvasSettings(Camera targetCamera)
+    {
+        if (screenSpaceCameraCanvases == null || targetCamera == null)
+        {
+            return;
+        }
+
+        EnsureCanvasStateCapacity();
+
+        for (int i = 0; i < screenSpaceCameraCanvases.Length; i++)
+        {
+            Canvas canvas = screenSpaceCameraCanvases[i];
+
+            if (!ShouldUseCanvasForMagnifierUi(canvas))
+            {
+                continue;
+            }
+
+            RememberCanvasState(i, canvas);
+            canvas.worldCamera = targetCamera;
+            canvas.planeDistance = stableCanvasPlaneDistance;
+
+            if (forceCanvasOverrideSorting)
+            {
+                canvas.overrideSorting = true;
+                canvas.sortingOrder = forcedCanvasSortingOrder;
+            }
+
+            if (includeCanvasLayerInCameraMasks)
+            {
+                mainCamera.cullingMask |= 1 << canvas.gameObject.layer;
+                magnifierCamera.cullingMask |= 1 << canvas.gameObject.layer;
+            }
+        }
+    }
+
+    private void RememberCanvasState(int index, Canvas canvas)
+    {
+        if (index < 0 || index >= canvasStates.Length || canvasStates[index].HasValue)
+        {
+            return;
+        }
+
+        canvasStates[index] = new CanvasState(canvas);
+    }
+
+    private void EnsureCanvasStateCapacity()
+    {
+        int neededLength = screenSpaceCameraCanvases != null ? screenSpaceCameraCanvases.Length : 0;
+
+        if (canvasStates != null && canvasStates.Length >= neededLength)
+        {
+            return;
+        }
+
+        CanvasState[] newStates = new CanvasState[neededLength];
+
+        if (canvasStates != null)
+        {
+            for (int i = 0; i < canvasStates.Length; i++)
+            {
+                newStates[i] = canvasStates[i];
+            }
+        }
+
+        canvasStates = newStates;
+    }
+
+    private bool ShouldUseCanvasForMagnifierUi(Canvas canvas)
+    {
+        if (canvas == null || canvas.renderMode != RenderMode.ScreenSpaceCamera)
+        {
+            return false;
+        }
+
+        return !excludeLensCanvasFromMagnifierUi || canvas != lensCanvas;
+    }
+
+    private void RestoreCanvasStates()
+    {
+        for (int i = 0; i < canvasStates.Length; i++)
+        {
+            if (!canvasStates[i].HasValue)
+            {
+                continue;
+            }
+
+            canvasStates[i].Restore();
+            canvasStates[i] = default;
+        }
+    }
+
     private void OnValidate()
     {
         if (orthographicPlaneNormal.sqrMagnitude < 0.0001f)
@@ -437,6 +682,7 @@ public class MagnifierRenderTextureController : MonoBehaviour
         fallbackDistance = Mathf.Max(0.1f, fallbackDistance);
         followSmoothTime = Mathf.Max(0f, followSmoothTime);
         worldLensDistanceFromCamera = Mathf.Max(0.01f, worldLensDistanceFromCamera);
+        stableCanvasPlaneDistance = Mathf.Max(0.01f, stableCanvasPlaneDistance);
     }
 
     private Vector3 GetSafeOrthographicPlaneNormal()
@@ -467,5 +713,38 @@ public class MagnifierRenderTextureController : MonoBehaviour
         }
 
         return 8;
+    }
+
+    private struct CanvasState
+    {
+        public readonly bool HasValue;
+        private readonly Canvas canvas;
+        private readonly Camera worldCamera;
+        private readonly float planeDistance;
+        private readonly bool overrideSorting;
+        private readonly int sortingOrder;
+
+        public CanvasState(Canvas canvas)
+        {
+            HasValue = true;
+            this.canvas = canvas;
+            worldCamera = canvas.worldCamera;
+            planeDistance = canvas.planeDistance;
+            overrideSorting = canvas.overrideSorting;
+            sortingOrder = canvas.sortingOrder;
+        }
+
+        public void Restore()
+        {
+            if (canvas == null)
+            {
+                return;
+            }
+
+            canvas.worldCamera = worldCamera;
+            canvas.planeDistance = planeDistance;
+            canvas.overrideSorting = overrideSorting;
+            canvas.sortingOrder = sortingOrder;
+        }
     }
 }
