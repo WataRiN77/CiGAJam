@@ -420,6 +420,12 @@ public class CharacterCustomizer2D : MonoBehaviour
             {
                 renderer.enabled = visible;
             }
+
+            Collider2D[] colliders = target.GetComponentsInChildren<Collider2D>(true);
+            foreach (Collider2D collider in colliders)
+            {
+                collider.enabled = visible;
+            }
         }
     }
 
