@@ -149,7 +149,6 @@ GameObject:
   - component: {fileID: 7592297641292580157}
   - component: {fileID: 8391677051197498546}
   - component: {fileID: 8265656481400862203}
-  - component: {fileID: 9130512822477386093}
   m_Layer: 5
   m_Name: ContentText
   m_TagString: Untagged
@@ -362,6 +361,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d68c28ce7b16334a80fe39389408715, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< Updated upstream
   source: {fileID: 9130512822477386093}
   minSoundDelay: 0
   interruptPreviousSound: 1
@@ -464,6 +464,18 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+=======
+  startEvent:
+    idInternal: 0
+    valueGuidInternal: 
+    WwiseObjectReference: {fileID: 11400000, guid: 4f46790b54d11e74a929f1dc93cd59fd,
+      type: 2}
+  endEvent:
+    idInternal: 0
+    valueGuidInternal: 
+    WwiseObjectReference: {fileID: 11400000, guid: 4ae7a60a9c5940348acf34e95d0fbf36,
+      type: 2}
+>>>>>>> Stashed changes
 --- !u!1 &9075494129136385374
 GameObject:
   m_ObjectHideFlags: 0
