@@ -16,10 +16,14 @@ MonoBehaviour:
   displayName: "\u53D1\u578B"
   type: 0
   sprites:
-  - {fileID: 21300000, guid: 9738366a49bc3f14db692a0e658e2bec, type: 3}
-  - {fileID: 21300000, guid: e3bb45f5c674884439f7f6bb26a69499, type: 3}
-  - {fileID: 21300000, guid: b4abbb3e4fdc67844b2181704f56fe5f, type: 3}
-  - {fileID: 21300000, guid: 476dd20310de4714eb27fa2656c149c5, type: 3}
+  - {fileID: 21300000, guid: 8db7715586967f946ae6ad2ae45ce632, type: 3}
+  - {fileID: 21300000, guid: 0c50586c926037d4283c96eb8c9c3f28, type: 3}
+  - {fileID: 21300000, guid: ca2f6eafbcbed8243a61811ccd0dabd0, type: 3}
+  - {fileID: 21300000, guid: 1aae67a4deebff244bcff1176bd04f6e, type: 3}
+  - {fileID: 21300000, guid: 40d4fe41e81029c43867588854757dee, type: 3}
+  - {fileID: 21300000, guid: f46e8850b88088b4c929fb982cb03042, type: 3}
+  - {fileID: 21300000, guid: 3d74c598b169c3848867290e9cb3ba05, type: 3}
+  - {fileID: 21300000, guid: 164c24bf21f94ab449447c672e13db46, type: 3}
   targetBoneNames:
   - Base_Face
   overrideRandomRange: 1

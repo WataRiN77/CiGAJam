@@ -16,12 +16,14 @@ MonoBehaviour:
   displayName: "\u7709\u6BDB"
   type: 0
   sprites:
-  - {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 10915, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 21300000, guid: 47995feee8c4c9749b8c0b5d2bf4b3e9, type: 3}
+  - {fileID: 21300000, guid: a43cfd104cf819140b9bca29655b5f37, type: 3}
+  - {fileID: 21300000, guid: 8403d8b93fb29b84684995cff882ca3c, type: 3}
+  - {fileID: 21300000, guid: 59ac047a5c694a1499e277c73107217b, type: 3}
+  - {fileID: 21300000, guid: be9eb244509597545a583b5cf62cd88e, type: 3}
+  - {fileID: 21300000, guid: ebd7ab7090d89a440a9bd4aa14ee3d77, type: 3}
   targetBoneNames:
-  - Eyebrow/Eyebrow_R
+  - Eyebrow/R/Eyebrow_R
   overrideRandomRange: 0
   randomPosRange: 0.05
   randomRotationRange: 15
