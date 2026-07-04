@@ -1,3 +1,4 @@
+using System.Collections;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -21,6 +22,18 @@ public class SeededNpcSpawnManager : MonoBehaviour
     [Header("Cross Scene Seeds")]
     [SerializeField] private bool preferPendingKeys = true;
     [SerializeField] private bool clearPendingSeedsAfterSpawn;
+
+    [Header("SceneB Json Seeds")]
+    [SerializeField] private bool useSceneBJsonSeedsOnStart;
+    [SerializeField] private bool waitForSceneBJsonSeeds = true;
+    [SerializeField] private float sceneBJsonSeedWaitTimeout = 5f;
+    [SerializeField] private bool fallbackToConfiguredSeedsWhenJsonMissing;
+
+    [Header("Generated Seeds")]
+    [SerializeField] private bool generateSeedsWhenNoneConfigured = true;
+    [SerializeField] private int generatedNpcCount = 5;
+    [SerializeField] private int generatedSeedMin = 1000;
+    [SerializeField] private int generatedSeedMax = 999999;
 
     [Header("Spawn")]
     [SerializeField] private bool spawnOnStart = true;
@@ -72,8 +85,58 @@ public class SeededNpcSpawnManager : MonoBehaviour
     {
         if (spawnOnStart)
         {
+            if (useSceneBJsonSeedsOnStart)
+            {
+                StartCoroutine(SpawnFromSceneBJsonWhenReady());
+            }
+            else
+            {
+                SpawnFromConfiguredKeys();
+            }
+        }
+    }
+
+    private IEnumerator SpawnFromSceneBJsonWhenReady()
+    {
+        float elapsed = 0f;
+
+        while (waitForSceneBJsonSeeds && elapsed < sceneBJsonSeedWaitTimeout)
+        {
+            if (TrySpawnFromSceneBJson())
+            {
+                yield break;
+            }
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (TrySpawnFromSceneBJson())
+        {
+            yield break;
+        }
+
+        if (fallbackToConfiguredSeedsWhenJsonMissing)
+        {
             SpawnFromConfiguredKeys();
         }
+        else
+        {
+            Debug.LogWarning($"{nameof(SeededNpcSpawnManager)} is waiting for SceneB json seeds, but no valid json was found.", this);
+        }
+    }
+
+    private bool TrySpawnFromSceneBJson()
+    {
+        if (SceneBStateJsonSaver.Instance == null ||
+            !SceneBStateJsonSaver.Instance.TryGetInitialJsonForSpawn(out SceneBStateSaveData state))
+        {
+            return false;
+        }
+
+        int? murdererSeed = state.murdererSeed >= 0 ? state.murdererSeed : (int?)null;
+        SpawnFromSeeds(state.npcSeeds, murdererSeed);
+        return true;
     }
 
     [ContextMenu("Spawn From Configured Keys")]
@@ -139,6 +202,70 @@ public class SeededNpcSpawnManager : MonoBehaviour
 
         SceneBStateJsonSaver.Instance?.RefreshNpcListFromScene();
         SceneBStateJsonSaver.Instance?.SaveNow();
+    }
+
+    public int[] GetConfiguredNpcSeedsForJson()
+    {
+        int[] seeds = GetActiveSeeds();
+
+        if (seeds != null && seeds.Length > 0)
+        {
+            return RemoveDuplicateSeeds(seeds);
+        }
+
+        if (!generateSeedsWhenNoneConfigured)
+        {
+            return new int[0];
+        }
+
+        return GenerateNpcSeeds();
+    }
+
+    public int? GetConfiguredMurdererSeedForJson()
+    {
+        int? configuredMurdererSeed = GetActiveMurdererSeed();
+
+        if (configuredMurdererSeed.HasValue)
+        {
+            return configuredMurdererSeed;
+        }
+
+        int[] seeds = GetConfiguredNpcSeedsForJson();
+        return seeds.Length > 0 ? seeds[0] : (int?)null;
+    }
+
+    public int[] BuildFinalSpawnSeedList(int[] npcSeeds, int? murdererSeed)
+    {
+        List<int> seeds = new List<int>();
+
+        if (npcSeeds != null)
+        {
+            for (int i = 0; i < npcSeeds.Length; i++)
+            {
+                AddUniqueSeed(seeds, npcSeeds[i]);
+            }
+        }
+
+        if (spawnMissingMurdererSeed && murdererSeed.HasValue)
+        {
+            AddUniqueSeed(seeds, murdererSeed.Value);
+        }
+
+        return seeds.ToArray();
+    }
+
+    public Vector3[] GetInitialPointsForSeeds(int[] npcSeeds, int? murdererSeed)
+    {
+        int[] finalSeeds = BuildFinalSpawnSeedList(npcSeeds, murdererSeed);
+        List<Vector3> usedPositions = new List<Vector3>();
+        Vector3[] positions = new Vector3[finalSeeds.Length];
+
+        for (int i = 0; i < finalSeeds.Length; i++)
+        {
+            positions[i] = GetSpawnPosition(finalSeeds[i], i, usedPositions);
+        }
+
+        return positions;
     }
 
     public void ClearSpawnedNpcs()
@@ -212,6 +339,43 @@ public class SeededNpcSpawnManager : MonoBehaviour
     {
         previewInitialPoint = GetInitialPointFromSeed(previewPositionSeed);
         Debug.Log($"Position Seed {previewPositionSeed} -> Initial Point {previewInitialPoint}", this);
+    }
+
+    private int[] GenerateNpcSeeds()
+    {
+        int count = Mathf.Max(1, generatedNpcCount);
+        int min = Mathf.Min(generatedSeedMin, generatedSeedMax);
+        int max = Mathf.Max(generatedSeedMin, generatedSeedMax);
+        System.Random random = new System.Random();
+        List<int> seeds = new List<int>();
+
+        while (seeds.Count < count)
+        {
+            int seed = random.Next(min, max + 1);
+            AddUniqueSeed(seeds, seed);
+        }
+
+        return seeds.ToArray();
+    }
+
+    private static int[] RemoveDuplicateSeeds(int[] source)
+    {
+        List<int> result = new List<int>();
+
+        for (int i = 0; i < source.Length; i++)
+        {
+            AddUniqueSeed(result, source[i]);
+        }
+
+        return result.ToArray();
+    }
+
+    private static void AddUniqueSeed(List<int> seeds, int seed)
+    {
+        if (!seeds.Contains(seed))
+        {
+            seeds.Add(seed);
+        }
     }
 
     private void ApplyFaceSeed(GameObject npc, int seed)
@@ -387,5 +551,7 @@ public class SeededNpcSpawnManager : MonoBehaviour
     private void OnValidate()
     {
         minDistanceBetweenNpcs = Mathf.Max(0f, minDistanceBetweenNpcs);
+        generatedNpcCount = Mathf.Max(1, generatedNpcCount);
+        sceneBJsonSeedWaitTimeout = Mathf.Max(0f, sceneBJsonSeedWaitTimeout);
     }
 }
