@@ -1,0 +1,43 @@
+{
+ "ProjectInfo": {
+  "Project": {
+   "Name": "CiGAJam_WwiseProject",
+   "GUID": "{9DE8D23D-71A2-4C14-8E46-6DE43A464899}",
+   "Generator": "2025.1.4.9062"
+  },
+  "CacheRoot": "../.cache",
+  "Platforms": [
+   {
+    "Name": "Android",
+    "GUID": "{5BEDD2BF-26F5-439B-A6E4-B96EC3FB2A57}",
+    "BasePlatform": "Android",
+    "BasePlatformGUID": "{A2D401DE-B8B6-4FEB-8142-137C34D507CA}",
+    "Path": "Android"
+   },
+   {
+    "Name": "Mac",
+    "GUID": "{4B211B98-0BAB-46EF-B7E4-4CBEBFBF44A8}",
+    "BasePlatform": "Mac",
+    "BasePlatformGUID": "{9C6217D5-DD11-4795-87C1-6CE02853C540}",
+    "Path": "Mac"
+   },
+   {
+    "Name": "Windows",
+    "GUID": "{81C78923-C15D-4358-BF31-BAD8D45753F5}",
+    "BasePlatform": "Windows",
+    "BasePlatformGUID": "{6E0CB257-C6C8-4C5C-8366-2740DFC441EB}",
+    "Path": "Windows"
+   }
+  ],
+  "Languages": [
+   {
+    "Name": "English(US)",
+    "Id": "684519430",
+    "GUID": "{78836546-B5C4-4CAD-8C4B-236BB75D41E9}",
+    "Default": "true",
+    "UseAsStandIn": "true"
+   }
+  ],
+  "FileHash": "{DF6FB970-4965-4A05-B09B-21D20A1BA1E2}"
+ }
+}

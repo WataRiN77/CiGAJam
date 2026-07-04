@@ -1,0 +1,106 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Windows",
+  "BasePlatform": "Windows",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "172",
+  "SoundBanks": [
+   {
+    "Id": "1355168291",
+    "Type": "User",
+    "GUID": "{701ECBBD-9C7B-4030-8CDB-749EE5D1C7B9}",
+    "Language": "SFX",
+    "Hash": "{DF0AB6A4-CFFB-E678-2102-7A59DCCB1B5C}",
+    "ObjectPath": "Init",
+    "ShortName": "Init",
+    "Path": "Init.bnk",
+    "Plugins": {
+     "AudioDevices": [
+      {
+       "Id": "2317455096",
+       "Name": "No_Output",
+       "ObjectPath": "\\Devices\\Default Work Unit\\No_Output",
+       "GUID": "{00F26853-C225-4CC7-94B3-C11256BA867B}",
+       "LibName": "No Output",
+       "LibId": "11862023"
+      },
+      {
+       "Id": "3859886410",
+       "Name": "System",
+       "ObjectPath": "\\Devices\\Default Work Unit\\System",
+       "GUID": "{AC3BE0AB-C9F0-466F-AADB-509F0389B81E}",
+       "LibName": "System",
+       "LibId": "11403271"
+      }
+     ]
+    },
+    "Busses": [
+     {
+      "Id": "1502772432",
+      "Name": "SFX Bus",
+      "ObjectPath": "\\Busses\\Default Work Unit\\SFX Bus",
+      "GUID": "{9A5B5C0E-06D2-45BC-B408-301F9B1EF9D0}"
+     },
+     {
+      "Id": "3127962312",
+      "Name": "Music Bus",
+      "ObjectPath": "\\Busses\\Default Work Unit\\Music Bus",
+      "GUID": "{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}"
+     }
+    ],
+    "GameParameters": [
+     {
+      "Id": "3673881719",
+      "Name": "Volume_SFX",
+      "ObjectPath": "\\Game Parameters\\Default Work Unit\\Volume_SFX",
+      "GUID": "{8ADAE2D7-1C01-44A6-8A73-518370645E7E}"
+     },
+     {
+      "Id": "3891337659",
+      "Name": "Volume_Music",
+      "ObjectPath": "\\Game Parameters\\Default Work Unit\\Volume_Music",
+      "GUID": "{1AFE5E28-2D65-4B40-900B-13C69EA5FE38}"
+     }
+    ],
+    "StateGroups": [
+     {
+      "Id": "4091656514",
+      "Name": "GameState",
+      "ObjectPath": "\\States\\Default Work Unit\\GameState",
+      "GUID": "{166FF774-E07B-4B91-9D53-57338A77A531}",
+      "States": [
+       {
+        "Id": "748895195",
+        "Name": "None",
+        "ObjectPath": "\\States\\Default Work Unit\\GameState\\None",
+        "GUID": "{8A83D1D0-7ECB-4F93-9EC2-8EE6A6861723}"
+       },
+       {
+        "Id": "984691642",
+        "Name": "InGame",
+        "ObjectPath": "\\States\\Default Work Unit\\GameState\\InGame",
+        "GUID": "{0D7EE3DA-FA85-40AC-B2D4-04200B0F3EDF}"
+       },
+       {
+        "Id": "2037204996",
+        "Name": "LevelEnd",
+        "ObjectPath": "\\States\\Default Work Unit\\GameState\\LevelEnd",
+        "GUID": "{686051FD-601A-44B3-B931-6BAAEFFC65AE}"
+       }
+      ]
+     }
+    ],
+    "SwitchGroups": [
+     {
+      "Id": "1445037870",
+      "Name": "MusicSwitch",
+      "ObjectPath": "\\Switches\\Default Work Unit\\MusicSwitch",
+      "GUID": "{4C0896D6-7B46-45C5-9DBB-B317DC57B3FF}",
+      "Switches": []
+     }
+    ]
+   }
+  ],
+  "FileHash": "{7BE96B65-CC34-8E08-10DB-2AA2C4D10B6A}"
+ }
+}

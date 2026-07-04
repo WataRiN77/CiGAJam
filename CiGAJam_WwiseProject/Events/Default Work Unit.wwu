@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WwiseDocument Type="WorkUnit" ID="{6E120714-C67E-4C19-88C6-E70EA05D7305}" SchemaVersion="133">
+	<Events>
+		<WorkUnit Name="Default Work Unit" ID="{6E120714-C67E-4C19-88C6-E70EA05D7305}" PersistMode="Standalone">
+			<ChildrenList>
+				<Folder Name="SFX" ID="{8A55A57C-BBB4-479C-9C46-4BBE2AE85377}" ShortID="50340433">
+					<ChildrenList>
+						<Event Name="MainGame_FootStep" ID="{57C0076E-C741-433F-B79E-AC967722D21B}">
+							<ChildrenList>
+								<Action Name="" ID="{76B5A3F5-2710-4CFC-8935-1BE16696092E}" ShortID="1049831266">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="SFX_Footstep" ID="{7B9A18D5-2174-4140-8797-B5FD7EEE4768}" WorkUnitID="{FB10B8D3-2F7A-4513-AF1F-C667E1EF0765}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+						<Event Name="Play_SFX_Click" ID="{37DE1816-83F6-4737-80EE-822349CCF37D}">
+							<ChildrenList>
+								<Action Name="" ID="{F368D815-8575-482E-A1C0-17BFFEB3E041}" ShortID="111073237">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="SFX_Click" ID="{4EFE4C5F-5E5A-4ECF-B2F1-50D608B5BB92}" WorkUnitID="{FB10B8D3-2F7A-4513-AF1F-C667E1EF0765}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+						<Event Name="Play_SFX_Achieved" ID="{C3847C3D-58FA-49F5-BDD3-DCEBBBEE4FF5}">
+							<ChildrenList>
+								<Action Name="" ID="{E196A05B-D545-4D16-BF0E-FDE03960AE56}" ShortID="217608572">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="SFX_Achieved" ID="{20B00ABE-ECC3-4455-8A86-ADF754358666}" WorkUnitID="{FB10B8D3-2F7A-4513-AF1F-C667E1EF0765}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+						<Event Name="Play_SFX_Bad" ID="{60E092A3-D47B-44A8-ADA9-1CF0C05D8C4C}">
+							<ChildrenList>
+								<Action Name="" ID="{73C26A2C-BAC9-47FA-817F-EC44244607CF}" ShortID="800490643">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="SFX_Bad" ID="{E75F5607-AF63-422F-B48D-B7534E6792E7}" WorkUnitID="{FB10B8D3-2F7A-4513-AF1F-C667E1EF0765}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+						<Event Name="Play_SFX_ElectricShock" ID="{709A1CCC-7929-4D58-AEB1-6A65040EA01C}">
+							<ChildrenList>
+								<Action Name="" ID="{2185C45E-D993-4C7E-AC56-05864D70B508}" ShortID="439978597">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="SFX_ElectricShock" ID="{3FEA1D77-3CC3-4DF9-81D5-337C703D627F}" WorkUnitID="{FB10B8D3-2F7A-4513-AF1F-C667E1EF0765}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+						<Event Name="Play_SFX_Hit" ID="{A53D6053-93B6-4073-B969-18AB694D8717}">
+							<ChildrenList>
+								<Action Name="" ID="{A87C7F8E-0CAF-4883-A892-7C5293E8F21E}" ShortID="45466963">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="SFX_Hit" ID="{415CE0BD-1695-41A3-80D8-3C9936C69A46}" WorkUnitID="{FB10B8D3-2F7A-4513-AF1F-C667E1EF0765}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
+					</ChildrenList>
+				</Folder>
+			</ChildrenList>
+		</WorkUnit>
+	</Events>
+</WwiseDocument>
