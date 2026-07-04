@@ -68,8 +68,8 @@ public class SelectionGizmo : MonoBehaviour
         lr.endWidth = lineWidth;
         lr.sortingOrder = 100;
         lr.material = new Material(Shader.Find("Sprites/Default"));
-        lr.startColor = Color.white;
-        lr.endColor = Color.white;
+        lr.startColor = Color.black;
+        lr.endColor = Color.black;
     }
 
     public void SetTarget(DraggableOrgan organ)
@@ -128,7 +128,7 @@ public class SelectionGizmo : MonoBehaviour
 
         transform.position = organWorldCenter;
         transform.rotation = organT.rotation;
-        transform.localScale = Vector3.one;
+        transform.localScale = Vector3.one * 4;
 
         // ËÄ½Ç
         SetLocalPos(cornerTopLeft, -worldExtents.x, worldExtents.y);
