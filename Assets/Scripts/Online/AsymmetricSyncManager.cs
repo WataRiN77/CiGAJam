@@ -123,6 +123,65 @@ public class AsymmetricSyncManager : MonoBehaviourPunCallbacks
         }
     }
 
+    // ==========================================
+    // 3. 【核心同步】：B 端 ➔ A 端：局势数据同步
+    // ==========================================
+
+    /// <summary>
+    /// A端在场景加载完成时调用，主动向 B 端请求一次完整的初始局势
+    /// </summary>
+    public void RequestSceneBStateFromHost()
+    {
+        if (isPlayerA_Artist && PhotonNetwork.InRoom)
+        {
+            Debug.Log("[Sync-网络] A端已就绪，正在请求 B 端的初始局势数据...");
+            photonView.RPC("RPC_RequestSceneBState", RpcTarget.Others);
+        }
+    }
+
+    [PunRPC]
+    private void RPC_RequestSceneBState()
+    {
+        if (!isPlayerA_Artist)
+        {
+            Debug.Log("[Sync-网络] 收到 A 端的数据请求，正在即时序列化并发送...");
+            // 调用 B 端的 Saver 重新打包并发送
+            if (SceneBStateJsonSaver.Instance != null)
+            {
+                SceneBStateJsonSaver.Instance.SaveNow();
+            }
+        }
+    }
+
+    /// <summary>
+    /// B端调用：将最新的 JSON 数据通过网络广播给 A端
+    /// </summary>
+    public void SendSceneBStateToArtist(string jsonState)
+    {
+        if (!isPlayerA_Artist && PhotonNetwork.InRoom)
+        {
+            photonView.RPC("RPC_SyncSceneBState", RpcTarget.Others, jsonState);
+        }
+    }
+
+    [PunRPC]
+    private void RPC_SyncSceneBState(string jsonState)
+    {
+        // 只有画像师 A 需要接收并更新画面
+        if (isPlayerA_Artist)
+        {
+            BinASceneJsonDriver driver = FindObjectOfType<BinASceneJsonDriver>();
+            if (driver != null)
+            {
+                driver.ApplyStateFromJsonString(jsonState);
+            }
+            else
+            {
+                Debug.LogWarning("[Sync-警告] 收到 B 端数据，但在 A 端未找到 BinASceneJsonDriver 组件。");
+            }
+        }
+    }
+
     private void OnDestroy()
     {
         if (activeCustomizer != null)

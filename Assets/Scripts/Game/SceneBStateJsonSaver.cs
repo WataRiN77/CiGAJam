@@ -194,21 +194,30 @@ public class SceneBStateJsonSaver : MonoBehaviour
 
     private void WriteState(SceneBStateSaveData saveData)
     {
-        string json = JsonUtility.ToJson(saveData, true);
+        // 1.  转换成紧凑版的 JSON（不包含缩进换行，减少网络传输流量）
+        string compactJson = JsonUtility.ToJson(saveData, false);
 
+        // 2.  如果在联网状态，通过 Photon 发送给 A 端
+        if (Photon.Pun.PhotonNetwork.InRoom && AsymmetricSyncManager.Instance != null)
+        {
+            AsymmetricSyncManager.Instance.SendSceneBStateToArtist(compactJson);
+        }
+
+        // 3.  保留本地磁盘保存作为单机测试和备份方案
         try
         {
             Directory.CreateDirectory(saveDirectory);
-            File.WriteAllText(SavePath, json);
+            string prettyJson = JsonUtility.ToJson(saveData, true); // 本地磁盘用带格式排版的 JSON
+            File.WriteAllText(SavePath, prettyJson);
 
             if (logSavePath)
             {
-                Debug.Log($"SceneB state saved to: {SavePath}", this);
+                Debug.Log($"SceneB state saved to disk fallback: {SavePath}", this);
             }
         }
         catch (Exception exception)
         {
-            Debug.LogError($"Failed to save SceneB state to '{SavePath}'. {exception.Message}", this);
+            Debug.LogError($"Failed to save SceneB state to disk fallback '{SavePath}'. {exception.Message}", this);
         }
     }
 

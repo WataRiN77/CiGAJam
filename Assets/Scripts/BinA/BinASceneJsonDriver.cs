@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -114,11 +114,28 @@ public class BinASceneJsonDriver : MonoBehaviour
             Debug.Log($"BinA reads SceneB json from: {jsonPath}", this);
         }
 
-        LoadAndApplyJson(true);
+        if (Photon.Pun.PhotonNetwork.InRoom)
+        {
+            if (AsymmetricSyncManager.Instance != null)
+            {
+                AsymmetricSyncManager.Instance.RequestSceneBStateFromHost();
+            }
+        }
+        else
+        {
+            LoadAndApplyJson(true);
+        }
     }
 
     private void Update()
     {
+        // 联网状态下，跳过本地磁盘轮询，完全依赖网络推送
+        if (Photon.Pun.PhotonNetwork.InRoom)
+        {
+            UpdateOutputCamera();
+            return;
+        }
+
         if (reloadWhenJsonChanges)
         {
             reloadTimer -= Time.deltaTime;
@@ -939,6 +956,37 @@ public class BinASceneJsonDriver : MonoBehaviour
         if (string.IsNullOrWhiteSpace(jsonPath))
         {
             jsonPath = @"C:\CiGAJam\SceneBState.json";
+        }
+    }
+
+    /// <summary>
+    /// 提供给网络管理器调用，直接应用来自网络的 JSON 数据（不经过磁盘）
+    /// </summary>
+    public void ApplyStateFromJsonString(string jsonString)
+    {
+        if (string.IsNullOrEmpty(jsonString)) return;
+
+        try
+        {
+            SceneBStateSaveData loadedState = JsonUtility.FromJson<SceneBStateSaveData>(jsonString);
+            if (loadedState == null) return;
+
+            currentState = loadedState;
+            ApplyTerrain(currentState.mapNumber);
+
+            // 如果本地尚未实例化 NPC，进行首次生成
+            if (identitiesBySeed.Count == 0)
+            {
+                SpawnNpcsFromFaceGameManager(currentState);
+            }
+
+            RebuildIdentityLookup();
+            ApplyNpcStates(currentState);
+            ApplyGameState(currentState);
+        }
+        catch (Exception exception)
+        {
+            Debug.LogError($"[BinA-网络解析] 解析网络 JSON 失败: {exception.Message}", this);
         }
     }
 }
