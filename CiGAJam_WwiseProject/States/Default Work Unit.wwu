@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WwiseDocument Type="WorkUnit" ID="{08A20DDB-EE49-4C7C-A13A-53C54E512529}" SchemaVersion="133">
+	<States>
+		<WorkUnit Name="Default Work Unit" ID="{08A20DDB-EE49-4C7C-A13A-53C54E512529}" PersistMode="Standalone">
+			<ChildrenList>
+				<StateGroup Name="GameState" ID="{166FF774-E07B-4B91-9D53-57338A77A531}">
+					<ChildrenList>
+						<State Name="None" ID="{8A83D1D0-7ECB-4F93-9EC2-8EE6A6861723}"/>
+						<State Name="InGame" ID="{0D7EE3DA-FA85-40AC-B2D4-04200B0F3EDF}"/>
+						<State Name="LevelEnd" ID="{686051FD-601A-44B3-B931-6BAAEFFC65AE}"/>
+					</ChildrenList>
+				</StateGroup>
+			</ChildrenList>
+		</WorkUnit>
+	</States>
+</WwiseDocument>

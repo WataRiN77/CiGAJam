@@ -1,0 +1,20 @@
+Event	ID	Name			Wwise Object Path	Notes
+	861084261	Play_SFX_Achieved			\Default Work Unit\SFX\Play_SFX_Achieved	
+	1376640657	Play_SFX_Hit			\Default Work Unit\SFX\Play_SFX_Hit	
+	1542905893	MainGame_FootStep			\Default Work Unit\SFX\MainGame_FootStep	
+	1576397959	Play_SFX_Bad			\Default Work Unit\SFX\Play_SFX_Bad	
+	1602989894	Play_SFX_Click			\Default Work Unit\SFX\Play_SFX_Click	
+	2654846947	Play_SFX_ElectricShock			\Default Work Unit\SFX\Play_SFX_ElectricShock	
+
+In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
+	20112970	SFX_Achieved	.cache\AF\{AFC2FDF0-D9EC-4DE8-74A8-34EB4C9CF2F1}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Achieved		210196
+	101064397	SFX_Hit	.cache\36\{362123FF-4EE5-B482-6C8D-127E385E5C9C}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Hit		59060
+	445339486	SFX_Click	.cache\E5\{E5DE8963-877A-F3AE-8714-56233B734E64}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Click		11080
+	513118028	SFX_Footstep_04	.cache\D5\{D5795B9C-C6E6-6BD7-BC9F-9919CC5CEADD}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Footstep\SFX_Footstep_04		54824
+	673553211	SFX_Footstep_03	.cache\C9\{C99286CF-B066-BECC-BD29-7171FD49895E}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Footstep\SFX_Footstep_03		52428
+	733063890	SFX_Bad	.cache\96\{96B50628-D87D-504E-1C06-79F2526BCE24}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Bad		294484
+	829574094	SFX_Footstep_05	.cache\39\{393E34F2-EC11-F879-4213-8F9D3423972A}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Footstep\SFX_Footstep_05		53228
+	839625073	SFX_Footstep_02	.cache\9E\{9E7F05B5-1A49-3886-43B1-1FEF555F5D2E}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Footstep\SFX_Footstep_02		54596
+	868565967	SFX_ElectricShock	.cache\57\{571A3BCC-FE66-EDD4-C2EA-69F07ACB1433}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_ElectricShock		275308
+	1068765371	SFX_Footstep_01	.cache\CA\{CAE57E3C-7861-E93A-A4D0-5FDCFD5559B4}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Footstep\SFX_Footstep_01		42152
+
