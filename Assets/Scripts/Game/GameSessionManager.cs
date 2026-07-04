@@ -97,7 +97,11 @@ public class GameSessionManager : MonoBehaviour
         sessionStartTime = Time.time;
         LastResult = new GameSessionResult();
 
-        if (randomizeTerrainOnSessionStart)
+        if (AsymmetricSyncManager.Instance != null && AsymmetricSyncManager.Instance.SyncedMapNumber >= 1)
+        {
+            SetTerrainByNumber(AsymmetricSyncManager.Instance.SyncedMapNumber);
+        }
+        else if (randomizeTerrainOnSessionStart)
         {
             RandomizeTerrain();
         }

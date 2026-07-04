@@ -88,7 +88,11 @@ public class SeededNpcSpawnManager : MonoBehaviour
 
         if (spawnOnStart)
         {
-            if (useSceneBJsonSeedsOnStart)
+            if (HasPendingSeeds())
+            {
+                SpawnFromConfiguredKeys();
+            }
+            else if (useSceneBJsonSeedsOnStart)
             {
                 Debug.Log("[Spawn-Debug] 流程分支：进入 [等待本地JSON文件] 模式。启动协程...");
                 StartCoroutine(SpawnFromSceneBJsonWhenReady());
@@ -129,6 +133,11 @@ public class SeededNpcSpawnManager : MonoBehaviour
         {
             Debug.LogWarning($"{nameof(SeededNpcSpawnManager)} is waiting for SceneB json seeds, but no valid json was found.", this);
         }
+    }
+
+    private static bool HasPendingSeeds()
+    {
+        return PendingNpcSeeds != null && PendingNpcSeeds.Length > 0;
     }
 
     private bool TrySpawnFromSceneBJson()

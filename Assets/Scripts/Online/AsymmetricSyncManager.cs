@@ -16,6 +16,7 @@ public class AsymmetricSyncManager : MonoBehaviourPunCallbacks
 
     public int[] SyncedNpcSeeds { get; private set; }
     public int SyncedMurdererSeed { get; private set; } = -1;
+    public int SyncedMapNumber { get; private set; } = -1;
 
     private void Awake()
     {
@@ -77,10 +78,15 @@ public class AsymmetricSyncManager : MonoBehaviourPunCallbacks
     // ==========================================
     public void BroadcastSeeds(int[] npcSeeds, int murdererSeed)
     {
+        BroadcastSeeds(npcSeeds, murdererSeed, -1);
+    }
+
+    public void BroadcastSeeds(int[] npcSeeds, int murdererSeed, int mapNumber)
+    {
         if (PhotonNetwork.IsMasterClient)
         {
-            Debug.Log($"[Sync-Debug] 房主 A 正在广播种子数据。路人数: {npcSeeds?.Length ?? 0}, 嫌疑人种子: {murdererSeed}");
-            photonView.RPC("RPC_SyncGameplaySeeds", RpcTarget.AllBuffered, npcSeeds, murdererSeed);
+            Debug.Log($"[Sync-Debug] 房主 A 正在广播种子数据。路人数: {npcSeeds?.Length ?? 0}, 嫌疑人种子: {murdererSeed}, 场景序号: {mapNumber}");
+            photonView.RPC("RPC_SyncGameplaySeeds", RpcTarget.AllBuffered, npcSeeds, murdererSeed, mapNumber);
         }
         else
         {
@@ -89,13 +95,20 @@ public class AsymmetricSyncManager : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    private void RPC_SyncGameplaySeeds(int[] npcSeeds, int murdererSeed)
+    private void RPC_SyncGameplaySeeds(int[] npcSeeds, int murdererSeed, int mapNumber)
     {
-        Debug.Log($"[Sync-Debug] 收到网络同步种子。路人数: {npcSeeds?.Length ?? 0}, 嫌疑人: {murdererSeed}。正在写入缓存...");
+        Debug.Log($"[Sync-Debug] 收到网络同步种子。路人数: {npcSeeds?.Length ?? 0}, 嫌疑人: {murdererSeed}, 场景序号: {mapNumber}。正在写入缓存...");
         SyncedNpcSeeds = npcSeeds;
         SyncedMurdererSeed = murdererSeed;
+        SyncedMapNumber = mapNumber;
 
         SeededNpcSpawnManager.SetPendingSeeds(npcSeeds, murdererSeed);
+
+        if (mapNumber >= 1)
+        {
+            GameSessionManager.Instance?.SetTerrainByNumber(mapNumber);
+        }
+
         Debug.Log($"[Sync-Debug] 种子已成功写入 SeededNpcSpawnManager 静态内存。当前静态缓存大小: {SeededNpcSpawnManager.PendingNpcSeeds?.Length ?? 0}");
     }
 

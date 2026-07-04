@@ -382,6 +382,11 @@ public class SceneBStateJsonSaver : MonoBehaviour
 
     private int[] GetKnownNpcSeeds()
     {
+        if (SeededNpcSpawnManager.PendingNpcSeeds != null && SeededNpcSpawnManager.PendingNpcSeeds.Length > 0)
+        {
+            return SeededNpcSpawnManager.PendingNpcSeeds;
+        }
+
         if (cachedState != null && cachedState.npcSeeds != null && cachedState.npcSeeds.Length > 0)
         {
             return cachedState.npcSeeds;
@@ -394,6 +399,11 @@ public class SceneBStateJsonSaver : MonoBehaviour
 
     private int GetKnownMurdererSeed()
     {
+        if (SeededNpcSpawnManager.PendingMurdererSeed.HasValue)
+        {
+            return SeededNpcSpawnManager.PendingMurdererSeed.Value;
+        }
+
         if (cachedState != null && cachedState.murdererSeed >= 0)
         {
             return cachedState.murdererSeed;

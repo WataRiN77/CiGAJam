@@ -252,6 +252,7 @@ public class ResultSceneManager : MonoBehaviour
             if (PhotonNetwork.IsMasterClient)
             {
                 int murdererSeed = Random.Range(100000, 999999);
+                int mapNumber = Random.Range(1, 5);
                 int npcCount = 15;
 
                 int[] npcSeeds = new int[npcCount];
@@ -263,7 +264,7 @@ public class ResultSceneManager : MonoBehaviour
 
                 if (AsymmetricSyncManager.Instance != null)
                 {
-                    AsymmetricSyncManager.Instance.BroadcastSeeds(npcSeeds, murdererSeed);
+                    AsymmetricSyncManager.Instance.BroadcastSeeds(npcSeeds, murdererSeed, mapNumber);
                 }
             }
 

@@ -890,6 +890,7 @@ public class MainMenuController : MonoBehaviourPunCallbacks
         {
             int murdererSeed = Random.Range(100000, 999999); // 随机生成嫌疑人种子
             int npcCount = 15; // 准备生成的 NPC 数量
+            int mapNumber = Random.Range(1, 5); // Scene index: 1-4
             int[] npcSeeds = new int[npcCount];
             for (int i = 0; i < npcCount; i++)
             {
@@ -899,7 +900,7 @@ public class MainMenuController : MonoBehaviourPunCallbacks
 
             if (AsymmetricSyncManager.Instance != null)
             {
-                AsymmetricSyncManager.Instance.BroadcastSeeds(npcSeeds, murdererSeed);
+                AsymmetricSyncManager.Instance.BroadcastSeeds(npcSeeds, murdererSeed, mapNumber);
             }
         }
 

@@ -19,6 +19,7 @@ public class FaceCustomizationGameManager : MonoBehaviour
 
     [Header("SceneB Json Output")]
     [SerializeField] private bool writeSceneBJsonOnNewRound = true;
+    [SerializeField] private bool preferSyncedGameplaySeeds = true;
     [SerializeField] private int sceneMapCount = 4;
     [SerializeField] private SceneBStateJsonSaver sceneBStateJsonSaver;
     [SerializeField] private SeededNpcSpawnManager sceneBNpcSpawnManager;
@@ -50,12 +51,21 @@ public class FaceCustomizationGameManager : MonoBehaviour
     /// </summary>
     public FaceSaveData GenerateNewRound()
     {
-        currentAnswer = answerGenerator.GenerateAnswer();
+        int[] authoritativeNpcSeeds = null;
+        int authoritativeMurdererSeed = -1;
+        bool hasAuthoritativeSeeds = TryGetAuthoritativeGameplaySeeds(out authoritativeNpcSeeds, out authoritativeMurdererSeed);
+
+        currentAnswer = hasAuthoritativeSeeds
+            ? answerGenerator.GenerateAnswerWithSeed(authoritativeMurdererSeed)
+            : answerGenerator.GenerateAnswer();
+
         SaveAnswerToFile(currentAnswer);
 
         if (useDistractors && currentAnswer != null)
         {
-            currentDistractors = answerGenerator.GenerateDistractors(defaultDistractorCount, currentAnswer);
+            currentDistractors = hasAuthoritativeSeeds
+                ? GenerateDistractorsFromSyncedSeeds(authoritativeNpcSeeds, authoritativeMurdererSeed)
+                : answerGenerator.GenerateDistractors(defaultDistractorCount, currentAnswer);
             SaveDistractorsToFile(currentDistractors);
         }
         else
@@ -63,7 +73,7 @@ public class FaceCustomizationGameManager : MonoBehaviour
             currentDistractors.Clear();
         }
 
-        WriteSceneBInitialJsonIfNeeded();
+        WriteSceneBInitialJsonIfNeeded(authoritativeNpcSeeds, hasAuthoritativeSeeds ? authoritativeMurdererSeed : -1);
 
         UnityEngine.Random.State oldState = UnityEngine.Random.state;
         UnityEngine.Random.InitState(currentAnswer.seed);
@@ -146,7 +156,65 @@ public class FaceCustomizationGameManager : MonoBehaviour
         return seeds;
     }
 
-    private void WriteSceneBInitialJsonIfNeeded()
+    private bool TryGetAuthoritativeGameplaySeeds(out int[] npcSeeds, out int murdererSeed)
+    {
+        npcSeeds = null;
+        murdererSeed = -1;
+
+        if (!preferSyncedGameplaySeeds)
+        {
+            return false;
+        }
+
+        if (AsymmetricSyncManager.Instance != null &&
+            AsymmetricSyncManager.Instance.SyncedNpcSeeds != null &&
+            AsymmetricSyncManager.Instance.SyncedNpcSeeds.Length > 0 &&
+            AsymmetricSyncManager.Instance.SyncedMurdererSeed >= 0)
+        {
+            npcSeeds = AsymmetricSyncManager.Instance.SyncedNpcSeeds;
+            murdererSeed = AsymmetricSyncManager.Instance.SyncedMurdererSeed;
+            return true;
+        }
+
+        if (SeededNpcSpawnManager.PendingNpcSeeds != null &&
+            SeededNpcSpawnManager.PendingNpcSeeds.Length > 0 &&
+            SeededNpcSpawnManager.PendingMurdererSeed.HasValue)
+        {
+            npcSeeds = SeededNpcSpawnManager.PendingNpcSeeds;
+            murdererSeed = SeededNpcSpawnManager.PendingMurdererSeed.Value;
+            return true;
+        }
+
+        return false;
+    }
+
+    private List<FaceSaveData> GenerateDistractorsFromSyncedSeeds(int[] npcSeeds, int murdererSeed)
+    {
+        List<FaceSaveData> distractors = new List<FaceSaveData>();
+
+        if (npcSeeds == null)
+        {
+            return distractors;
+        }
+
+        for (int i = 0; i < npcSeeds.Length; i++)
+        {
+            int seed = npcSeeds[i];
+
+            if (seed == murdererSeed)
+            {
+                continue;
+            }
+
+            FaceSaveData distractor = answerGenerator.GenerateAnswerWithSeed(seed);
+            distractor.seed = seed;
+            distractors.Add(distractor);
+        }
+
+        return distractors;
+    }
+
+    private void WriteSceneBInitialJsonIfNeeded(int[] authoritativeNpcSeeds, int authoritativeMurdererSeed)
     {
         if (!writeSceneBJsonOnNewRound || currentAnswer == null)
         {
@@ -161,17 +229,20 @@ public class FaceCustomizationGameManager : MonoBehaviour
             return;
         }
 
-        List<int> seeds = GetAllSeeds();
+        List<int> seeds = authoritativeNpcSeeds != null && authoritativeNpcSeeds.Length > 0
+            ? new List<int>(authoritativeNpcSeeds)
+            : GetAllSeeds();
 
         if (!seeds.Contains(currentAnswer.seed))
         {
             seeds.Insert(0, currentAnswer.seed);
         }
 
-        int mapNumber = UnityEngine.Random.Range(1, Mathf.Max(1, sceneMapCount) + 1);
+        int murdererSeed = authoritativeMurdererSeed >= 0 ? authoritativeMurdererSeed : currentAnswer.seed;
+        int mapNumber = GetAuthoritativeMapNumber();
         saver.WriteInitialConfigFromFaceManager(
             seeds.ToArray(),
-            currentAnswer.seed,
+            murdererSeed,
             mapNumber,
             GetSceneBNpcSpawnManager()
         );
@@ -180,6 +251,18 @@ public class FaceCustomizationGameManager : MonoBehaviour
         {
             GameSessionManager.Instance.SetTerrainByNumber(mapNumber);
         }
+    }
+
+    private int GetAuthoritativeMapNumber()
+    {
+        if (preferSyncedGameplaySeeds &&
+            AsymmetricSyncManager.Instance != null &&
+            AsymmetricSyncManager.Instance.SyncedMapNumber >= 1)
+        {
+            return AsymmetricSyncManager.Instance.SyncedMapNumber;
+        }
+
+        return UnityEngine.Random.Range(1, Mathf.Max(1, sceneMapCount) + 1);
     }
 
     private SceneBStateJsonSaver GetSceneBStateJsonSaver()
