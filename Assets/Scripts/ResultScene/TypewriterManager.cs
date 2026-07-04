@@ -23,7 +23,7 @@ public class TypewriterManager : MonoBehaviour
     [SerializeField] private string stopLoopEvent = "Stop_SFX_Typing"; // 停止播放循环打字声
 
     [Header("默认播放序列（可选，可在面板里配好用于测试）")]
-    [SerializeField] private List<TypewriterEntry> defaultSequence;
+    [SerializeField] public List<TypewriterEntry> defaultSequence;
 
     private List<Coroutine> activeCoroutines = new List<Coroutine>();
     private int activeTypingCount = 0; // 当前正在打字的文本框数量计数器
