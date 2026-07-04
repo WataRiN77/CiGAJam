@@ -15,6 +15,7 @@ public class MagnifierRenderTextureController : MonoBehaviour
     [SerializeField] private Vector2Int runtimeTextureSize = new Vector2Int(1024, 1024);
     [SerializeField] private FilterMode runtimeTextureFilterMode = FilterMode.Bilinear;
     [SerializeField] private int runtimeTextureAntiAliasing = 1;
+    [SerializeField] private bool forceOpaqueRenderTextureAlpha = true;
 
     [Header("Lens Image Correction")]
     [SerializeField] private bool mirrorOutputX;
@@ -32,6 +33,8 @@ public class MagnifierRenderTextureController : MonoBehaviour
     [SerializeField] private float fallbackDistance = 10f;
     [SerializeField] private float surfaceOffset = 0.03f;
     [SerializeField] private float followSmoothTime = 0.04f;
+    [SerializeField] private bool placeWorldLensAtFixedCameraDistance = true;
+    [SerializeField] private float worldLensDistanceFromCamera = 3f;
     [SerializeField] private bool useFixedLensRotation = true;
     [SerializeField] private Vector3 fixedLensEulerAngles = new Vector3(45f, 0f, 0f);
     [SerializeField] private bool rotateLensToFaceCamera;
@@ -72,7 +75,7 @@ public class MagnifierRenderTextureController : MonoBehaviour
         Vector2 mousePosition = Input.mousePosition;
         Vector3 focusPoint = GetMouseFocusPoint(mousePosition, out Vector3 focusNormal, out float focusDistance);
 
-        UpdateWorldLens(focusPoint, focusNormal);
+        UpdateWorldLens(mousePosition, focusPoint, focusNormal);
         UpdateUiLens(mousePosition);
         UpdateMagnifierCamera(focusPoint, focusDistance);
     }
@@ -236,11 +239,15 @@ public class MagnifierRenderTextureController : MonoBehaviour
             }
         }
 
-        if (Physics.Raycast(ray, out RaycastHit hit, mainCamera.farClipPlane, raycastMask))
+        Vector3 hitPoint;
+        Vector3 hitNormal;
+        float hitDistance;
+
+        if (TryGetPhysicsFocusPoint(ray, out hitPoint, out hitNormal, out hitDistance))
         {
-            focusNormal = hit.normal;
-            focusDistance = GetCameraForwardDistance(hit.point);
-            return hit.point;
+            focusNormal = hitNormal;
+            focusDistance = hitDistance;
+            return hitPoint;
         }
 
         focusNormal = -mainCamera.transform.forward;
@@ -249,14 +256,30 @@ public class MagnifierRenderTextureController : MonoBehaviour
         return fallbackPoint;
     }
 
-    private void UpdateWorldLens(Vector3 focusPoint, Vector3 focusNormal)
+    private bool TryGetPhysicsFocusPoint(Ray ray, out Vector3 point, out Vector3 normal, out float focusDistance)
+    {
+        if (Physics.Raycast(ray, out RaycastHit hit, mainCamera.farClipPlane, raycastMask, QueryTriggerInteraction.Collide))
+        {
+            point = hit.point;
+            normal = hit.normal;
+            focusDistance = GetCameraForwardDistance(point);
+            return true;
+        }
+
+        point = Vector3.zero;
+        normal = Vector3.up;
+        focusDistance = 0f;
+        return false;
+    }
+
+    private void UpdateWorldLens(Vector2 mousePosition, Vector3 focusPoint, Vector3 focusNormal)
     {
         if (magnifierRoot == null)
         {
             return;
         }
 
-        Vector3 targetPosition = focusPoint + focusNormal * surfaceOffset;
+        Vector3 targetPosition = GetWorldLensTargetPosition(mousePosition, focusPoint, focusNormal);
 
         if (followSmoothTime <= 0f)
         {
@@ -285,6 +308,17 @@ public class MagnifierRenderTextureController : MonoBehaviour
                 magnifierRoot.rotation = Quaternion.LookRotation(-toCamera.normalized, mainCamera.transform.up);
             }
         }
+    }
+
+    private Vector3 GetWorldLensTargetPosition(Vector2 mousePosition, Vector3 focusPoint, Vector3 focusNormal)
+    {
+        if (!placeWorldLensAtFixedCameraDistance || mainCamera == null)
+        {
+            return focusPoint + focusNormal * surfaceOffset;
+        }
+
+        Ray ray = mainCamera.ScreenPointToRay(mousePosition);
+        return ray.GetPoint(worldLensDistanceFromCamera);
     }
 
     private void UpdateUiLens(Vector2 mousePosition)
@@ -357,6 +391,15 @@ public class MagnifierRenderTextureController : MonoBehaviour
         magnifierCamera.backgroundColor = mainCamera.backgroundColor;
         magnifierCamera.allowHDR = mainCamera.allowHDR;
         magnifierCamera.allowMSAA = mainCamera.allowMSAA;
+        magnifierCamera.transparencySortMode = mainCamera.transparencySortMode;
+        magnifierCamera.transparencySortAxis = mainCamera.transparencySortAxis;
+
+        if (forceOpaqueRenderTextureAlpha)
+        {
+            Color backgroundColor = magnifierCamera.backgroundColor;
+            backgroundColor.a = 1f;
+            magnifierCamera.backgroundColor = backgroundColor;
+        }
 
         if (useCustomMagnifierCullingMask)
         {
@@ -370,6 +413,11 @@ public class MagnifierRenderTextureController : MonoBehaviour
         if (copyClearFlags)
         {
             magnifierCamera.clearFlags = mainCamera.clearFlags;
+        }
+
+        if (forceOpaqueRenderTextureAlpha && magnifierCamera.clearFlags == CameraClearFlags.Depth)
+        {
+            magnifierCamera.clearFlags = CameraClearFlags.SolidColor;
         }
     }
 
@@ -388,6 +436,7 @@ public class MagnifierRenderTextureController : MonoBehaviour
         minOrthographicSize = Mathf.Max(0.01f, minOrthographicSize);
         fallbackDistance = Mathf.Max(0.1f, fallbackDistance);
         followSmoothTime = Mathf.Max(0f, followSmoothTime);
+        worldLensDistanceFromCamera = Mathf.Max(0.01f, worldLensDistanceFromCamera);
     }
 
     private Vector3 GetSafeOrthographicPlaneNormal()

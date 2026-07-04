@@ -35,6 +35,31 @@ MonoBehaviour:
   - {fileID: 2800000, guid: 3302065f671a8450b82c9ddf07426f3a, type: 3}
   - {fileID: 2800000, guid: 56a77a3e8d64f47b6afe9e3c95cb57d5, type: 3}
   m_Shader: {fileID: 4800000, guid: 0849e84e3d62649e8882e9d6f056a017, type: 3}
+--- !u!114 &-1787121013116816600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29277a6fd70446d45a2588efb67a91c3, type: 3}
+  m_Name: ObraLilaDitherFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  settings:
+    renderPassEvent: 500
+    shader: {fileID: 4800000, guid: a0f97795807d07348adfc1cff739d616, type: 3}
+    applyInSceneView: 0
+    darkColor: {r: 0.22030374, g: 0.23214631, b: 0.4433962, a: 1}
+    lightColor: {r: 0.92, g: 0.88, b: 0.72, a: 1}
+    brightness: 0.17
+    contrast: 1.28
+    ditherStrength: 0.703
+    patternScale: 2.7
+    posterizeSteps: 4
+    vignetteStrength: 0.392
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -53,7 +78,8 @@ MonoBehaviour:
     hdrDebugViewPS: {fileID: 4800000, guid: 573620ae32aec764abd4d728906d2587, type: 3}
   m_RendererFeatures:
   - {fileID: -1878332245247344467}
-  m_RendererFeatureMap: adc0de57c6d2eee5
+  - {fileID: -1787121013116816600}
+  m_RendererFeatureMap: adc0de57c6d2eee52833893ae8de32e7
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}
