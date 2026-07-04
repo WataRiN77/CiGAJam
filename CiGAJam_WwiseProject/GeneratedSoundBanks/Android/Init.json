@@ -10,7 +10,7 @@
     "Type": "User",
     "GUID": "{701ECBBD-9C7B-4030-8CDB-749EE5D1C7B9}",
     "Language": "SFX",
-    "Hash": "{5DFC22ED-D57D-6094-A86C-25170E977CD3}",
+    "Hash": "{B2D06A89-FCA5-8384-5656-143DAAF097F0}",
     "ObjectPath": "Init",
     "ShortName": "Init",
     "Path": "Init.bnk",
@@ -76,16 +76,28 @@
         "GUID": "{8A83D1D0-7ECB-4F93-9EC2-8EE6A6861723}"
        },
        {
-        "Id": "984691642",
-        "Name": "InGame",
-        "ObjectPath": "\\States\\Default Work Unit\\GameState\\InGame",
+        "Id": "854431620",
+        "Name": "Discovering",
+        "ObjectPath": "\\States\\Default Work Unit\\GameState\\Discovering",
+        "GUID": "{686051FD-601A-44B3-B931-6BAAEFFC65AE}"
+       },
+       {
+        "Id": "1343854384",
+        "Name": "Finish_Success",
+        "ObjectPath": "\\States\\Default Work Unit\\GameState\\Finish_Success",
+        "GUID": "{22F72B1D-E3C4-4F91-AB51-D5784F50A1F2}"
+       },
+       {
+        "Id": "2607556080",
+        "Name": "Menu",
+        "ObjectPath": "\\States\\Default Work Unit\\GameState\\Menu",
         "GUID": "{0D7EE3DA-FA85-40AC-B2D4-04200B0F3EDF}"
        },
        {
-        "Id": "2037204996",
-        "Name": "LevelEnd",
-        "ObjectPath": "\\States\\Default Work Unit\\GameState\\LevelEnd",
-        "GUID": "{686051FD-601A-44B3-B931-6BAAEFFC65AE}"
+        "Id": "3934623612",
+        "Name": "Finish_Failed",
+        "ObjectPath": "\\States\\Default Work Unit\\GameState\\Finish_Failed",
+        "GUID": "{9AA30E66-ECD8-444E-8E48-31C5046687DC}"
        }
       ]
      }
@@ -101,6 +113,6 @@
     ]
    }
   ],
-  "FileHash": "{5D8F8709-BDCA-98E8-FD4E-AD7252F01433}"
+  "FileHash": "{565CDCCD-1190-9CC8-5615-2AA89D02E9ED}"
  }
 }
