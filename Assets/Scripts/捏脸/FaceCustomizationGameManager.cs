@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class FaceCustomizationGameManager : MonoBehaviour
@@ -166,5 +167,38 @@ public class FaceCustomizationGameManager : MonoBehaviour
     private class DistractorList
     {
         public List<FaceSaveData> items;
+    }
+
+    /// <summary>
+    /// 游戏结束时调用：保存当前捏脸、与答案比对、将相似值存入文件并返回。
+    /// </summary>
+    public float EndGameAndSubmit()
+    {
+        // 1. 提交当前捏脸并获取分数（内部会保存玩家脸部数据）
+        float score = SubmitCurrentFace();
+
+        // 2. 将分数保存到独立文件，供B侧读取
+        SaveResultToFile(score);
+
+        return score;
+    }
+
+    private void SaveResultToFile(float score)
+    {
+        string dir = Path.Combine(Application.persistentDataPath, "GameResult");
+        if (!Directory.Exists(dir))
+            Directory.CreateDirectory(dir);
+
+        // 使用简单的JSON包装
+        var result = new GameResultData { similarity = score };
+        string json = JsonUtility.ToJson(result, true);
+        File.WriteAllText(Path.Combine(dir, "result.json"), json);
+        Debug.Log($"游戏结果已保存：相似度 {score}");
+    }
+
+    [Serializable]
+    private class GameResultData
+    {
+        public float similarity;
     }
 }
