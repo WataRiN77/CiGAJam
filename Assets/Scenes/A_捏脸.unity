@@ -15129,8 +15129,8 @@ MonoBehaviour:
   customizer: {fileID: 1570621692}
   answerGenerator: {fileID: 1627677852}
   statementGenerator: {fileID: 1462555862}
-  useDistractors: 0
-  defaultDistractorCount: 4
+  useDistractors: 1
+  defaultDistractorCount: 6
   totalStatementCount: 8
   statementInterval: 20
   initialStatements: 1
