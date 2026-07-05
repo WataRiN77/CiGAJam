@@ -140,6 +140,11 @@ public class MainMenuController : MonoBehaviourPunCallbacks
             mainButtonsGroup.gameObject.SetActive(false); // 彻底禁用物体
         }
 
+        if (inputFieldCode != null)
+        {
+            inputFieldCode.onSubmit.AddListener(OnSubmitRoomCode);
+        }
+
         InitializeTutorialOverlay();
     }
 
@@ -936,6 +941,22 @@ public class MainMenuController : MonoBehaviourPunCallbacks
             {
                 SceneManager.LoadScene("SceneB"); // 备份兜底逻辑
             }
+        }
+    }
+
+    // 新增：回车事件回调
+    private void OnSubmitRoomCode(string code)
+    {
+        // 直接调用加入房间的点击事件
+        OnClickJoinRoomB();
+    }
+
+    // 新增：在销毁时注销监听，防止潜在的内存泄露
+    private void OnDestroy()
+    {
+        if (inputFieldCode != null)
+        {
+            inputFieldCode.onSubmit.RemoveListener(OnSubmitRoomCode);
         }
     }
 }
