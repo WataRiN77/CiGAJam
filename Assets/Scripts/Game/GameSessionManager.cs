@@ -35,6 +35,7 @@ public class GameSessionManager : MonoBehaviour
     private bool hasEnded;
     private bool lastGameSucceeded;
     private bool isDuplicateInstance;
+    private bool isCountdownSubscribed;
 
     public int ShotsFired => shotsFired;
     public int SelectedTerrainNumber => selectedTerrainNumber;
@@ -47,6 +48,7 @@ public class GameSessionManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
+            Instance.AdoptSceneInstance(this);
             isDuplicateInstance = true;
             enabled = false;
             Destroy(gameObject);
@@ -73,20 +75,64 @@ public class GameSessionManager : MonoBehaviour
             return;
         }
 
-        if (countdownTimer != null)
-        {
-            countdownTimer.CountdownFinished += HandleCountdownFinished;
-        }
+        SubscribeCountdownTimer();
 
         StartSession();
     }
 
     private void OnDisable()
     {
-        if (countdownTimer != null)
+        UnsubscribeCountdownTimer();
+    }
+
+    private void AdoptSceneInstance(GameSessionManager sceneInstance)
+    {
+        if (sceneInstance == null)
         {
-            countdownTimer.CountdownFinished -= HandleCountdownFinished;
+            return;
         }
+
+        UnsubscribeCountdownTimer();
+
+        countdownTimer = sceneInstance.countdownTimer != null
+            ? sceneInstance.countdownTimer
+            : FindObjectOfType<CountdownTimerUI>();
+        maxShots = sceneInstance.maxShots;
+        murdererTag = sceneInstance.murdererTag;
+        startTimerOnEnable = sceneInstance.startTimerOnEnable;
+        terrains = sceneInstance.terrains;
+        randomizeTerrainOnSessionStart = sceneInstance.randomizeTerrainOnSessionStart;
+        logSelectedTerrain = sceneInstance.logSelectedTerrain;
+        loadSceneOnEnd = sceneInstance.loadSceneOnEnd;
+        endSceneName = sceneInstance.endSceneName;
+        onSuccess = sceneInstance.onSuccess;
+        onFailure = sceneInstance.onFailure;
+        onGameEnded = sceneInstance.onGameEnded;
+
+        SubscribeCountdownTimer();
+        StartSession();
+    }
+
+    private void SubscribeCountdownTimer()
+    {
+        if (countdownTimer == null || isCountdownSubscribed)
+        {
+            return;
+        }
+
+        countdownTimer.CountdownFinished += HandleCountdownFinished;
+        isCountdownSubscribed = true;
+    }
+
+    private void UnsubscribeCountdownTimer()
+    {
+        if (countdownTimer == null || !isCountdownSubscribed)
+        {
+            return;
+        }
+
+        countdownTimer.CountdownFinished -= HandleCountdownFinished;
+        isCountdownSubscribed = false;
     }
 
     public void StartSession()

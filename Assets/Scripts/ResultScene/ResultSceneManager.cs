@@ -94,7 +94,7 @@ public class ResultSceneManager : MonoBehaviour
         string similarityText = $"相似度：{similarityPercent}%";
 
         // C. 嫌疑人代号
-        string suspectText = $"嫌疑人：{GameSessionData.SuspectCodename}";
+        string suspectText = $"嫌疑人：{GetDisplaySuspectCodename()}";
 
         // D. 格式化抓捕时间
         string timeText = $"抓捕时间 {FormatTime(GameSessionData.CaptureDurationValue)}";
@@ -356,6 +356,18 @@ public class ResultSceneManager : MonoBehaviour
         int min = Mathf.FloorToInt(seconds / 60f);
         int sec = Mathf.FloorToInt(seconds % 60f);
         return string.Format("{0:00} : {1:00}", min, sec);
+    }
+
+    private string GetDisplaySuspectCodename()
+    {
+        if (GameSessionData.MurdererSeed >= 0)
+        {
+            return GameSessionData.MurdererSeed.ToString();
+        }
+
+        return string.IsNullOrEmpty(GameSessionData.SuspectCodename)
+            ? "Unknown"
+            : GameSessionData.SuspectCodename.Replace("Seed ", "").Replace("seed ", "");
     }
 
     public void OnClickContinueNextRound()
