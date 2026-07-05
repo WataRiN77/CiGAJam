@@ -1,11 +1,11 @@
 Event	ID	Name			Wwise Object Path	Notes
 	4357050	Play_SFX_Bullet			\Default Work Unit\SFX\Play_SFX_Bullet	
 	181241455	Start_BGM_Controller			\Default Work Unit\Start_BGM_Controller	
+	205162172	Play_SFX_Hover			\Default Work Unit\SFX\Play_SFX_Hover	
+	325086926	Play_SFX_Select			\Default Work Unit\SFX\Play_SFX_Select	
 	329552409	Stop_SFX_Typing			\Default Work Unit\SFX\Stop_SFX_Typing	
-	861084261	Play_SFX_Achieved			\Default Work Unit\SFX\Play_SFX_Achieved	
 	1376640657	Play_SFX_Hit			\Default Work Unit\SFX\Play_SFX_Hit	
 	1542905893	MainGame_FootStep			\Default Work Unit\SFX\MainGame_FootStep	
-	1576397959	Play_SFX_Bad			\Default Work Unit\SFX\Play_SFX_Bad	
 	1602989894	Play_SFX_Click			\Default Work Unit\SFX\Play_SFX_Click	
 	2394659421	Play_Transiton_TV_In			\Default Work Unit\SFX\Play_Transiton_TV_In	
 	2592472717	Play_Transition_TV_Out			\Default Work Unit\SFX\Play_Transition_TV_Out	
@@ -24,20 +24,21 @@ State	ID	Name	State Group			Notes
 	3934623612	Finish_Failed	GameState			
 
 In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
-	20112970	SFX_Achieved	.cache\AF\{AFC2FDF0-D9EC-4DE8-74A8-34EB4C9CF2F1}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Achieved		210196
 	42611666	main	.cache\6C\{6C0B14F8-CB6C-C706-FCB0-73CC10DE69F6}.wem		\Containers\Default Work Unit\LongTerm\BGM_Controller\BGM_MainMenu\BGM_MainMenu_Start\main		31700668
 	59785890	BGM_Finish_Failed	.cache\F7\{F7B039CE-67D9-AEEE-4466-64DD400984C5}.wem		\Containers\Default Work Unit\LongTerm\BGM_Controller\BGM_Finish_Failed\BGM_Finish_Failed_Start\BGM_Finish_Failed		13087364
 	101064397	SFX_Hit	.cache\36\{362123FF-4EE5-B482-6C8D-127E385E5C9C}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Hit		59060
+	158131215	SFX_Select	.cache\1E\{1E9CABD6-9890-9EF2-6808-C7EBE9902ED4}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Select		29824
 	381129093	SFX_Bullet	.cache\85\{85BE181F-25AF-D4C6-C582-B94615DB67AD}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Bullet		78426
 	445339486	SFX_Click	.cache\E5\{E5DE8963-877A-F3AE-8714-56233B734E64}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Click		11080
 	513118028	SFX_Footstep_04	.cache\D5\{D5795B9C-C6E6-6BD7-BC9F-9919CC5CEADD}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Footstep\SFX_Footstep_04		54824
 	586666542	SFX_Typing	.cache\CF\{CF72213E-3A88-44CE-D23F-31FBB64AFF24}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Typing		2581060
 	661229522	main	.cache\3D\{3DA3CE75-4AFE-37B4-6133-ABBA7C0C8F90}.wem		\Containers\Default Work Unit\LongTerm\BGM_Controller\BGM_Discovering\BGM_Discovering_Main\main		22461176
 	673553211	SFX_Footstep_03	.cache\C9\{C99286CF-B066-BECC-BD29-7171FD49895E}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Footstep\SFX_Footstep_03		52428
+	705047509	SFX_Hover	.cache\18\{184CF3CC-9855-6823-85AF-73398793C097}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Hover		13448
 	729456618	Transition_TV_Out	.cache\16\{165672D5-A0CF-F4C8-143E-658F4EDE90DC}.wem		\Containers\Default Work Unit\MainGame_SFX\Transition_TV_Out		294496
-	733063890	SFX_Bad	.cache\96\{96B50628-D87D-504E-1C06-79F2526BCE24}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Bad		294484
 	742241220	SFX_Stamp	.cache\A6\{A697DBD7-2D2E-D60D-6084-CE410CD752CA}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Stamp		46744
 	744552997	Transition_TV_In	.cache\F0\{F0559C60-FC8A-F2CC-2C72-3D20C022E16F}.wem		\Containers\Default Work Unit\MainGame_SFX\Transition_TV_In		281696
+	769406133	INFLATION_Calm	.cache\F7\{F7FE7E6D-FA73-5BEA-3F84-BDD27BF7312E}.wem		\Containers\Default Work Unit\LongTerm\BGM_Controller\BGM_Finish_Success\BGM_Finish_Success_Start\INFLATION_Calm		16799248
 	829574094	SFX_Footstep_05	.cache\39\{393E34F2-EC11-F879-4213-8F9D3423972A}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Footstep\SFX_Footstep_05		53228
 	839625073	SFX_Footstep_02	.cache\9E\{9E7F05B5-1A49-3886-43B1-1FEF555F5D2E}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Footstep\SFX_Footstep_02		54596
 	868565967	SFX_ElectricShock	.cache\57\{571A3BCC-FE66-EDD4-C2EA-69F07ACB1433}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_ElectricShock		275308

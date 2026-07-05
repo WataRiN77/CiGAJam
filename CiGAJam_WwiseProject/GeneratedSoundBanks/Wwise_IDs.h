@@ -14,12 +14,12 @@ namespace AK
     namespace EVENTS
     {
         static const AkUniqueID MAINGAME_FOOTSTEP = 1542905893U;
-        static const AkUniqueID PLAY_SFX_ACHIEVED = 861084261U;
-        static const AkUniqueID PLAY_SFX_BAD = 1576397959U;
         static const AkUniqueID PLAY_SFX_BULLET = 4357050U;
         static const AkUniqueID PLAY_SFX_CLICK = 1602989894U;
         static const AkUniqueID PLAY_SFX_ELECTRICSHOCK = 2654846947U;
         static const AkUniqueID PLAY_SFX_HIT = 1376640657U;
+        static const AkUniqueID PLAY_SFX_HOVER = 205162172U;
+        static const AkUniqueID PLAY_SFX_SELECT = 325086926U;
         static const AkUniqueID PLAY_SFX_STAMP = 3877492451U;
         static const AkUniqueID PLAY_SFX_TYPING = 4190357639U;
         static const AkUniqueID PLAY_TRANSITION_TV_OUT = 2592472717U;
