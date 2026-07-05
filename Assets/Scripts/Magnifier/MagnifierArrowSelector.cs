@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using AK.Wwise;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -50,6 +51,12 @@ public class MagnifierArrowSelector : MonoBehaviour
     [SerializeField] private float shootSlowMotionScale = 0.2f;
     [SerializeField] private float shootCameraShakeStrength = 0.35f;
     [SerializeField] private float shootCameraShakeFrequency = 35f;
+
+    [Header("Wwise Audio")]
+    [SerializeField] private AK.Wwise.Event clickEvent;
+    [SerializeField] private AK.Wwise.Event bulletEvent;
+    [SerializeField] private string clickEventName = "Play_SFX_Click";
+    [SerializeField] private string bulletEventName = "Play_SFX_Bullet";
 
     [Header("Kill UI")]
     [SerializeField] private KillUiBlinkController killUiBlinkController;
@@ -182,6 +189,7 @@ public class MagnifierArrowSelector : MonoBehaviour
             return;
         }
 
+        PlayClickSound();
         Transform arrow = FindArrow(focusedPerson);
 
         if (arrow != null && IsArrowOwnerAlive(arrow))
@@ -194,6 +202,7 @@ public class MagnifierArrowSelector : MonoBehaviour
 
     public void ExitFocusButton()
     {
+        PlayClickSound();
         BeginReturnFromFocus();
     }
 
@@ -204,6 +213,7 @@ public class MagnifierArrowSelector : MonoBehaviour
             return;
         }
 
+        PlayClickSound();
         StartCoroutine(ShootFocusedPersonRoutine());
     }
 
@@ -219,6 +229,7 @@ public class MagnifierArrowSelector : MonoBehaviour
         if (target != null && wander != null && wander.IsAlive)
         {
             GetFocusedShootPoint(target, out Vector3 hitPoint, out Vector3 hitNormal);
+            PlayBulletSound();
             CloseArrow(arrow);
             SceneBStateJsonSaver.Instance?.SetNpcMarked(target, false);
             ActivateShotPointChildren(target);
@@ -279,6 +290,7 @@ public class MagnifierArrowSelector : MonoBehaviour
         }
 
         ToggleArrow(arrow);
+        PlayClickSound();
     }
 
     private void TryKillThroughMagnifier()
@@ -295,6 +307,7 @@ public class MagnifierArrowSelector : MonoBehaviour
             return;
         }
 
+        PlayBulletSound();
         CloseArrow(arrow);
         SceneBStateJsonSaver.Instance?.SetNpcMarked(wander.transform, false);
         ActivateShotPointChildren(wander.transform);
@@ -319,6 +332,7 @@ public class MagnifierArrowSelector : MonoBehaviour
             return;
         }
 
+        PlayClickSound();
         BeginFocus(wander.transform);
     }
 
@@ -667,6 +681,34 @@ public class MagnifierArrowSelector : MonoBehaviour
         if (gameSessionManager != null)
         {
             gameSessionManager.RegisterShot(target);
+        }
+    }
+
+    private void PlayClickSound()
+    {
+        PostWwiseEvent(clickEvent, clickEventName);
+    }
+
+    private void PlayBulletSound()
+    {
+        PostWwiseEvent(bulletEvent, bulletEventName);
+    }
+
+    private void PostWwiseEvent(AK.Wwise.Event eventReference, string eventName)
+    {
+        if (eventReference != null)
+        {
+            uint playingId = eventReference.Post(gameObject);
+
+            if (playingId != 0)
+            {
+                return;
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(eventName))
+        {
+            AkUnitySoundEngine.PostEvent(eventName, gameObject);
         }
     }
 
