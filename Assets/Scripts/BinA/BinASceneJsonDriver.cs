@@ -30,6 +30,8 @@ public class BinASceneJsonDriver : MonoBehaviour
 
     [Header("State Apply")]
     [SerializeField] private bool snapNpcsToJsonInitialPositions = true;
+    [SerializeField] private Vector3 sceneBToBinAPositionOffset = new Vector3(-100f, 0f, 0f);
+    [SerializeField] private bool skipPositionOffsetWhenAlreadyShifted = true;
     [SerializeField] private string arrowChildName = "arrows";
     [SerializeField] private string fallbackArrowChildName = "Arrow";
     [SerializeField] private string shotPointChildName = "shotpoint";
@@ -485,14 +487,102 @@ public class BinASceneJsonDriver : MonoBehaviour
             return;
         }
 
+        bool applyPositionOffset = ShouldApplySceneBToBinAOffset(state);
+
         for (int i = 0; i < state.npcs.Length; i++)
         {
             NpcRuntimeState npcState = state.npcs[i];
 
             if (identitiesBySeed.TryGetValue(npcState.seed, out SeededNpcIdentity identity) && identity != null)
             {
-                identity.transform.position = ToVector3(npcState.initialPosition);
+                Vector3 position = ToVector3(npcState.initialPosition);
+
+                if (applyPositionOffset)
+                {
+                    position += sceneBToBinAPositionOffset;
+                }
+
+                identity.transform.position = position;
             }
+        }
+    }
+
+    private bool ShouldApplySceneBToBinAOffset(SceneBStateSaveData state)
+    {
+        if (sceneBToBinAPositionOffset == Vector3.zero)
+        {
+            return false;
+        }
+
+        if (!skipPositionOffsetWhenAlreadyShifted)
+        {
+            return true;
+        }
+
+        if (state == null || state.npcs == null || state.npcs.Length == 0)
+        {
+            return true;
+        }
+
+        int axis = GetDominantOffsetAxis(sceneBToBinAPositionOffset);
+        float offsetAxisValue = GetAxis(sceneBToBinAPositionOffset, axis);
+
+        if (Mathf.Approximately(offsetAxisValue, 0f))
+        {
+            return true;
+        }
+
+        float total = 0f;
+        int count = 0;
+
+        for (int i = 0; i < state.npcs.Length; i++)
+        {
+            total += GetAxis(ToVector3(state.npcs[i].initialPosition), axis);
+            count++;
+        }
+
+        if (count == 0)
+        {
+            return true;
+        }
+
+        float averageSourcePosition = total / count;
+        float halfwayToOffset = offsetAxisValue * 0.5f;
+
+        return offsetAxisValue < 0f
+            ? averageSourcePosition > halfwayToOffset
+            : averageSourcePosition < halfwayToOffset;
+    }
+
+    private static int GetDominantOffsetAxis(Vector3 offset)
+    {
+        float absX = Mathf.Abs(offset.x);
+        float absY = Mathf.Abs(offset.y);
+        float absZ = Mathf.Abs(offset.z);
+
+        if (absY > absX && absY >= absZ)
+        {
+            return 1;
+        }
+
+        if (absZ > absX && absZ > absY)
+        {
+            return 2;
+        }
+
+        return 0;
+    }
+
+    private static float GetAxis(Vector3 value, int axis)
+    {
+        switch (axis)
+        {
+            case 1:
+                return value.y;
+            case 2:
+                return value.z;
+            default:
+                return value.x;
         }
     }
 
