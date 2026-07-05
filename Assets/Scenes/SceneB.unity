@@ -5314,13 +5314,15 @@ MonoBehaviour:
   clickEvent:
     idInternal: 0
     valueGuidInternal: 
-    WwiseObjectReference: {fileID: 0}
+    WwiseObjectReference: {fileID: 11400000, guid: f671b9cead79ab5488d185c7ee2fbcd5,
+      type: 2}
   bulletEvent:
     idInternal: 0
     valueGuidInternal: 
-    WwiseObjectReference: {fileID: 0}
+    WwiseObjectReference: {fileID: 11400000, guid: f1e63948be98f464db61dcd03791d8f1,
+      type: 2}
   clickEventName: Play_SFX_Click
-  bulletEventName: Play_SFX_Bullet
+  bulletEventName: Play_SFX_Sniper
   killUiBlinkController: {fileID: 0}
   gameSessionManager: {fileID: 0}
   bloodFxChildName: blood
