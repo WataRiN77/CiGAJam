@@ -16,6 +16,7 @@
 						<ObjectRef Name="Play_SFX_Select" ID="{42D55B28-9A68-4CA0-AACA-818111F676A8}" WorkUnitID="{6E120714-C67E-4C19-88C6-E70EA05D7305}" Origin="Manual" Filter="7"/>
 						<ObjectRef Name="Play_SFX_ElectricShock" ID="{709A1CCC-7929-4D58-AEB1-6A65040EA01C}" WorkUnitID="{6E120714-C67E-4C19-88C6-E70EA05D7305}" Origin="Manual" Filter="7"/>
 						<ObjectRef Name="Start_BGM_Controller" ID="{12ED22A2-3936-4D9D-B44F-3CA5B81AE4B6}" WorkUnitID="{6E120714-C67E-4C19-88C6-E70EA05D7305}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="Play_SFX_Sniper" ID="{7948E76D-D6F2-4EBD-8614-F9DC195FAA3B}" WorkUnitID="{6E120714-C67E-4C19-88C6-E70EA05D7305}" Origin="Manual" Filter="7"/>
 						<ObjectRef Name="Play_Transition_TV_Out" ID="{1F78ACDF-14D9-4EC3-9F9A-96538FADE8A5}" WorkUnitID="{6E120714-C67E-4C19-88C6-E70EA05D7305}" Origin="Manual" Filter="7"/>
 						<ObjectRef Name="Play_SFX_Stamp" ID="{3F230102-28E9-4F63-BCF3-674454EBA573}" WorkUnitID="{6E120714-C67E-4C19-88C6-E70EA05D7305}" Origin="Manual" Filter="7"/>
 					</ObjectInclusionList>

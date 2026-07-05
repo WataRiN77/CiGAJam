@@ -11,6 +11,7 @@ Event	ID	Name			Wwise Object Path	Notes
 	2592472717	Play_Transition_TV_Out			\Default Work Unit\SFX\Play_Transition_TV_Out	
 	2654846947	Play_SFX_ElectricShock			\Default Work Unit\SFX\Play_SFX_ElectricShock	
 	3877492451	Play_SFX_Stamp			\Default Work Unit\SFX\Play_SFX_Stamp	
+	3895478467	Play_SFX_Sniper			\Default Work Unit\SFX\Play_SFX_Sniper	
 	4190357639	Play_SFX_Typing			\Default Work Unit\SFX\Play_SFX_Typing	
 
 State Group	ID	Name			Wwise Object Path	Notes
@@ -28,6 +29,7 @@ In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
 	59785890	BGM_Finish_Failed	.cache\F7\{F7B039CE-67D9-AEEE-4466-64DD400984C5}.wem		\Containers\Default Work Unit\LongTerm\BGM_Controller\BGM_Finish_Failed\BGM_Finish_Failed_Start\BGM_Finish_Failed		13087364
 	101064397	SFX_Hit	.cache\36\{362123FF-4EE5-B482-6C8D-127E385E5C9C}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Hit		59060
 	158131215	SFX_Select	.cache\1E\{1E9CABD6-9890-9EF2-6808-C7EBE9902ED4}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Select		29824
+	280812140	SFX_Sniper	.cache\A5\{A59FCB64-1543-CE32-CD5F-B5802558183D}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Sniper		230424
 	381129093	SFX_Bullet	.cache\85\{85BE181F-25AF-D4C6-C582-B94615DB67AD}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Bullet		78426
 	445339486	SFX_Click	.cache\E5\{E5DE8963-877A-F3AE-8714-56233B734E64}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Click		11080
 	513118028	SFX_Footstep_04	.cache\D5\{D5795B9C-C6E6-6BD7-BC9F-9919CC5CEADD}.wem		\Containers\Default Work Unit\MainGame_SFX\SFX_Footstep\SFX_Footstep_04		54824

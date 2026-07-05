@@ -142,6 +142,17 @@
 								</Action>
 							</ChildrenList>
 						</Event>
+						<Event Name="Play_SFX_Sniper" ID="{7948E76D-D6F2-4EBD-8614-F9DC195FAA3B}">
+							<ChildrenList>
+								<Action Name="" ID="{F520E381-B6A9-4905-A516-EE68774652A5}" ShortID="78757156">
+									<ReferenceList>
+										<Reference Name="Target">
+											<ObjectRef Name="SFX_Sniper" ID="{C5375E8C-C4E7-4153-BB4C-BB30D9B6958D}" WorkUnitID="{FB10B8D3-2F7A-4513-AF1F-C667E1EF0765}"/>
+										</Reference>
+									</ReferenceList>
+								</Action>
+							</ChildrenList>
+						</Event>
 					</ChildrenList>
 				</Folder>
 				<Event Name="Start_BGM_Controller" ID="{12ED22A2-3936-4D9D-B44F-3CA5B81AE4B6}">

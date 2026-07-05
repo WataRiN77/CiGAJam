@@ -1933,6 +1933,40 @@
 								<ActiveSource Name="SFX_Hover" ID="{754C9CB4-8B60-4916-B008-FA87609B05E7}" Platform="Linked"/>
 							</ActiveSourceList>
 						</Sound>
+						<Sound Name="SFX_Sniper" ID="{C5375E8C-C4E7-4153-BB4C-BB30D9B6958D}" ShortID="667573244">
+							<PropertyList>
+								<Property Name="Lowpass" Type="int16">
+									<ValueList>
+										<Value>10</Value>
+									</ValueList>
+								</Property>
+								<Property Name="Pitch" Type="int32">
+									<ValueList>
+										<Value>200</Value>
+									</ValueList>
+								</Property>
+							</PropertyList>
+							<ReferenceList>
+								<Reference Name="Conversion">
+									<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{4D8CBA00-03DC-4F30-8501-F9303C74B5E4}"/>
+								</Reference>
+								<Reference Name="OutputBus">
+									<ObjectRef Name="SFX Bus" ID="{9A5B5C0E-06D2-45BC-B408-301F9B1EF9D0}" WorkUnitID="{82894404-023D-40B9-B5CD-0EB97F65AF14}"/>
+								</Reference>
+							</ReferenceList>
+							<ChildrenList>
+								<AudioFileSource Name="SFX_Sniper" ID="{F81A8A48-EC67-4FBA-BFF2-43E1B382CE23}">
+									<Language>SFX</Language>
+									<AudioFile>SFX_Sniper.wav</AudioFile>
+									<MediaIDList>
+										<MediaID ID="280812140"/>
+									</MediaIDList>
+								</AudioFileSource>
+							</ChildrenList>
+							<ActiveSourceList>
+								<ActiveSource Name="SFX_Sniper" ID="{F81A8A48-EC67-4FBA-BFF2-43E1B382CE23}" Platform="Linked"/>
+							</ActiveSourceList>
+						</Sound>
 					</ChildrenList>
 				</Folder>
 			</ChildrenList>

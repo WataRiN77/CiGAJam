@@ -10,7 +10,7 @@
     "Type": "User",
     "GUID": "{45564D5C-69C2-4A44-B71D-472313392E83}",
     "Language": "SFX",
-    "Hash": "{4A975CB3-6927-A0D5-FB69-86A233C81746}",
+    "Hash": "{09081441-1B3F-1CA0-8157-92F3E66D57AA}",
     "ObjectPath": "\\SoundBanks\\Default Work Unit\\Soundbank_MainGame",
     "ShortName": "Soundbank_MainGame",
     "Path": "Soundbank_MainGame.bnk",
@@ -46,6 +46,14 @@
       "Location": "Memory",
       "ShortName": "SFX_Select.wav",
       "CachePath": "1E/{1E9CABD6-9890-9EF2-6808-C7EBE9902ED4}.wem"
+     },
+     {
+      "Id": "280812140",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "SFX_Sniper.wav",
+      "CachePath": "A5/{A59FCB64-1543-CE32-CD5F-B5802558183D}.wem"
      },
      {
       "Id": "381129093",
@@ -280,6 +288,20 @@
       ]
      },
      {
+      "Id": "3895478467",
+      "Name": "Play_SFX_Sniper",
+      "ObjectPath": "\\Events\\Default Work Unit\\SFX\\Play_SFX_Sniper",
+      "GUID": "{7948E76D-D6F2-4EBD-8614-F9DC195FAA3B}",
+      "DurationType": "OneShot",
+      "DurationMin": "2.3265183",
+      "DurationMax": "2.3265183",
+      "MediaRefs": [
+       {
+        "Id": "280812140"
+       }
+      ]
+     },
+     {
       "Id": "3877492451",
       "Name": "Play_SFX_Stamp",
       "ObjectPath": "\\Events\\Default Work Unit\\SFX\\Play_SFX_Stamp",
@@ -460,6 +482,6 @@
     ]
    }
   ],
-  "FileHash": "{2802CF8E-BBBB-8F14-B8D6-2171564028F3}"
+  "FileHash": "{660472DC-7AFA-0A00-2B82-93A033B621F2}"
  }
 }
