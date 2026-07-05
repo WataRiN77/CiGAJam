@@ -60,6 +60,7 @@ public class FaceCustomizationGameManager : MonoBehaviour
             : answerGenerator.GenerateAnswer();
 
         SaveAnswerToFile(currentAnswer);
+        SyncCurrentAnswerForSettlement();
 
         if (useDistractors && currentAnswer != null)
         {
@@ -156,6 +157,23 @@ public class FaceCustomizationGameManager : MonoBehaviour
         return seeds;
     }
 
+    private void SyncCurrentAnswerForSettlement()
+    {
+        if (currentAnswer == null)
+        {
+            return;
+        }
+
+        string answerJson = JsonUtility.ToJson(currentAnswer);
+        GameSessionData.MurdererSeed = currentAnswer.seed;
+        GameSessionData.SuspectCodename = $"Seed {currentAnswer.seed}";
+        GameSessionData.SuspectFaceJson = answerJson;
+
+        if (AsymmetricSyncManager.Instance != null)
+        {
+            AsymmetricSyncManager.Instance.BroadcastRoundAnswerData(currentAnswer.seed, answerJson);
+        }
+    }
     private bool TryGetAuthoritativeGameplaySeeds(out int[] npcSeeds, out int murdererSeed)
     {
         npcSeeds = null;

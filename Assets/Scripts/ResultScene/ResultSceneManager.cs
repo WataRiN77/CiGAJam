@@ -253,7 +253,7 @@ public class ResultSceneManager : MonoBehaviour
             {
                 int murdererSeed = Random.Range(100000, 999999);
                 int mapNumber = Random.Range(1, 5);
-                int npcCount = 15;
+                int npcCount = 5;
 
                 int[] npcSeeds = new int[npcCount];
                 for (int i = 0; i < npcCount; i++)
