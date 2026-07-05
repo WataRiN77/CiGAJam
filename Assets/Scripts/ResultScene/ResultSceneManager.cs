@@ -9,6 +9,11 @@ public class ResultSceneManager : MonoBehaviour
     [Header("打字机管理器引用")]
     [SerializeField] private TypewriterManager typewriterManager; // 场景中的 TypewriterManager
 
+    [Header("结算人脸")]
+    [SerializeField] private CharacterCustomizer2D suspectFaceCustomizer;
+    [SerializeField] private CharacterCustomizer2D artistFaceCustomizer;
+    [SerializeField] private bool autoFindFaceCustomizers = true;
+
     [Header("底部交互按钮")]
     [SerializeField] private GameObject btnContinue;             // “继续游戏”按钮（抓捕成功时显示）
     [SerializeField] private GameObject btnReturnToMenu;         // “返回主菜单”按钮（抓捕失败时显示）
@@ -70,13 +75,17 @@ public class ResultSceneManager : MonoBehaviour
     /// </summary>
     private void ConfigureSettlementData()
     {
+        string suspectFaceJson = GameSessionData.SuspectFaceJson;
+        string artistFaceJson = GameSessionData.ArtistFaceJson;
+        ApplySettlementFaces(suspectFaceJson, artistFaceJson);
+
         if (typewriterManager == null) return;
 
         // A. 抓捕结果
         string successText = GameSessionData.IsCaptureSuccess ? "抓捕成功" : "抓捕失败";
 
         // B. 相似度计算
-        int similarityPercent = CalculateFaceSimilarity(GameSessionData.SuspectFaceJson, GameSessionData.ArtistFaceJson);
+        int similarityPercent = CalculateFaceSimilarity(suspectFaceJson, artistFaceJson);
         string similarityText = $"相似度：{similarityPercent}%";
 
         // C. 嫌疑人代号
@@ -93,6 +102,111 @@ public class ResultSceneManager : MonoBehaviour
             typewriterManager.defaultSequence[2].content = suspectText;
             typewriterManager.defaultSequence[3].content = timeText;
         }
+    }
+
+    private void ApplySettlementFaces(string suspectFaceJson, string artistFaceJson)
+    {
+        ResolveFaceCustomizers();
+
+        if (suspectFaceCustomizer != null && !string.IsNullOrEmpty(suspectFaceJson))
+        {
+            suspectFaceCustomizer.LoadFromJson(suspectFaceJson);
+        }
+        else
+        {
+            Debug.LogWarning("ResultSceneManager: suspect face json or face customizer is missing.", this);
+        }
+
+        if (artistFaceCustomizer != null && !string.IsNullOrEmpty(artistFaceJson))
+        {
+            artistFaceCustomizer.LoadFromJson(artistFaceJson);
+        }
+        else
+        {
+            Debug.LogWarning("ResultSceneManager: artist face json or face customizer is missing.", this);
+        }
+    }
+
+    private void ResolveFaceCustomizers()
+    {
+        if (!autoFindFaceCustomizers || (suspectFaceCustomizer != null && artistFaceCustomizer != null))
+        {
+            return;
+        }
+
+        CharacterCustomizer2D[] customizers = FindObjectsOfType<CharacterCustomizer2D>(true);
+        if (customizers == null || customizers.Length == 0)
+        {
+            return;
+        }
+
+        if (suspectFaceCustomizer == null)
+        {
+            suspectFaceCustomizer = FindFaceCustomizerByName(customizers, "suspect", "murderer", "target", "real", "correct", "嫌疑", "犯", "正确");
+        }
+
+        if (artistFaceCustomizer == null)
+        {
+            artistFaceCustomizer = FindFaceCustomizerByName(customizers, "artist", "player", "draw", "sketch", "portrait", "画像", "玩家");
+        }
+
+        if (suspectFaceCustomizer == null && customizers.Length > 0)
+        {
+            suspectFaceCustomizer = customizers[0];
+        }
+
+        if (artistFaceCustomizer == null)
+        {
+            for (int i = 0; i < customizers.Length; i++)
+            {
+                if (customizers[i] != null && customizers[i] != suspectFaceCustomizer)
+                {
+                    artistFaceCustomizer = customizers[i];
+                    break;
+                }
+            }
+        }
+    }
+
+    private CharacterCustomizer2D FindFaceCustomizerByName(CharacterCustomizer2D[] customizers, params string[] tokens)
+    {
+        for (int i = 0; i < customizers.Length; i++)
+        {
+            CharacterCustomizer2D customizer = customizers[i];
+            if (customizer == null)
+            {
+                continue;
+            }
+
+            string path = GetHierarchyPath(customizer.transform).ToLowerInvariant();
+            for (int j = 0; j < tokens.Length; j++)
+            {
+                if (!string.IsNullOrEmpty(tokens[j]) && path.Contains(tokens[j].ToLowerInvariant()))
+                {
+                    return customizer;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private string GetHierarchyPath(Transform target)
+    {
+        if (target == null)
+        {
+            return string.Empty;
+        }
+
+        string path = target.name;
+        Transform current = target.parent;
+        while (current != null)
+        {
+            path = current.name + "/" + path;
+            current = current.parent;
+        }
+
+        return path;
     }
 
     private IEnumerator StartSettlementPresentation()
@@ -189,15 +303,15 @@ public class ResultSceneManager : MonoBehaviour
     {
         if (string.IsNullOrEmpty(suspectJson) || string.IsNullOrEmpty(artistJson))
         {
-            return Random.Range(30, 45);
+            return 0;
         }
 
         FaceSaveData suspect = JsonUtility.FromJson<FaceSaveData>(suspectJson);
         FaceSaveData artist = JsonUtility.FromJson<FaceSaveData>(artistJson);
 
-        if (suspect == null || artist == null || suspect.organs.Count == 0)
+        if (suspect == null || artist == null || suspect.organs == null || artist.organs == null || suspect.organs.Count == 0)
         {
-            return Random.Range(30, 45);
+            return 0;
         }
 
         float totalScore = 0f;
