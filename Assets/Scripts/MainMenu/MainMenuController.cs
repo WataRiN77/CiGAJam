@@ -914,14 +914,28 @@ public class MainMenuController : MonoBehaviourPunCallbacks
 
         yield return new WaitForSeconds(0.1f); // 稍等 0.1s 确保数据包发送出去了
 
-        // 卸载大厅，分别跳转不同的场景
+        // 使用通用黑屏过渡管理器平滑切换场景
         if (PhotonNetwork.IsMasterClient)
         {
-            SceneManager.LoadScene("A_捏脸"); // A 玩家加载捏脸
+            if (ScreenTransitionManager.Instance != null)
+            {
+                ScreenTransitionManager.Instance.TransitionToScene("A_捏脸");
+            }
+            else
+            {
+                SceneManager.LoadScene("A_捏脸"); // 备份兜底逻辑，防止管理器不存在
+            }
         }
         else
         {
-            SceneManager.LoadScene("SceneB");  // B 玩家加载找人场景
+            if (ScreenTransitionManager.Instance != null)
+            {
+                ScreenTransitionManager.Instance.TransitionToScene("SceneB");
+            }
+            else
+            {
+                SceneManager.LoadScene("SceneB"); // 备份兜底逻辑
+            }
         }
     }
 }
