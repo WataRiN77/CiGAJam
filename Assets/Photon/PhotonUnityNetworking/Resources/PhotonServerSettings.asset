@@ -46,6 +46,8 @@ MonoBehaviour:
   - RPC_SyncFullFace
   - RPC_RequestSceneBState
   - RPC_SyncSceneBState
+  - RPC_SyncFinalSettlement
+  - RPC_SyncRoundAnswerData
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0
