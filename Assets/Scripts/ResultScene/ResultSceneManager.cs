@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using TMPro;
 using Photon.Pun;
 
@@ -32,12 +33,16 @@ public class ResultSceneManager : MonoBehaviour
 
     private void Start()
     {
+        BindActionButtons();
+
         // 1. 初始隐藏底部按钮和印章
-        btnContinue.SetActive(false);
-        btnReturnToMenu.SetActive(false);
+        ConfigureResultButtonsActiveState();
+        SetButtonsInteractable(false);
         if (buttonsCanvasGroup != null)
         {
             buttonsCanvasGroup.alpha = 0f;
+            buttonsCanvasGroup.interactable = false;
+            buttonsCanvasGroup.blocksRaycasts = false;
         }
 
         if (stampImage != null)
@@ -227,15 +232,7 @@ public class ResultSceneManager : MonoBehaviour
         // 4. 等待打字机完全播放完毕后，柔和显现对应按钮
         yield return new WaitForSeconds(1.5f);
 
-        // 根据抓捕成败，激活对应按钮
-        if (GameSessionData.IsCaptureSuccess)
-        {
-            btnContinue.SetActive(true);
-        }
-        else
-        {
-            btnReturnToMenu.SetActive(true);
-        }
+        ConfigureResultButtonsActiveState();
 
         // 渐显按钮
         float elapsed = 0f;
@@ -248,6 +245,8 @@ public class ResultSceneManager : MonoBehaviour
             }
             yield return null;
         }
+
+        SetButtonsInteractable(true);
     }
 
     // 盖章动画协程
@@ -361,50 +360,157 @@ public class ResultSceneManager : MonoBehaviour
 
     public void OnClickContinueNextRound()
     {
-        if (ScreenTransitionManager.Instance != null)
+        if (!GameSessionData.IsCaptureSuccess)
         {
-            if (PhotonNetwork.IsMasterClient)
-            {
-                int murdererSeed = Random.Range(100000, 999999);
-                int mapNumber = Random.Range(1, 5);
-                int npcCount = 5;
-
-                int[] npcSeeds = new int[npcCount];
-                for (int i = 0; i < npcCount; i++)
-                {
-                    npcSeeds[i] = Random.Range(100000, 999999);
-                }
-                npcSeeds[0] = murdererSeed;
-
-                if (AsymmetricSyncManager.Instance != null)
-                {
-                    AsymmetricSyncManager.Instance.BroadcastSeeds(npcSeeds, murdererSeed, mapNumber);
-                }
-            }
-
-            if (AsymmetricSyncManager.Instance != null)
-            {
-                if (AsymmetricSyncManager.Instance.isPlayerA_Artist)
-                {
-                    ScreenTransitionManager.Instance.TransitionToScene("A_捏脸");
-                }
-                else
-                {
-                    ScreenTransitionManager.Instance.TransitionToScene("SceneB");
-                }
-            }
-            else
-            {
-                ScreenTransitionManager.Instance.TransitionToScene("A_捏脸");
-            }
+            return;
         }
+
+        SetButtonsInteractable(false);
+
+        if (AsymmetricSyncManager.Instance != null)
+        {
+            AsymmetricSyncManager.Instance.RequestContinueToNextRoundFromResult();
+            return;
+        }
+
+        StartSinglePlayerNextRound();
     }
 
     public void OnClickReturnToMenu()
     {
+        SetButtonsInteractable(false);
+
+        if (AsymmetricSyncManager.Instance != null)
+        {
+            AsymmetricSyncManager.Instance.RequestReturnToMenuFromResult();
+            return;
+        }
+
+        GameSessionData.ResetRoundProgress();
+        SeededNpcSpawnManager.ClearPendingSeeds();
+
         if (ScreenTransitionManager.Instance != null)
         {
             ScreenTransitionManager.Instance.TransitionToScene("Menu");
         }
+        else
+        {
+            SceneManager.LoadScene("Menu");
+        }
+    }
+
+    private void BindActionButtons()
+    {
+        BindButton(btnContinue, OnClickContinueNextRound);
+        BindButton(btnReturnToMenu, OnClickReturnToMenu);
+    }
+
+    private void BindButton(GameObject buttonObject, UnityEngine.Events.UnityAction action)
+    {
+        if (buttonObject == null)
+        {
+            return;
+        }
+
+        Button button = buttonObject.GetComponent<Button>();
+        if (button == null)
+        {
+            return;
+        }
+
+        button.onClick.RemoveListener(action);
+        button.onClick.AddListener(action);
+    }
+
+    private void ConfigureResultButtonsActiveState()
+    {
+        if (btnContinue != null)
+        {
+            btnContinue.SetActive(GameSessionData.IsCaptureSuccess);
+        }
+
+        if (btnReturnToMenu != null)
+        {
+            btnReturnToMenu.SetActive(!GameSessionData.IsCaptureSuccess);
+        }
+    }
+
+    private void SetButtonsInteractable(bool interactable)
+    {
+        SetButtonInteractable(btnContinue, interactable);
+        SetButtonInteractable(btnReturnToMenu, interactable);
+
+        if (buttonsCanvasGroup != null)
+        {
+            buttonsCanvasGroup.interactable = interactable;
+            buttonsCanvasGroup.blocksRaycasts = interactable;
+        }
+    }
+
+    private void SetButtonInteractable(GameObject buttonObject, bool interactable)
+    {
+        if (buttonObject == null)
+        {
+            return;
+        }
+
+        Button button = buttonObject.GetComponent<Button>();
+        if (button != null)
+        {
+            button.interactable = interactable;
+        }
+    }
+
+    private void StartSinglePlayerNextRound()
+    {
+        int npcCount = GameSessionData.AdvanceNpcCountForSuccessfulContinue();
+        int murdererSeed = Random.Range(100000, 999999);
+        int[] npcSeeds = GenerateNpcSeeds(npcCount, murdererSeed);
+
+        SeededNpcSpawnManager.SetPendingSeeds(npcSeeds, murdererSeed);
+        GameSessionData.SetCurrentNpcCount(npcCount);
+
+        if (ScreenTransitionManager.Instance != null)
+        {
+            ScreenTransitionManager.Instance.TransitionToScene("A_捏脸");
+        }
+        else
+        {
+            SceneManager.LoadScene("A_捏脸");
+        }
+    }
+
+    private static int[] GenerateNpcSeeds(int npcCount, int murdererSeed)
+    {
+        int count = Mathf.Max(1, npcCount);
+        int[] npcSeeds = new int[count];
+        npcSeeds[0] = murdererSeed;
+
+        for (int i = 1; i < count; i++)
+        {
+            int seed;
+            do
+            {
+                seed = Random.Range(100000, 999999);
+            }
+            while (ContainsSeed(npcSeeds, i, seed) || seed == murdererSeed);
+
+            npcSeeds[i] = seed;
+        }
+
+        return npcSeeds;
+    }
+
+    private static bool ContainsSeed(int[] seeds, int length, int seed)
+    {
+        for (int i = 0; i < length; i++)
+        {
+            if (seeds[i] == seed)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

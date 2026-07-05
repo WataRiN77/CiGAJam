@@ -20,6 +20,7 @@ public class AsymmetricSyncManager : MonoBehaviourPunCallbacks
     public string LatestArtistFaceJson { get; private set; } = "";
 
     private bool isLoadingResultScene;
+    private bool isStartingNextRoundFromResult;
 
     private void Awake()
     {
@@ -116,8 +117,14 @@ public class AsymmetricSyncManager : MonoBehaviourPunCallbacks
         SyncedNpcSeeds = npcSeeds;
         SyncedMurdererSeed = murdererSeed;
         SyncedMapNumber = mapNumber;
+        SyncedMurdererFaceJson = "";
+        LatestArtistFaceJson = "";
+        GameSessionData.SetCurrentNpcCount(npcSeeds != null ? npcSeeds.Length : GameSessionData.BaseNpcCount);
         GameSessionData.MurdererSeed = murdererSeed;
         GameSessionData.SuspectCodename = murdererSeed >= 0 ? $"Seed {murdererSeed}" : "Unknown";
+        GameSessionData.SuspectFaceJson = "";
+        GameSessionData.ArtistFaceJson = "";
+        GameSessionData.SceneBStateJson = "";
 
         SeededNpcSpawnManager.SetPendingSeeds(npcSeeds, murdererSeed);
 
@@ -127,6 +134,143 @@ public class AsymmetricSyncManager : MonoBehaviourPunCallbacks
         }
 
         Debug.Log($"[Sync] Received gameplay seeds. npcCount={npcSeeds?.Length ?? 0}, murdererSeed={murdererSeed}, map={mapNumber}");
+    }
+
+    public void RequestContinueToNextRoundFromResult()
+    {
+        if (PhotonNetwork.InRoom)
+        {
+            if (PhotonNetwork.IsMasterClient)
+            {
+                StartNextRoundAsMaster();
+            }
+            else
+            {
+                photonView.RPC(nameof(RPC_RequestContinueToNextRound), RpcTarget.MasterClient);
+            }
+
+            return;
+        }
+
+        int npcCount = GameSessionData.AdvanceNpcCountForSuccessfulContinue();
+        int murdererSeed = Random.Range(100000, 999999);
+        int mapNumber = Random.Range(1, 5);
+        int[] npcSeeds = GenerateNpcSeeds(npcCount, murdererSeed);
+        RPC_StartNextRoundFromResult(npcSeeds, murdererSeed, mapNumber);
+    }
+
+    [PunRPC]
+    private void RPC_RequestContinueToNextRound()
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            StartNextRoundAsMaster();
+        }
+    }
+
+    private void StartNextRoundAsMaster()
+    {
+        if (isStartingNextRoundFromResult)
+        {
+            return;
+        }
+
+        isStartingNextRoundFromResult = true;
+        int npcCount = GameSessionData.AdvanceNpcCountForSuccessfulContinue();
+        int murdererSeed = Random.Range(100000, 999999);
+        int mapNumber = Random.Range(1, 5);
+        int[] npcSeeds = GenerateNpcSeeds(npcCount, murdererSeed);
+
+        photonView.RPC(nameof(RPC_StartNextRoundFromResult), RpcTarget.All, npcSeeds, murdererSeed, mapNumber);
+    }
+
+    [PunRPC]
+    private void RPC_StartNextRoundFromResult(int[] npcSeeds, int murdererSeed, int mapNumber)
+    {
+        RPC_SyncGameplaySeeds(npcSeeds, murdererSeed, mapNumber);
+        LoadCurrentRoleGameplayScene();
+    }
+
+    public void RequestReturnToMenuFromResult()
+    {
+        if (PhotonNetwork.InRoom)
+        {
+            photonView.RPC(nameof(RPC_ReturnToMenuFromResult), RpcTarget.All);
+            return;
+        }
+
+        RPC_ReturnToMenuFromResult();
+    }
+
+    [PunRPC]
+    private void RPC_ReturnToMenuFromResult()
+    {
+        ResetRoundRuntimeState();
+        LoadSceneWithTransition("Menu");
+    }
+
+    private void LoadCurrentRoleGameplayScene()
+    {
+        LoadSceneWithTransition(isPlayerA_Artist ? "A_捏脸" : "SceneB");
+    }
+
+    private void LoadSceneWithTransition(string sceneName)
+    {
+        if (ScreenTransitionManager.Instance != null)
+        {
+            ScreenTransitionManager.Instance.TransitionToScene(sceneName);
+        }
+        else
+        {
+            SceneManager.LoadScene(sceneName);
+        }
+    }
+
+    private void ResetRoundRuntimeState()
+    {
+        isLoadingResultScene = false;
+        isStartingNextRoundFromResult = false;
+        SyncedNpcSeeds = null;
+        SyncedMurdererSeed = -1;
+        SyncedMapNumber = -1;
+        SyncedMurdererFaceJson = "";
+        LatestArtistFaceJson = "";
+        SeededNpcSpawnManager.ClearPendingSeeds();
+        GameSessionData.ResetRoundProgress();
+    }
+
+    private static int[] GenerateNpcSeeds(int npcCount, int murdererSeed)
+    {
+        int count = Mathf.Max(1, npcCount);
+        int[] npcSeeds = new int[count];
+        npcSeeds[0] = murdererSeed;
+
+        for (int i = 1; i < count; i++)
+        {
+            int seed;
+            do
+            {
+                seed = Random.Range(100000, 999999);
+            }
+            while (ContainsSeed(npcSeeds, i, seed) || seed == murdererSeed);
+
+            npcSeeds[i] = seed;
+        }
+
+        return npcSeeds;
+    }
+
+    private static bool ContainsSeed(int[] seeds, int length, int seed)
+    {
+        for (int i = 0; i < length; i++)
+        {
+            if (seeds[i] == seed)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void BroadcastRoundAnswerData(int murdererSeed, string murdererFaceJson)
@@ -274,6 +418,7 @@ public class AsymmetricSyncManager : MonoBehaviourPunCallbacks
             elapsedSeconds,
             sceneBStateJson);
 
+        isStartingNextRoundFromResult = false;
         LoadResultSceneOnce();
     }
 
