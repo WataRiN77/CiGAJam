@@ -179,9 +179,15 @@ public class BinASceneJsonDriver : MonoBehaviour
         currentState = loadedState;
         ApplyTerrain(currentState.mapNumber);
 
-        if (forceSpawn || identitiesBySeed.Count == 0)
+        RebuildIdentityLookup();
+
+        if (forceSpawn || ShouldRespawnNpcs(currentState))
         {
             SpawnNpcsFromFaceGameManager(currentState);
+        }
+        else if (snapNpcsToJsonInitialPositions)
+        {
+            SnapSpawnedNpcsToJsonPositions(currentState);
         }
 
         RebuildIdentityLookup();
@@ -298,6 +304,37 @@ public class BinASceneJsonDriver : MonoBehaviour
         {
             SnapSpawnedNpcsToJsonPositions(state);
         }
+    }
+
+    private bool ShouldRespawnNpcs(SceneBStateSaveData state)
+    {
+        if (identitiesBySeed.Count == 0)
+        {
+            return true;
+        }
+
+        int murdererSeed = GetMurdererSeed(state);
+        int[] npcSeeds = GetNpcSeeds(state, murdererSeed);
+
+        if (npcSeeds == null || npcSeeds.Length == 0)
+        {
+            return false;
+        }
+
+        if (identitiesBySeed.Count != npcSeeds.Length)
+        {
+            return true;
+        }
+
+        for (int i = 0; i < npcSeeds.Length; i++)
+        {
+            if (!identitiesBySeed.ContainsKey(npcSeeds[i]))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private int[] GetNpcSeeds(SceneBStateSaveData state, int murdererSeed)
@@ -974,10 +1011,15 @@ public class BinASceneJsonDriver : MonoBehaviour
             currentState = loadedState;
             ApplyTerrain(currentState.mapNumber);
 
-            // 如果本地尚未实例化 NPC，进行首次生成
-            if (identitiesBySeed.Count == 0)
+            RebuildIdentityLookup();
+
+            if (ShouldRespawnNpcs(currentState))
             {
                 SpawnNpcsFromFaceGameManager(currentState);
+            }
+            else if (snapNpcsToJsonInitialPositions)
+            {
+                SnapSpawnedNpcsToJsonPositions(currentState);
             }
 
             RebuildIdentityLookup();
