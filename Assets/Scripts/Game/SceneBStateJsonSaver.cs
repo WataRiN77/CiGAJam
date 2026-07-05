@@ -193,6 +193,14 @@ public class SceneBStateJsonSaver : MonoBehaviour
         WriteState(saveData);
     }
 
+    public string GetCurrentJsonSnapshot()
+    {
+        RefreshNpcListFromScene();
+        SceneBStateSaveData saveData = BuildSaveData();
+        cachedState = saveData;
+        return JsonUtility.ToJson(saveData, false);
+    }
+
     private void WriteState(SceneBStateSaveData saveData)
     {
         string compactJson = JsonUtility.ToJson(saveData, false);

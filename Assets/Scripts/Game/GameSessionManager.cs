@@ -172,7 +172,12 @@ public class GameSessionManager : MonoBehaviour
             selectedTerrainNumber = selectedTerrainNumber
         };
 
-        SceneBStateJsonSaver.Instance?.SaveNow();
+        string sceneBStateJson = "";
+        if (SceneBStateJsonSaver.Instance != null)
+        {
+            SceneBStateJsonSaver.Instance.SaveNow();
+            sceneBStateJson = SceneBStateJsonSaver.Instance.GetCurrentJsonSnapshot();
+        }
 
         if (success)
         {
@@ -184,6 +189,14 @@ public class GameSessionManager : MonoBehaviour
         }
 
         onGameEnded?.Invoke();
+
+        if (Photon.Pun.PhotonNetwork.InRoom &&
+            AsymmetricSyncManager.Instance != null &&
+            !AsymmetricSyncManager.Instance.isPlayerA_Artist)
+        {
+            AsymmetricSyncManager.Instance.SubmitFinalSettlementFromSceneB(success, ElapsedSeconds, sceneBStateJson);
+            return;
+        }
 
         if (loadSceneOnEnd && !string.IsNullOrWhiteSpace(endSceneName))
         {

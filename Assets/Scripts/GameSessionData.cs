@@ -1,20 +1,29 @@
 using UnityEngine;
 
-/// <summary>
-/// 静态数据中转站：用于跨场景存储上一局对战的最终成绩
-/// </summary>
 public static class GameSessionData
 {
-    // 1. 抓捕是否成功
     public static bool IsCaptureSuccess = true;
+    public static string SuspectCodename = "Code X";
+    public static int MurdererSeed = -1;
+    public static float CaptureDurationValue = 130f;
+    public static string SuspectFaceJson = "";
+    public static string ArtistFaceJson = "";
+    public static string SceneBStateJson = "";
 
-    // 2. 嫌疑人的代号
-    public static string SuspectCodename = "代号X";
-
-    // 3. 抓捕消耗的总时间（秒）
-    public static float CaptureDurationValue = 130f; // 例如 130 秒对应 02:10
-
-    // 4. 【核心人脸数据】：用于计算相似度
-    public static string SuspectFaceJson = ""; // 嫌犯真实的脸部数据 (由 AnswerGenerator 产生)
-    public static string ArtistFaceJson = "";  // 玩家A拼出来的脸部数据 (由 CharacterCustomizer2D 产生)
+    public static void SetSettlementData(
+        bool isCaptureSuccess,
+        int murdererSeed,
+        string suspectFaceJson,
+        string artistFaceJson,
+        float captureDurationValue,
+        string sceneBStateJson)
+    {
+        IsCaptureSuccess = isCaptureSuccess;
+        MurdererSeed = murdererSeed;
+        SuspectCodename = murdererSeed >= 0 ? $"Seed {murdererSeed}" : "Unknown";
+        SuspectFaceJson = suspectFaceJson ?? "";
+        ArtistFaceJson = artistFaceJson ?? "";
+        CaptureDurationValue = captureDurationValue;
+        SceneBStateJson = sceneBStateJson ?? "";
+    }
 }
