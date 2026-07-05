@@ -52,9 +52,9 @@ public class MainMenuController : MonoBehaviourPunCallbacks
     [Header("弹窗与状态 UI")]
     [SerializeField] private GameObject panelWaitingHost;    // A端：等待外勤加入的面板
     [SerializeField] private TMP_Text txtWaitingRoomCode;    // A端：展示房间号的文本
+    [SerializeField] private TMP_Text txtHostStatus;         // A端：实时等待状态文本（如：“正在等待探员...”）
     [SerializeField] private GameObject panelLoadingClient;  // B端：加入中的加载面板
-    [SerializeField] private GameObject panelMatchSuccess;   // 双端：匹配成功面板
-    [SerializeField] private TMP_Text txtCountdown;          // 双端：倒计时 3 秒文本
+    [SerializeField] private TMP_Text txtClientStatus;       // B端：实时加载状态文本（如：“正与画像师取得联络中...”）
 
     [Header("按钮滑动配置")]
     [SerializeField] private float slideDuration = 0.5f;     // 滑动时间
@@ -112,7 +112,6 @@ public class MainMenuController : MonoBehaviourPunCallbacks
         settingsCanvas.SetActive(false);
         panelWaitingHost.SetActive(false);
         panelLoadingClient.SetActive(false);
-        panelMatchSuccess.SetActive(false);
 
         // 初始化：隐藏 4 个主按钮并禁用交互
         if (mainButtonsGroup != null)
@@ -768,16 +767,14 @@ public class MainMenuController : MonoBehaviourPunCallbacks
     // ==========================================
 
     // 点击左侧 A 按钮：创建房间并作为外勤画像师
-    // 点击左侧 A 按钮：创建房间并作为外勤画像师
     public void OnClickCreateRoomA()
     {
-        // 🌟 核心安全拦截：如果网络还没准备好，显示提示并直接返回，防止崩溃
         if (!PhotonNetwork.IsConnectedAndReady)
         {
             panelWaitingHost.SetActive(true);
-            if (txtWaitingRoomCode != null)
+            if (txtHostStatus != null)
             {
-                txtWaitingRoomCode.text = "网络连接中，请稍候...";
+                txtHostStatus.text = "网络连接中，请稍候...";
             }
             Debug.LogWarning("[Photon] 还在连接服务器中，请稍等 1-2 秒再试。");
             return;
@@ -785,11 +782,15 @@ public class MainMenuController : MonoBehaviourPunCallbacks
 
         panelWaitingHost.SetActive(true);
 
-        // 1. 房主本地直接生成 6 位随机数作为房间码
+        // 初始化 A端 的等待状态文本
+        if (txtHostStatus != null)
+        {
+            txtHostStatus.text = "正在等待探员...";
+        }
+
         string roomCode = Random.Range(100000, 999999).ToString();
         localRoomCodeCache = roomCode;
 
-        // 2. 本地秒显
         if (txtWaitingRoomCode != null)
         {
             txtWaitingRoomCode.text = localRoomCodeCache;
@@ -803,7 +804,6 @@ public class MainMenuController : MonoBehaviourPunCallbacks
     // 点击右侧 B 按钮：加入房间
     public void OnClickJoinRoomB()
     {
-        // 🌟 核心安全拦截：如果网络还没准备好，直接拦截
         if (!PhotonNetwork.IsConnectedAndReady)
         {
             Debug.LogWarning("[Photon] 还在连接服务器中，无法加入。");
@@ -814,6 +814,13 @@ public class MainMenuController : MonoBehaviourPunCallbacks
         if (string.IsNullOrEmpty(roomCode)) return;
 
         panelLoadingClient.SetActive(true);
+
+        // 初始化 B端 的联络中状态文本
+        if (txtClientStatus != null)
+        {
+            txtClientStatus.text = "正与画像师取得联络中...";
+        }
+
         PhotonNetwork.JoinRoom(roomCode);
     }
 
@@ -856,34 +863,35 @@ public class MainMenuController : MonoBehaviourPunCallbacks
     [PunRPC]
     private void RPC_StartMatchCountdown()
     {
-        // 关闭等待和加载弹窗，开启成功倒计时面板
-        panelWaitingHost.SetActive(false);
-        panelLoadingClient.SetActive(false);
-        panelMatchSuccess.SetActive(true);
+        // 保持各自现有的面板激活，仅在原有面板内部替换文本
+        if (PhotonNetwork.IsMasterClient)
+        {
+            panelWaitingHost.SetActive(true);
+            if (txtHostStatus != null)
+            {
+                txtHostStatus.text = "探员已就位，即将开始任务";
+            }
+        }
+        else
+        {
+            panelLoadingClient.SetActive(true);
+            if (txtClientStatus != null)
+            {
+                txtClientStatus.text = "已与画像师连通，即将开始任务";
+            }
+        }
 
-        // 等以后创建了 AsymmetricSyncManager 同步脚本并导入后，再把注释解开，彻底解决红字编译报错！
-        
         if (AsymmetricSyncManager.Instance != null)
         {
             AsymmetricSyncManager.Instance.isPlayerA_Artist = PhotonNetwork.IsMasterClient;
         }
-        
 
         StartCoroutine(CountdownCoroutine());
     }
 
     private IEnumerator CountdownCoroutine()
     {
-        int timer = 3;
-        while (timer > 0)
-        {
-            txtCountdown.text = timer.ToString();
-            yield return new WaitForSeconds(1f);
-            timer--;
-        }
-
-        txtCountdown.text = "GO!";
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(1.5f);
 
         // 🌟 跳转前，由房主 A 生成一整套种子，并通过 AsymmetricSyncManager 广播给 B 的 SeededNpcSpawnManager
         if (PhotonNetwork.IsMasterClient)
@@ -906,14 +914,28 @@ public class MainMenuController : MonoBehaviourPunCallbacks
 
         yield return new WaitForSeconds(0.1f); // 稍等 0.1s 确保数据包发送出去了
 
-        // 卸载大厅，分别跳转不同的场景
+        // 使用通用黑屏过渡管理器平滑切换场景
         if (PhotonNetwork.IsMasterClient)
         {
-            SceneManager.LoadScene("A_捏脸"); // A 玩家加载捏脸
+            if (ScreenTransitionManager.Instance != null)
+            {
+                ScreenTransitionManager.Instance.TransitionToScene("A_捏脸");
+            }
+            else
+            {
+                SceneManager.LoadScene("A_捏脸"); // 备份兜底逻辑，防止管理器不存在
+            }
         }
         else
         {
-            SceneManager.LoadScene("SceneB");  // B 玩家加载找人场景
+            if (ScreenTransitionManager.Instance != null)
+            {
+                ScreenTransitionManager.Instance.TransitionToScene("SceneB");
+            }
+            else
+            {
+                SceneManager.LoadScene("SceneB"); // 备份兜底逻辑
+            }
         }
     }
 }
