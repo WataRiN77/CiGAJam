@@ -5311,6 +5311,16 @@ MonoBehaviour:
   shootSlowMotionScale: 0.2
   shootCameraShakeStrength: 0.35
   shootCameraShakeFrequency: 35
+  clickEvent:
+    idInternal: 0
+    valueGuidInternal: 
+    WwiseObjectReference: {fileID: 0}
+  bulletEvent:
+    idInternal: 0
+    valueGuidInternal: 
+    WwiseObjectReference: {fileID: 0}
+  clickEventName: Play_SFX_Click
+  bulletEventName: Play_SFX_Bullet
   killUiBlinkController: {fileID: 0}
   gameSessionManager: {fileID: 0}
   bloodFxChildName: blood
@@ -10825,6 +10835,8 @@ MonoBehaviour:
   useManualMurdererSeed: 1
   spawnMissingMurdererSeed: 1
   preferPendingKeys: 1
+  waitForNetworkSeedsOnStart: 1
+  networkSeedWaitTimeout: 5
   clearPendingSeedsAfterSpawn: 0
   useSceneBJsonSeedsOnStart: 0
   waitForSceneBJsonSeeds: 1
@@ -14575,6 +14587,7 @@ GameObject:
   - component: {fileID: 1582078553}
   - component: {fileID: 1582078552}
   - component: {fileID: 1582078555}
+  - component: {fileID: 1582078556}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -14701,6 +14714,21 @@ MonoBehaviour:
     mipBias: 0
     varianceClampScale: 0.9
     contrastAdaptiveSharpening: 0
+--- !u!114 &1582078556
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1582078551}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92b7a52131f71e642a682bab09a4e81d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetAspectWidth: 16
+  targetAspectHeight: 9
+  syncCameras: []
 --- !u!1001 &1584730850
 PrefabInstance:
   m_ObjectHideFlags: 0
